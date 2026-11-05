@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { HEART_REGEN_MS, MAX_LIVES, useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 import { BoltIcon, FlameIcon, HeartIcon, SettingsIcon } from "./Icons";
@@ -34,19 +35,19 @@ function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: num
   );
 }
 
-export function Header({ onOpenSettings, onHome }: { onOpenSettings: () => void; onHome?: () => void }) {
+export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
   const { progress, streakShown, ready } = useProgress();
   const regenMin = Math.max(1, Math.ceil((progress.livesAt + HEART_REGEN_MS - Date.now()) / 60000));
 
   return (
     <header className="sticky top-0 z-30 border-b-2 border-slate-100 bg-white">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-        <button onClick={onHome} aria-label="Kembali ke halaman utama" className="flex items-center gap-2.5 rounded-xl">
+        <Link href="/" aria-label="Kembali ke halaman utama" className="flex items-center gap-2.5 rounded-xl">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-600 font-mono text-sm font-black text-white shadow-[0_3px_0_#3730a3]">
             {"</>"}
           </div>
           <span className="hidden text-xl font-black tracking-tight text-indigo-600 sm:block">KodeQuest</span>
-        </button>
+        </Link>
 
         <div className={`flex items-center gap-4 transition-opacity ${ready ? "opacity-100" : "opacity-0"}`}>
           <Stat icon={<FlameIcon size={22} />} value={streakShown} label="Streak hari" color="text-orange-500" />

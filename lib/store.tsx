@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { ALL_LESSONS } from "./data";
+import { clearSession } from "./session";
 import { setSoundEnabled } from "./sound";
 
 export const MAX_LIVES = 5;
@@ -175,6 +176,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const parsed = JSON.parse(text);
       const p = sanitize(parsed?.app === "kodequest" ? parsed.data : parsed);
       if (!p) return { ok: false, message: "Format file tidak dikenali." };
+      clearSession();
       setProgress(regen(p));
       return { ok: true, message: "Progres berhasil dipulihkan." };
     } catch {
@@ -182,7 +184,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const reset = useCallback(() => setProgress(initial()), []);
+  const reset = useCallback(() => {
+    clearSession();
+    setProgress(initial());
+  }, []);
 
   const streakShown = useMemo(() => {
     if (!progress.lastActive) return 0;

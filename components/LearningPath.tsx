@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { UNITS } from "@/lib/data";
 import { HEART_REGEN_MS, MAX_LIVES, REFILL_COST, useProgress } from "@/lib/store";
+import { loadSession } from "@/lib/session";
 import { sfx } from "@/lib/sound";
 import { CheckIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
 
@@ -158,7 +159,7 @@ export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
                 autoFocus
                 className="btn-3d mt-5 w-full rounded-2xl bg-indigo-600 px-6 py-3.5 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#3730a3]"
               >
-                {progress.completed[sheetLesson.l.id] ? "Latihan lagi" : "Mulai"}
+                {loadSession()?.lessonId === sheetLesson.l.id ? "Lanjutkan" : progress.completed[sheetLesson.l.id] ? "Latihan lagi" : "Mulai"}
               </button>
             )}
           </div>
