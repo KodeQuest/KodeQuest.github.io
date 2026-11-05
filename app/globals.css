@@ -5,6 +5,10 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body {
   background: #ffffff;

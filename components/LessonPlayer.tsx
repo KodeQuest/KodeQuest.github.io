@@ -141,7 +141,7 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
         <HeartCount lives={progress.lives} />
       </div>
 
-      <main className="mx-auto w-full max-w-xl flex-1 px-5 pb-56 pt-4">
+      <main className="mx-auto w-full max-w-xl flex-1 px-5 pb-56 md:max-w-2xl pt-4">
         <div key={`${idx}-${attempt}`} className="anim-fade-in">
           <p className="mb-1 text-xs font-extrabold uppercase tracking-wide text-indigo-400">
             {q.type === "mc" ? "Pilihan ganda" : q.type === "order" ? "Susun kode" : "Isi bagian rumpang"}
