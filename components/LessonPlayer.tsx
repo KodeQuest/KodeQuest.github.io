@@ -1,0 +1,190 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import type { Lesson, Question } from "@/lib/data";
+import { useProgress } from "@/lib/store";
+import { sfx } from "@/lib/sound";
+import { Hearts } from "./Header";
+import { CodeOrder, FillBlank, MultipleChoice } from "./questions";
+import { LessonComplete } from "./LessonComplete";
+
+type Answer = number | string[] | string;
+
+function evaluate(q: Question, a: Answer): boolean {
+  switch (q.type) {
+    case "mc":
+      return a === q.answer;
+    case "order":
+      return Array.isArray(a) && a.length === q.pieces.length && a.every((t, i) => t === q.pieces[i]);
+    case "fill":
+      return typeof a === "string" && q.answers.some((x) => x.toLowerCase() === a.trim().toLowerCase());
+  }
+}
+
+function correctText(q: Question): string {
+  switch (q.type) {
+    case "mc":
+      return q.options[q.answer];
+    case "order":
+      return q.pieces.join(" ");
+    case "fill":
+      return q.answers[0];
+  }
+}
+
+export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () => void }) {
+  const { progress, loseLife, completeLesson } = useProgress();
+
+  const [queue, setQueue] = useState<Question[]>(lesson.questions);
+  const [idx, setIdx] = useState(0);
+  const [answer, setAnswer] = useState<Answer | null>(null);
+  const [phase, setPhase] = useState<"answer" | "feedback">("answer");
+  const [wasCorrect, setWasCorrect] = useState(false);
+  const [stats, setStats] = useState({ correct: 0, total: 0 });
+  const [attempt, setAttempt] = useState(0);
+  const [failed, setFailed] = useState(false);
+  const [summary, setSummary] = useState<{ xp: number; accuracy: number } | null>(null);
+
+  const q = queue[idx];
+  const mastered = Math.min(stats.correct, lesson.questions.length);
+  const pct = Math.round((mastered / lesson.questions.length) * 100);
+
+  const check = useCallback(() => {
+    if (phase !== "answer" || answer === null || !q) return;
+    const ok = evaluate(q, answer);
+    setWasCorrect(ok);
+    setPhase("feedback");
+    setStats((s) => ({ correct: s.correct + (ok ? 1 : 0), total: s.total + 1 }));
+    if (ok) {
+      sfx.correct();
+    } else {
+      sfx.wrong();
+      loseLife();
+      setQueue((cur) => [...cur, q]); // soal salah diulang di akhir
+    }
+  }, [phase, answer, q, loseLife]);
+
+  const next = useCallback(() => {
+    if (phase !== "feedback") return;
+    if (!wasCorrect && progress.lives <= 0) {
+      setFailed(true);
+      return;
+    }
+    if (idx + 1 >= queue.length) {
+      const accuracy = Math.round((stats.correct / Math.max(1, stats.total)) * 100);
+      const xp = stats.correct * 10 + (accuracy === 100 ? 10 : 0);
+      completeLesson(lesson.id, xp, accuracy);
+      sfx.complete();
+      setSummary({ xp, accuracy });
+      return;
+    }
+    setIdx(idx + 1);
+    setAnswer(null);
+    setPhase("answer");
+    setAttempt((a) => a + 1);
+  }, [phase, wasCorrect, progress.lives, idx, queue.length, stats, completeLesson, lesson.id]);
+
+  // Enter untuk memeriksa / lanjut
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      if ((e.target as HTMLElement | null)?.tagName === "BUTTON") return;
+      e.preventDefault();
+      if (phase === "answer") check();
+      else next();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, check, next]);
+
+  const exit = () => {
+    if (window.confirm("Keluar dari pelajaran? Progres pelajaran ini tidak akan disimpan.")) onExit();
+  };
+
+  if (summary) {
+    return <LessonComplete title={lesson.title} xp={summary.xp} accuracy={summary.accuracy} lives={progress.lives} onBack={onExit} />;
+  }
+
+  if (failed) {
+    return (
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center">
+        <div className="anim-pop text-7xl" aria-hidden>
+          💔
+        </div>
+        <h1 className="mt-4 text-3xl font-black text-indigo-950">Hati habis</h1>
+        <p className="mt-2 font-semibold text-slate-500">
+          Tenang, hati pulih 1 setiap 15 menit. Kamu juga bisa mengisi ulang dengan XP dari peta belajar.
+        </p>
+        <button
+          onClick={onExit}
+          autoFocus
+          className="btn-3d mt-8 w-full rounded-2xl bg-indigo-600 px-6 py-4 font-black uppercase tracking-wide text-white shadow-[0_5px_0_#3730a3]"
+        >
+          Kembali ke peta
+        </button>
+      </div>
+    );
+  }
+
+  const canCheck = answer !== null;
+
+  return (
+    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col">
+      <div className="flex items-center gap-3 px-4 py-4">
+        <button onClick={exit} aria-label="Keluar dari pelajaran" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+          ✕
+        </button>
+        <div className="h-4 flex-1 overflow-hidden rounded-full bg-indigo-100" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+          <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-teal-400 transition-all duration-500" style={{ width: `${pct}%` }} />
+        </div>
+        <Hearts lives={progress.lives} compact />
+      </div>
+
+      <main className="flex-1 px-5 pb-48 pt-4">
+        <div key={`${idx}-${attempt}`} className="anim-fade-in">
+          <p className="mb-1 text-xs font-extrabold uppercase tracking-wide text-indigo-400">
+            {q.type === "mc" ? "Pilihan ganda" : q.type === "order" ? "Susun kode" : "Isi bagian rumpang"}
+          </p>
+          <h1 className="mb-6 text-2xl font-black leading-snug text-indigo-950">{q.prompt}</h1>
+
+          {q.type === "mc" && <MultipleChoice q={q} locked={phase === "feedback"} onChange={setAnswer} />}
+          {q.type === "order" && <CodeOrder q={q} locked={phase === "feedback"} onChange={setAnswer} />}
+          {q.type === "fill" && <FillBlank q={q} locked={phase === "feedback"} onChange={setAnswer} />}
+        </div>
+      </main>
+
+      <div
+        className={`fixed inset-x-0 bottom-0 z-20 border-t-2 ${
+          phase === "answer" ? "border-indigo-100 bg-white" : wasCorrect ? "anim-slide-up border-teal-200 bg-teal-50" : "anim-slide-up anim-shake border-rose-200 bg-rose-50"
+        }`}
+      >
+        <div className="mx-auto max-w-2xl px-5 py-4">
+          {phase === "feedback" && (
+            <div className="mb-3" role="status">
+              <p className={`text-lg font-black ${wasCorrect ? "text-teal-700" : "text-rose-600"}`}>{wasCorrect ? "Benar! 🎉" : "Belum tepat"}</p>
+              {!wasCorrect && (
+                <p className="mt-0.5 break-words font-mono text-sm font-bold text-rose-700">
+                  Jawaban: {correctText(q)}
+                </p>
+              )}
+              <p className={`mt-1 text-sm font-semibold ${wasCorrect ? "text-teal-700" : "text-rose-700"}`}>{q.explain}</p>
+            </div>
+          )}
+          <button
+            onClick={phase === "answer" ? check : next}
+            disabled={phase === "answer" && !canCheck}
+            className={`btn-3d w-full rounded-2xl px-6 py-4 text-base font-black uppercase tracking-wide text-white ${
+              phase === "answer"
+                ? "bg-indigo-600 shadow-[0_5px_0_#3730a3]"
+                : wasCorrect
+                ? "bg-teal-500 shadow-[0_5px_0_#0f766e]"
+                : "bg-rose-500 shadow-[0_5px_0_#be123c]"
+            }`}
+          >
+            {phase === "answer" ? "Periksa" : "Lanjut"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
