@@ -6,6 +6,8 @@ import { sfx } from "@/lib/sound";
 
 type Common<A> = { locked: boolean; onChange: (answer: A | null) => void };
 
+const looksLikeCode = (t: string) => /[<>{}();=#`]|^\.|^[a-z]+\(/.test(t);
+
 function shuffle<T>(arr: T[], avoidSame?: (a: T[]) => boolean): T[] {
   let out = arr.slice();
   for (let tries = 0; tries < 8; tries++) {
@@ -34,7 +36,7 @@ export function MultipleChoice({ q, locked, onChange }: { q: MCQuestion } & Comm
             setSel(i);
             onChange(i);
           }}
-          className={`btn-3d flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left font-mono text-sm font-bold sm:text-base ${
+          className={`btn-3d flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-left text-sm font-bold sm:text-base ${looksLikeCode(opt) ? "font-mono" : ""} ${
             sel === i
               ? "border-indigo-500 bg-indigo-50 text-indigo-800 shadow-[0_4px_0_#818cf8]"
               : "border-slate-200 bg-white text-slate-700 shadow-[0_4px_0_#e2e8f0] hover:bg-slate-50"
@@ -47,7 +49,7 @@ export function MultipleChoice({ q, locked, onChange }: { q: MCQuestion } & Comm
           >
             {i + 1}
           </span>
-          <span className="break-all">{opt}</span>
+          <span className="break-words">{opt}</span>
         </button>
       ))}
     </div>

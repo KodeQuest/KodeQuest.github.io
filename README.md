@@ -13,7 +13,7 @@ npm run build    # hasil statis ada di folder out/
 ## Deploy ke GitHub Pages
 
 1. Push proyek ini ke branch `main`.
-2. Di repo: **Settings → Pages → Source: GitHub Actions**.
+2. Di repo: **Settings > Pages > Source: GitHub Actions**.
 3. Workflow `.github/workflows/deploy.yml` akan build dan publikasi otomatis. Base path (`/nama-repo`) diisi otomatis; untuk repo `nama-org.github.io` base path dikosongkan.
 
 ## Struktur

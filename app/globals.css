@@ -3,66 +3,49 @@
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --color-ink: #1e1b4b;
 }
 
 html,
 body {
-  background: #f5f3ff;
-  color: #1e1b4b;
-}
-
-body {
-  background-image:
-    radial-gradient(900px 500px at 10% -10%, rgba(99, 102, 241, 0.14), transparent 60%),
-    radial-gradient(800px 500px at 100% 0%, rgba(20, 184, 166, 0.14), transparent 60%);
-  background-attachment: fixed;
+  background: #ffffff;
+  color: #1f2347;
   min-height: 100dvh;
 }
 
-/* Tombol bergaya 3D */
+/* Tombol bergaya 3D: bayangan padat yang menekan saat diklik */
 .btn-3d {
-  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease;
 }
 .btn-3d:active:not(:disabled) {
-  transform: translateY(3px);
+  transform: translateY(4px);
   box-shadow: 0 0 0 0 transparent !important;
 }
 .btn-3d:disabled {
   cursor: not-allowed;
-  filter: grayscale(0.6);
-  opacity: 0.6;
 }
 
 @keyframes pop {
-  0% { transform: scale(0.85); opacity: 0; }
-  60% { transform: scale(1.06); opacity: 1; }
-  100% { transform: scale(1); }
-}
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 @keyframes slide-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
-  100% { box-shadow: 0 0 0 18px rgba(99, 102, 241, 0); }
-}
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
 
-.anim-pop { animation: pop 0.35s ease-out both; }
-.anim-shake { animation: shake 0.4s ease-in-out; }
-.anim-slide-up { animation: slide-up 0.25s ease-out both; }
-.anim-pulse-ring { animation: pulse-ring 1.6s ease-out infinite; }
-.anim-fade-in { animation: fade-in 0.3s ease-out both; }
+.anim-pop { animation: pop 0.25s ease-out both; }
+.anim-slide-up { animation: slide-up 0.22s ease-out both; }
+.anim-fade-in { animation: fade-in 0.25s ease-out both; }
+.anim-bob { animation: bob 1.6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .anim-pop, .anim-shake, .anim-slide-up, .anim-pulse-ring, .anim-fade-in { animation: none; }
+  .anim-pop, .anim-slide-up, .anim-fade-in, .anim-bob { animation: none; }
 }

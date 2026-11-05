@@ -33,7 +33,6 @@ export type Question = MCQuestion | OrderQuestion | FillQuestion;
 export type Lesson = {
   id: string;
   title: string;
-  icon: string;
   questions: Question[];
 };
 
@@ -77,11 +76,10 @@ export const UNITS: Unit[] = [
       {
         id: "html-1",
         title: "Struktur Dasar",
-        icon: "🏗️",
         questions: [
           mc("Apa kepanjangan HTML?", ["HyperText Markup Language", "High Tech Modern Language", "Hyperlink Text Making Logic", "Home Tool Markup Language"], 0, "HTML adalah HyperText Markup Language, bahasa penanda untuk struktur halaman web."),
           mc("Tag mana yang berisi seluruh konten yang tampil di halaman?", ["<head>", "<body>", "<title>", "<meta>"], 1, "<body> memuat semua yang terlihat oleh pengunjung."),
-          order("Susun kerangka dokumen HTML yang benar.", ["<html>", "<head>", "<title>Halo</title>", "</head>", "<body>", "</body>", "</html>"], "Urutannya: html → head (berisi title) → body."),
+          order("Susun kerangka dokumen HTML yang benar.", ["<html>", "<head>", "<title>Halo</title>", "</head>", "<body>", "</body>", "</html>"], "Urutannya: html > head (berisi title) > body."),
           order("Susun sebuah paragraf.", ["<p>", "Selamat belajar", "</p>"], "Tag pembuka, isi, lalu tag penutup.", ["<br>"]),
           fill("Lengkapi deklarasi tipe dokumen.", "<!___ html>", ["DOCTYPE"], ["DOCTYPE", "HTML", "TYPE", "DOC"], "<!DOCTYPE html> memberi tahu browser bahwa ini HTML5."),
           fill("Tag untuk judul tab browser:", "<head>\n  <___>KodeQuest</title>\n</head>", ["title"], ["title", "h1", "name", "header"], "<title> menentukan teks pada tab browser."),
@@ -90,7 +88,6 @@ export const UNITS: Unit[] = [
       {
         id: "html-2",
         title: "Teks & Tautan",
-        icon: "🔗",
         questions: [
           mc("Tag judul terbesar dan terpenting adalah…", ["<h6>", "<h1>", "<head>", "<big>"], 1, "<h1> adalah heading level tertinggi."),
           mc("Atribut yang menyimpan alamat tujuan pada tautan adalah…", ["src", "link", "href", "url"], 2, "Atribut href pada <a> berisi tujuan tautan."),
@@ -103,7 +100,6 @@ export const UNITS: Unit[] = [
       {
         id: "html-3",
         title: "Daftar & Gambar",
-        icon: "🖼️",
         questions: [
           mc("Tag yang membuat daftar berbutir (bullet) adalah…", ["<ol>", "<ul>", "<li>", "<dl>"], 1, "<ul> = unordered list, <ol> = ordered list."),
           mc("Atribut wajib pada <img> untuk menunjuk file gambar adalah…", ["href", "alt", "src", "path"], 2, "src berisi lokasi gambar; alt berisi teks alternatif."),
@@ -116,7 +112,6 @@ export const UNITS: Unit[] = [
       {
         id: "html-4",
         title: "Formulir",
-        icon: "📝",
         questions: [
           mc("Tag yang membungkus kolom isian pengguna adalah…", ["<form>", "<table>", "<section>", "<fieldset>"], 0, "<form> mengelompokkan input untuk dikirim."),
           mc("Tipe input untuk menyembunyikan karakter saat mengetik?", ['type="text"', 'type="hidden"', 'type="password"', 'type="secret"'], 2, "type=\"password\" menampilkan titik pengganti karakter."),
@@ -137,7 +132,6 @@ export const UNITS: Unit[] = [
       {
         id: "css-1",
         title: "Selektor & Warna",
-        icon: "🎨",
         questions: [
           mc("Apa fungsi CSS?", ["Mengatur tampilan halaman", "Menyimpan data", "Membuat logika program", "Mengirim email"], 0, "CSS (Cascading Style Sheets) mengatur tampilan."),
           mc("Selektor untuk elemen ber-class \"kartu\" adalah…", ["#kartu", ".kartu", "kartu", "*kartu"], 1, "Titik (.) menandai class, tanda pagar (#) menandai id."),
@@ -150,9 +144,8 @@ export const UNITS: Unit[] = [
       {
         id: "css-2",
         title: "Box Model",
-        icon: "📦",
         questions: [
-          mc("Urutan lapisan box model dari dalam ke luar:", ["content, padding, border, margin", "content, margin, border, padding", "padding, content, border, margin", "border, padding, content, margin"], 0, "Isi → padding → border → margin."),
+          mc("Urutan lapisan box model dari dalam ke luar:", ["content, padding, border, margin", "content, margin, border, padding", "padding, content, border, margin", "border, padding, content, margin"], 0, "Isi > padding > border > margin."),
           mc("Properti untuk ruang DI DALAM border adalah…", ["margin", "gap", "padding", "spacing"], 2, "padding = jarak isi ke border; margin = jarak ke luar."),
           order("Susun aturan kotak.", [".kotak", "{", "padding: 16px;", "border: 1px solid;", "}"], "Beberapa deklarasi bisa berada dalam satu aturan."),
           order("Susun margin otomatis agar rata tengah.", [".wadah", "{", "width: 600px;", "margin: 0 auto;", "}"], "margin 0 auto memusatkan blok yang memiliki lebar."),
@@ -163,7 +156,6 @@ export const UNITS: Unit[] = [
       {
         id: "css-3",
         title: "Flexbox",
-        icon: "🧩",
         questions: [
           mc("Nilai display untuk mengaktifkan flexbox:", ["block", "flex", "inline", "grid"], 1, "display: flex menjadikan elemen flex container."),
           mc("Properti untuk merapikan item di sumbu utama:", ["align-items", "justify-content", "flex-wrap", "order"], 1, "justify-content mengatur sumbu utama; align-items sumbu silang."),
@@ -184,7 +176,6 @@ export const UNITS: Unit[] = [
       {
         id: "js-1",
         title: "Variabel & Tipe",
-        icon: "📌",
         questions: [
           mc("Kata kunci untuk variabel yang nilainya tidak boleh diganti:", ["var", "let", "const", "fixed"], 2, "const dipakai untuk referensi yang tidak diubah."),
           mc("Hasil dari typeof \"halo\" adalah…", ['"text"', '"string"', '"char"', '"word"'], 1, "Teks bertipe string."),
@@ -197,7 +188,6 @@ export const UNITS: Unit[] = [
       {
         id: "js-2",
         title: "Fungsi & Kondisi",
-        icon: "⚙️",
         questions: [
           mc("Kata kunci untuk mengembalikan nilai dari fungsi:", ["give", "return", "output", "send"], 1, "return mengembalikan hasil ke pemanggil."),
           mc("Operator untuk perbandingan ketat (nilai dan tipe sama):", ["=", "==", "===", "=>"], 2, "=== membandingkan nilai sekaligus tipe."),
@@ -210,7 +200,6 @@ export const UNITS: Unit[] = [
       {
         id: "js-3",
         title: "Array & Perulangan",
-        icon: "🔁",
         questions: [
           mc("Indeks elemen pertama array di JavaScript adalah…", ["0", "1", "-1", "first"], 0, "Indeks array dimulai dari 0."),
           mc("Method untuk menambah elemen di akhir array:", ["push()", "pop()", "shift()", "add()"], 0, "push menambah di akhir; pop menghapus dari akhir."),

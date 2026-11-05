@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import type { Lesson, Question } from "@/lib/data";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
-import { Hearts } from "./Header";
+import { HeartCount } from "./Header";
+import { CheckIcon, CloseIcon, HeartIcon } from "./Icons";
 import { CodeOrder, FillBlank, MultipleChoice } from "./questions";
 import { LessonComplete } from "./LessonComplete";
 
@@ -108,8 +109,8 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
   if (failed) {
     return (
       <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center">
-        <div className="anim-pop text-7xl" aria-hidden>
-          💔
+        <div className="anim-pop text-slate-300">
+          <HeartIcon size={88} />
         </div>
         <h1 className="mt-4 text-3xl font-black text-indigo-950">Hati habis</h1>
         <p className="mt-2 font-semibold text-slate-500">
@@ -129,18 +130,18 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
   const canCheck = answer !== null;
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col">
-      <div className="flex items-center gap-3 px-4 py-4">
-        <button onClick={exit} aria-label="Keluar dari pelajaran" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600">
-          ✕
+    <div className="flex min-h-dvh flex-col">
+      <div className="mx-auto flex w-full max-w-3xl items-center gap-4 px-4 py-5">
+        <button onClick={exit} aria-label="Keluar dari pelajaran" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+          <CloseIcon size={22} />
         </button>
-        <div className="h-4 flex-1 overflow-hidden rounded-full bg-indigo-100" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-          <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-teal-400 transition-all duration-500" style={{ width: `${pct}%` }} />
+        <div className="h-4 flex-1 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+          <div className="h-full rounded-full bg-teal-500 transition-all duration-500" style={{ width: `${pct}%` }} />
         </div>
-        <Hearts lives={progress.lives} compact />
+        <HeartCount lives={progress.lives} />
       </div>
 
-      <main className="flex-1 px-5 pb-48 pt-4">
+      <main className="mx-auto w-full max-w-xl flex-1 px-5 pb-56 pt-4">
         <div key={`${idx}-${attempt}`} className="anim-fade-in">
           <p className="mb-1 text-xs font-extrabold uppercase tracking-wide text-indigo-400">
             {q.type === "mc" ? "Pilihan ganda" : q.type === "order" ? "Susun kode" : "Isi bagian rumpang"}
@@ -155,30 +156,33 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
 
       <div
         className={`fixed inset-x-0 bottom-0 z-20 border-t-2 ${
-          phase === "answer" ? "border-indigo-100 bg-white" : wasCorrect ? "anim-slide-up border-teal-200 bg-teal-50" : "anim-slide-up anim-shake border-rose-200 bg-rose-50"
+          phase === "answer" ? "border-slate-200 bg-white" : wasCorrect ? "anim-slide-up border-teal-100 bg-teal-50" : "anim-slide-up border-rose-100 bg-rose-50"
         }`}
       >
-        <div className="mx-auto max-w-2xl px-5 py-4">
+        <div className="mx-auto w-full max-w-3xl px-5 py-5">
           {phase === "feedback" && (
-            <div className="mb-3" role="status">
-              <p className={`text-lg font-black ${wasCorrect ? "text-teal-700" : "text-rose-600"}`}>{wasCorrect ? "Benar! 🎉" : "Belum tepat"}</p>
-              {!wasCorrect && (
-                <p className="mt-0.5 break-words font-mono text-sm font-bold text-rose-700">
-                  Jawaban: {correctText(q)}
-                </p>
-              )}
-              <p className={`mt-1 text-sm font-semibold ${wasCorrect ? "text-teal-700" : "text-rose-700"}`}>{q.explain}</p>
+            <div className="mb-4 flex items-start gap-3" role="status">
+              <span className={`mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white ${wasCorrect ? "text-teal-600" : "text-rose-500"}`}>
+                {wasCorrect ? <CheckIcon size={24} /> : <CloseIcon size={22} />}
+              </span>
+              <div className="min-w-0">
+                <p className={`text-lg font-black ${wasCorrect ? "text-teal-700" : "text-rose-600"}`}>{wasCorrect ? "Benar" : "Belum tepat"}</p>
+                {!wasCorrect && <p className="break-words font-mono text-sm font-bold text-rose-700">Jawaban: {correctText(q)}</p>}
+                <p className={`mt-1 text-sm font-semibold ${wasCorrect ? "text-teal-700" : "text-rose-700"}`}>{q.explain}</p>
+              </div>
             </div>
           )}
           <button
             onClick={phase === "answer" ? check : next}
             disabled={phase === "answer" && !canCheck}
-            className={`btn-3d w-full rounded-2xl px-6 py-4 text-base font-black uppercase tracking-wide text-white ${
+            className={`btn-3d w-full rounded-2xl px-6 py-4 text-base font-black uppercase tracking-wide sm:ml-auto sm:block sm:w-56 ${
               phase === "answer"
-                ? "bg-indigo-600 shadow-[0_5px_0_#3730a3]"
+                ? canCheck
+                  ? "bg-indigo-600 text-white shadow-[0_5px_0_#3730a3]"
+                  : "bg-slate-200 text-slate-400 shadow-[0_5px_0_#cbd5e1]"
                 : wasCorrect
-                ? "bg-teal-500 shadow-[0_5px_0_#0f766e]"
-                : "bg-rose-500 shadow-[0_5px_0_#be123c]"
+                ? "bg-teal-500 text-white shadow-[0_5px_0_#0f766e]"
+                : "bg-rose-500 text-white shadow-[0_5px_0_#be123c]"
             }`}
           >
             {phase === "answer" ? "Periksa" : "Lanjut"}
