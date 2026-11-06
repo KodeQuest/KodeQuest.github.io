@@ -100,7 +100,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
 
           <div className="pt-4">
             <h3 className="font-extrabold text-rose-600">Reset progres</h3>
-            <p className="mb-3 mt-1 text-sm text-slate-500">Menghapus XP, hati, streak, dan semua pelajaran yang sudah selesai.</p>
+            <p className="mb-3 mt-1 text-sm text-slate-500">Menghapus XP, streak, dan semua pelajaran yang sudah selesai.</p>
             {confirmReset ? (
               <div className="flex items-center gap-2">
                 <button

@@ -6,7 +6,7 @@ import { NoContextMenu } from "@/components/NoContextMenu";
 
 export const metadata: Metadata = {
   title: "KodeQuest · Belajar koding seperti bermain",
-  description: "Platform belajar fundamental HTML, CSS, dan JavaScript dengan XP, hati, dan streak.",
+  description: "Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, Python, Java, C++) dengan XP dan streak.",
 };
 
 export const viewport: Viewport = {

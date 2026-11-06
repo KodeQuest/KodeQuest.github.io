@@ -1,6 +1,6 @@
 # KodeQuest
 
-Platform belajar fundamental HTML, CSS, dan JavaScript dengan gamifikasi (XP, hati, streak). Dibangun dengan Next.js (static export) dan Tailwind CSS v4, siap di-deploy ke GitHub Pages.
+Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, Python, Java, C++) dengan gamifikasi (XP, streak). Dibangun dengan Next.js (static export) dan Tailwind CSS v4, siap di-deploy ke GitHub Pages.
 
 ## Menjalankan lokal
 
@@ -18,7 +18,9 @@ npm run build    # hasil statis ada di folder out/
 
 ## Struktur
 
-- `lib/data.ts` — semua unit, pelajaran, dan soal (tambah materi di sini)
-- `lib/store.tsx` — progres (XP, hati, streak), localStorage, ekspor/impor JSON
+- `lib/data.ts` — daftar bahasa (`LANGUAGES`), pelajaran, dan soal. Tambah bahasa baru dengan satu objek baru di sini
+- `lib/theme.ts` — warna tiap bahasa
+- `app/belajar/` — halaman pilih bahasa; `app/belajar/bahasa/[langId]/` — jalur belajar per bahasa; `app/belajar/[lessonId]/` — pelajaran
+- `lib/store.tsx` — progres (XP, streak), localStorage, ekspor/impor JSON
 - `lib/sound.ts` — efek suara Web Audio API
 - `components/` — peta belajar, pemutar pelajaran, tipe soal, pengaturan

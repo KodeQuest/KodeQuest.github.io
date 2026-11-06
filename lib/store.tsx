@@ -5,18 +5,12 @@ import { ALL_LESSONS } from "./data";
 import { clearSession } from "./session";
 import { setSoundEnabled } from "./sound";
 
-export const MAX_LIVES = 5;
-export const HEART_REGEN_MS = 15 * 60 * 1000;
-export const REFILL_COST = 50;
 const STORAGE_KEY = "kodequest:v1";
 
 export type LessonResult = { stars: number; accuracy: number };
 
 export type Progress = {
   xp: number;
-  lives: number;
-  /** Waktu (ms) acuan pemulihan hati berikutnya */
-  livesAt: number;
   streak: number;
   /** Tanggal aktif terakhir, format YYYY-MM-DD (waktu lokal) */
   lastActive: string | null;
@@ -26,8 +20,6 @@ export type Progress = {
 
 const initial = (): Progress => ({
   xp: 0,
-  lives: MAX_LIVES,
-  livesAt: Date.now(),
   streak: 0,
   lastActive: null,
   completed: {},
@@ -44,15 +36,6 @@ function daysBetween(a: string, b: string) {
   const da = new Date(a + "T00:00:00");
   const db = new Date(b + "T00:00:00");
   return Math.round((db.getTime() - da.getTime()) / 86400000);
-}
-
-/** Terapkan pemulihan hati berdasarkan waktu yang berlalu. */
-function regen(p: Progress, now = Date.now()): Progress {
-  if (p.lives >= MAX_LIVES) return p.livesAt === now ? p : { ...p, livesAt: now };
-  const gained = Math.floor((now - p.livesAt) / HEART_REGEN_MS);
-  if (gained <= 0) return p;
-  const lives = Math.min(MAX_LIVES, p.lives + gained);
-  return { ...p, lives, livesAt: lives >= MAX_LIVES ? now : p.livesAt + gained * HEART_REGEN_MS };
 }
 
 /** Rapikan data dari storage / impor agar aman dipakai. */
@@ -73,8 +56,6 @@ function sanitize(raw: unknown): Progress | null {
   }
   return {
     xp: num(r.xp, base.xp),
-    lives: num(r.lives, base.lives, 0, MAX_LIVES),
-    livesAt: num(r.livesAt, base.livesAt),
     streak: num(r.streak, 0),
     lastActive: typeof r.lastActive === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.lastActive) ? r.lastActive : null,
     completed,
@@ -87,9 +68,7 @@ type Ctx = {
   progress: Progress;
   /** Streak yang ditampilkan (0 bila sudah putus) */
   streakShown: number;
-  loseLife: () => void;
   completeLesson: (id: string, xpGained: number, accuracy: number) => void;
-  refillLives: () => void;
   toggleSound: () => void;
   exportJson: () => string;
   importJson: (text: string) => { ok: boolean; message: string };
@@ -108,7 +87,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const p = sanitize(JSON.parse(saved));
-        if (p) setProgress(regen(p));
+        if (p) setProgress(p);
       }
     } catch {
       /* abaikan data rusak */
@@ -127,20 +106,6 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setSoundEnabled(progress.sound);
   }, [progress, ready]);
 
-  // Pemulihan hati berkala.
-  useEffect(() => {
-    const t = setInterval(() => setProgress((p) => regen(p)), 20000);
-    return () => clearInterval(t);
-  }, []);
-
-  const loseLife = useCallback(() => {
-    setProgress((p) => {
-      if (p.lives <= 0) return p;
-      // Saat turun dari penuh, mulai hitung pemulihan dari sekarang.
-      return { ...p, lives: p.lives - 1, livesAt: p.lives >= MAX_LIVES ? Date.now() : p.livesAt };
-    });
-  }, []);
-
   const completeLesson = useCallback((id: string, xpGained: number, accuracy: number) => {
     setProgress((p) => {
       const today = dayKey();
@@ -157,13 +122,6 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const refillLives = useCallback(() => {
-    setProgress((p) => {
-      if (p.xp < REFILL_COST || p.lives >= MAX_LIVES) return p;
-      return { ...p, xp: p.xp - REFILL_COST, lives: MAX_LIVES, livesAt: Date.now() };
-    });
-  }, []);
-
   const toggleSound = useCallback(() => setProgress((p) => ({ ...p, sound: !p.sound })), []);
 
   const exportJson = useCallback(
@@ -177,7 +135,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const p = sanitize(parsed?.app === "kodequest" ? parsed.data : parsed);
       if (!p) return { ok: false, message: "Format file tidak dikenali." };
       clearSession();
-      setProgress(regen(p));
+      setProgress(p);
       return { ok: true, message: "Progres berhasil dipulihkan." };
     } catch {
       return { ok: false, message: "File bukan JSON yang valid." };
@@ -196,8 +154,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, [progress.lastActive, progress.streak]);
 
   const value = useMemo<Ctx>(
-    () => ({ ready, progress, streakShown, loseLife, completeLesson, refillLives, toggleSound, exportJson, importJson, reset }),
-    [ready, progress, streakShown, loseLife, completeLesson, refillLives, toggleSound, exportJson, importJson, reset]
+    () => ({ ready, progress, streakShown, completeLesson, toggleSound, exportJson, importJson, reset }),
+    [ready, progress, streakShown, completeLesson, toggleSound, exportJson, importJson, reset]
   );
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;

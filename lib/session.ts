@@ -9,7 +9,6 @@ export type LessonSession = {
   phase: "answer" | "feedback";
   wasCorrect: boolean;
   attempt: number;
-  failed: boolean;
   summary: { xp: number; accuracy: number } | null;
 };
 
@@ -33,8 +32,7 @@ export function loadSession(): LessonSession | null {
       !isInt(s.stats.total) ||
       (s.phase !== "answer" && s.phase !== "feedback") ||
       typeof s.wasCorrect !== "boolean" ||
-      !isInt(s.attempt) ||
-      typeof s.failed !== "boolean"
+      !isInt(s.attempt)
     ) {
       return null;
     }

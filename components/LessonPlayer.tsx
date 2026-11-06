@@ -5,8 +5,7 @@ import type { Lesson, Question } from "@/lib/data";
 import { useProgress } from "@/lib/store";
 import { clearSession, loadSession, saveSession } from "@/lib/session";
 import { sfx } from "@/lib/sound";
-import { HeartCount } from "./Header";
-import { CheckIcon, CloseIcon, HeartIcon } from "./Icons";
+import { CheckIcon, CloseIcon } from "./Icons";
 import { CodeOrder, FillBlank, MultipleChoice } from "./questions";
 import { LessonComplete } from "./LessonComplete";
 
@@ -35,7 +34,7 @@ function correctText(q: Question): string {
 }
 
 export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () => void }) {
-  const { progress, loseLife, completeLesson } = useProgress();
+  const { completeLesson } = useProgress();
   const total = lesson.questions.length;
 
   const [hydrated, setHydrated] = useState(false);
@@ -46,7 +45,6 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
   const [wasCorrect, setWasCorrect] = useState(false);
   const [stats, setStats] = useState({ correct: 0, total: 0 });
   const [attempt, setAttempt] = useState(0);
-  const [failed, setFailed] = useState(false);
   const [summary, setSummary] = useState<{ xp: number; accuracy: number } | null>(null);
 
   // Pulihkan sesi yang tersimpan (misalnya setelah refresh).
@@ -59,7 +57,6 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
       setPhase(s.phase);
       setWasCorrect(s.wasCorrect);
       setAttempt(s.attempt);
-      setFailed(s.failed);
       setSummary(s.summary);
     }
     setHydrated(true);
@@ -68,8 +65,8 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
   // Simpan sesi setiap ada perubahan.
   useEffect(() => {
     if (!hydrated) return;
-    saveSession({ v: 1, lessonId: lesson.id, queue, idx, stats, phase, wasCorrect, attempt, failed, summary });
-  }, [hydrated, lesson.id, queue, idx, stats, phase, wasCorrect, attempt, failed, summary]);
+    saveSession({ v: 1, lessonId: lesson.id, queue, idx, stats, phase, wasCorrect, attempt, summary });
+  }, [hydrated, lesson.id, queue, idx, stats, phase, wasCorrect, attempt, summary]);
 
   const q = lesson.questions[queue[idx]];
   const mastered = Math.min(stats.correct, total);
@@ -85,17 +82,12 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
       sfx.correct();
     } else {
       sfx.wrong();
-      loseLife();
       setQueue((cur) => [...cur, queue[idx]]); // soal salah diulang di akhir
     }
-  }, [phase, answer, q, loseLife, queue, idx]);
+  }, [phase, answer, q, queue, idx]);
 
   const next = useCallback(() => {
     if (phase !== "feedback") return;
-    if (!wasCorrect && progress.lives <= 0) {
-      setFailed(true);
-      return;
-    }
     if (idx + 1 >= queue.length) {
       const accuracy = Math.round((stats.correct / Math.max(1, stats.total)) * 100);
       const xp = stats.correct * 10 + (accuracy === 100 ? 10 : 0);
@@ -108,7 +100,7 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
     setAnswer(null);
     setPhase("answer");
     setAttempt((a) => a + 1);
-  }, [phase, wasCorrect, progress.lives, idx, queue.length, stats, completeLesson, lesson.id]);
+  }, [phase, idx, queue.length, stats, completeLesson, lesson.id]);
 
   // Enter untuk memeriksa / lanjut
   useEffect(() => {
@@ -135,28 +127,7 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
   if (!hydrated) return <div className="min-h-dvh" />;
 
   if (summary) {
-    return <LessonComplete title={lesson.title} xp={summary.xp} accuracy={summary.accuracy} lives={progress.lives} onBack={leave} />;
-  }
-
-  if (failed) {
-    return (
-      <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center">
-        <div className="anim-pop text-slate-300">
-          <HeartIcon size={88} />
-        </div>
-        <h1 className="mt-4 text-3xl font-black text-indigo-950">Hati habis</h1>
-        <p className="mt-2 font-semibold text-slate-500">
-          Tenang, hati pulih 1 setiap 15 menit. Kamu juga bisa mengisi ulang dengan XP dari peta belajar.
-        </p>
-        <button
-          onClick={leave}
-          autoFocus
-          className="btn-3d mt-8 w-full rounded-2xl bg-indigo-600 px-6 py-4 font-black uppercase tracking-wide text-white shadow-[0_5px_0_#3730a3]"
-        >
-          Kembali ke peta
-        </button>
-      </div>
-    );
+    return <LessonComplete title={lesson.title} xp={summary.xp} accuracy={summary.accuracy} onBack={leave} />;
   }
 
   const canCheck = answer !== null;
@@ -170,7 +141,6 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
         <div className="h-4 flex-1 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
           <div className="h-full rounded-full bg-teal-500 transition-all duration-500" style={{ width: `${pct}%` }} />
         </div>
-        <HeartCount lives={progress.lives} />
       </div>
 
       <main className="mx-auto w-full max-w-xl flex-1 px-5 pb-56 pt-4 md:max-w-2xl">

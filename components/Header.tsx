@@ -1,30 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { HEART_REGEN_MS, MAX_LIVES, useProgress } from "@/lib/store";
+import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
-import { BoltIcon, FlameIcon, HeartIcon, SettingsIcon } from "./Icons";
-
-/** Deretan hati penuh (dipakai di layar ringkasan). */
-export function Hearts({ lives }: { lives: number }) {
-  return (
-    <span className="inline-flex gap-1" aria-label={`${lives} dari ${MAX_LIVES} hati`}>
-      {Array.from({ length: MAX_LIVES }, (_, i) => (
-        <HeartIcon key={i} size={20} className={i < lives ? "text-rose-500" : "text-slate-200"} />
-      ))}
-    </span>
-  );
-}
-
-/** Ikon hati + angka (dipakai di bar pelajaran). */
-export function HeartCount({ lives }: { lives: number }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 font-extrabold text-rose-500" aria-label={`${lives} hati`}>
-      <HeartIcon size={22} />
-      <span className="tabular-nums">{lives}</span>
-    </span>
-  );
-}
+import { BoltIcon, FlameIcon, SettingsIcon } from "./Icons";
 
 function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: number; label: string; color: string }) {
   return (
@@ -37,7 +16,6 @@ function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: num
 
 export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
   const { progress, streakShown, ready } = useProgress();
-  const regenMin = Math.max(1, Math.ceil((progress.livesAt + HEART_REGEN_MS - Date.now()) / 60000));
 
   return (
     <header className="sticky top-0 z-30 border-b-2 border-slate-100 bg-white">
@@ -52,14 +30,6 @@ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
         <div className={`flex items-center gap-4 transition-opacity ${ready ? "opacity-100" : "opacity-0"}`}>
           <Stat icon={<FlameIcon size={22} />} value={streakShown} label="Streak hari" color="text-orange-500" />
           <Stat icon={<BoltIcon size={22} />} value={progress.xp} label="XP" color="text-amber-500" />
-          <div
-            title={progress.lives < MAX_LIVES ? `Hati berikutnya sekitar ${regenMin} menit lagi` : "Hati penuh"}
-            className="flex items-center gap-1.5 text-base font-extrabold text-rose-500"
-            aria-label={`Hati: ${progress.lives}`}
-          >
-            <HeartIcon size={22} />
-            <span className="tabular-nums">{progress.lives}</span>
-          </div>
           <button
             onClick={() => {
               sfx.click();

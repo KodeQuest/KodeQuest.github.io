@@ -1,0 +1,1236 @@
+diff --git a/README.md b/README.md
+index f499e72..24d2b50 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # KodeQuest
+ 
+-Platform belajar fundamental HTML, CSS, dan JavaScript dengan gamifikasi (XP, hati, streak). Dibangun dengan Next.js (static export) dan Tailwind CSS v4, siap di-deploy ke GitHub Pages.
++Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, Python, Java, C++) dengan gamifikasi (XP, streak). Dibangun dengan Next.js (static export) dan Tailwind CSS v4, siap di-deploy ke GitHub Pages.
+ 
+ ## Menjalankan lokal
+ 
+@@ -18,7 +18,9 @@ npm run build    # hasil statis ada di folder out/
+ 
+ ## Struktur
+ 
+-- `lib/data.ts` — semua unit, pelajaran, dan soal (tambah materi di sini)
+-- `lib/store.tsx` — progres (XP, hati, streak), localStorage, ekspor/impor JSON
++- `lib/data.ts` — daftar bahasa (`LANGUAGES`), pelajaran, dan soal. Tambah bahasa baru dengan satu objek baru di sini
++- `lib/theme.ts` — warna tiap bahasa
++- `app/belajar/` — halaman pilih bahasa; `app/belajar/bahasa/[langId]/` — jalur belajar per bahasa; `app/belajar/[lessonId]/` — pelajaran
++- `lib/store.tsx` — progres (XP, streak), localStorage, ekspor/impor JSON
+ - `lib/sound.ts` — efek suara Web Audio API
+ - `components/` — peta belajar, pemutar pelajaran, tipe soal, pengaturan
+diff --git a/app/belajar/bahasa/[langId]/page.tsx b/app/belajar/bahasa/[langId]/page.tsx
+new file mode 100644
+index 0000000..f69485c
+--- /dev/null
++++ b/app/belajar/bahasa/[langId]/page.tsx
+@@ -0,0 +1,13 @@
++import { LanguagePathScreen } from "@/components/LanguagePathScreen";
++import { LANGUAGES } from "@/lib/data";
++
++export const dynamicParams = false;
++
++export function generateStaticParams() {
++  return LANGUAGES.map((l) => ({ langId: l.id }));
++}
++
++export default async function LanguagePage({ params }: { params: Promise<{ langId: string }> }) {
++  const { langId } = await params;
++  return <LanguagePathScreen langId={langId} />;
++}
+diff --git a/app/belajar/page.tsx b/app/belajar/page.tsx
+index d977cc5..6dcd8ac 100644
+--- a/app/belajar/page.tsx
++++ b/app/belajar/page.tsx
+@@ -3,23 +3,19 @@
+ import { useState } from "react";
+ import { useRouter } from "next/navigation";
+ import { Header } from "@/components/Header";
+-import { LearningPath } from "@/components/LearningPath";
++import { LanguagePicker } from "@/components/LanguagePicker";
+ import { SettingsModal } from "@/components/SettingsModal";
+-import { Sidebar } from "@/components/Sidebar";
+ 
++/** Halaman pemilihan bahasa pemrograman. */
+ export default function BelajarPage() {
+   const router = useRouter();
+   const [settingsOpen, setSettingsOpen] = useState(false);
+-  const start = (id: string) => router.push(`/belajar/${id}/`);
+ 
+   return (
+     <>
+       <Header onOpenSettings={() => setSettingsOpen(true)} />
+-      <main className="mx-auto grid w-full max-w-5xl gap-10 px-4 pb-24 pt-6 lg:grid-cols-[34rem_20rem] lg:justify-center lg:pt-8">
+-        <LearningPath onStart={start} />
+-        <aside className="hidden lg:block" aria-label="Ringkasan belajar">
+-          <Sidebar onStart={start} onOpenSettings={() => setSettingsOpen(true)} />
+-        </aside>
++      <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-8 lg:pt-12">
++        <LanguagePicker onPick={(id) => router.push(`/belajar/bahasa/${id}/`)} />
+       </main>
+       {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+     </>
+diff --git a/app/layout.tsx b/app/layout.tsx
+index e25378a..07fba08 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -6,7 +6,7 @@ import { NoContextMenu } from "@/components/NoContextMenu";
+ 
+ export const metadata: Metadata = {
+   title: "KodeQuest · Belajar koding seperti bermain",
+-  description: "Platform belajar fundamental HTML, CSS, dan JavaScript dengan XP, hati, dan streak.",
++  description: "Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, Python, Java, C++) dengan XP dan streak.",
+ };
+ 
+ export const viewport: Viewport = {
+diff --git a/components/Header.tsx b/components/Header.tsx
+index 23c7455..20553c0 100644
+--- a/components/Header.tsx
++++ b/components/Header.tsx
+@@ -1,30 +1,9 @@
+ "use client";
+ 
+ import Link from "next/link";
+-import { HEART_REGEN_MS, MAX_LIVES, useProgress } from "@/lib/store";
++import { useProgress } from "@/lib/store";
+ import { sfx } from "@/lib/sound";
+-import { BoltIcon, FlameIcon, HeartIcon, SettingsIcon } from "./Icons";
+-
+-/** Deretan hati penuh (dipakai di layar ringkasan). */
+-export function Hearts({ lives }: { lives: number }) {
+-  return (
+-    <span className="inline-flex gap-1" aria-label={`${lives} dari ${MAX_LIVES} hati`}>
+-      {Array.from({ length: MAX_LIVES }, (_, i) => (
+-        <HeartIcon key={i} size={20} className={i < lives ? "text-rose-500" : "text-slate-200"} />
+-      ))}
+-    </span>
+-  );
+-}
+-
+-/** Ikon hati + angka (dipakai di bar pelajaran). */
+-export function HeartCount({ lives }: { lives: number }) {
+-  return (
+-    <span className="inline-flex items-center gap-1.5 font-extrabold text-rose-500" aria-label={`${lives} hati`}>
+-      <HeartIcon size={22} />
+-      <span className="tabular-nums">{lives}</span>
+-    </span>
+-  );
+-}
++import { BoltIcon, FlameIcon, SettingsIcon } from "./Icons";
+ 
+ function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: number; label: string; color: string }) {
+   return (
+@@ -37,7 +16,6 @@ function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: num
+ 
+ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
+   const { progress, streakShown, ready } = useProgress();
+-  const regenMin = Math.max(1, Math.ceil((progress.livesAt + HEART_REGEN_MS - Date.now()) / 60000));
+ 
+   return (
+     <header className="sticky top-0 z-30 border-b-2 border-slate-100 bg-white">
+@@ -52,14 +30,6 @@ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
+         <div className={`flex items-center gap-4 transition-opacity ${ready ? "opacity-100" : "opacity-0"}`}>
+           <Stat icon={<FlameIcon size={22} />} value={streakShown} label="Streak hari" color="text-orange-500" />
+           <Stat icon={<BoltIcon size={22} />} value={progress.xp} label="XP" color="text-amber-500" />
+-          <div
+-            title={progress.lives < MAX_LIVES ? `Hati berikutnya sekitar ${regenMin} menit lagi` : "Hati penuh"}
+-            className="flex items-center gap-1.5 text-base font-extrabold text-rose-500"
+-            aria-label={`Hati: ${progress.lives}`}
+-          >
+-            <HeartIcon size={22} />
+-            <span className="tabular-nums">{progress.lives}</span>
+-          </div>
+           <button
+             onClick={() => {
+               sfx.click();
+diff --git a/components/Icons.tsx b/components/Icons.tsx
+index 8884e58..408e812 100644
+--- a/components/Icons.tsx
++++ b/components/Icons.tsx
+@@ -1,3 +1,4 @@
++import type { LanguageColor } from "@/lib/data";
+ import type { ReactNode } from "react";
+ 
+ type IconProps = { size?: number; className?: string };
+@@ -24,12 +25,6 @@ function Svg({ size = 24, className, children, fill = "none" }: IconProps & { ch
+ 
+ const solid = "currentColor";
+ 
+-export const HeartIcon = (p: IconProps) => (
+-  <Svg {...p} fill={solid}>
+-    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+-  </Svg>
+-);
+-
+ export const FlameIcon = (p: IconProps) => (
+   <Svg {...p} fill={solid}>
+     <path d="M12 2c.8 3.2 5.5 5.6 5.5 10.6A5.5 5.5 0 0 1 12 18.1a5.5 5.5 0 0 1-5.5-5.5c0-2.1 1-3.7 2.2-4.8.1 1.9.9 3 2 3.2C9.9 8 10.6 4.6 12 2z" />
+@@ -117,7 +112,7 @@ export const TrophyIcon = (p: IconProps) => (
+   </Svg>
+ );
+ 
+-export function UnitIcon({ unit, ...p }: IconProps & { unit: "emerald" | "indigo" | "amber" }) {
++export function UnitIcon({ unit, ...p }: IconProps & { unit: LanguageColor }) {
+   if (unit === "emerald") return <CodeIcon {...p} />;
+   if (unit === "indigo") return <LayoutIcon {...p} />;
+   return <BracesIcon {...p} />;
+diff --git a/components/Landing.tsx b/components/Landing.tsx
+index bf5af51..45d22b8 100644
+--- a/components/Landing.tsx
++++ b/components/Landing.tsx
+@@ -1,16 +1,11 @@
+ "use client";
+ 
+ import type { ReactNode } from "react";
+-import { ALL_LESSONS, UNITS } from "@/lib/data";
++import { ALL_LESSONS, LANGUAGES } from "@/lib/data";
++import { LANGUAGE_STYLES } from "@/lib/theme";
+ import { useProgress } from "@/lib/store";
+ import { sfx } from "@/lib/sound";
+-import { BoltIcon, CheckIcon, CodeIcon, DownloadIcon, FlameIcon, HeartIcon, LayoutIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
+-
+-const UNIT_COLORS = {
+-  emerald: { solid: "bg-teal-500", shadow: "shadow-[0_5px_0_#0f766e]", text: "text-teal-600", soft: "bg-teal-50" },
+-  indigo: { solid: "bg-indigo-500", shadow: "shadow-[0_5px_0_#3730a3]", text: "text-indigo-600", soft: "bg-indigo-50" },
+-  amber: { solid: "bg-amber-500", shadow: "shadow-[0_5px_0_#b45309]", text: "text-amber-600", soft: "bg-amber-50" },
+-} as const;
++import { BoltIcon, CheckIcon, CodeIcon, DownloadIcon, FlameIcon, LayoutIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
+ 
+ function PrimaryButton({ children, onClick, className = "" }: { children: ReactNode; onClick: () => void; className?: string }) {
+   return (
+@@ -31,9 +26,6 @@ function HeroVisual() {
+           <div className="h-3.5 flex-1 overflow-hidden rounded-full bg-slate-200">
+             <div className="h-full w-2/3 rounded-full bg-teal-500" />
+           </div>
+-          <span className="flex items-center gap-1 text-sm font-extrabold text-rose-500">
+-            <HeartIcon size={18} /> 5
+-          </span>
+         </div>
+         <p className="text-xs font-extrabold uppercase tracking-wide text-indigo-400">Susun kode</p>
+         <p className="mb-4 mt-1 text-lg font-black text-indigo-950">Susun sebuah tautan.</p>
+@@ -65,9 +57,9 @@ function HeroVisual() {
+ }
+ 
+ const FEATURES = [
+-  { icon: <LayoutIcon size={26} />, title: "Jalur belajar terarah", text: "Mulai dari HTML, lanjut CSS, lalu JavaScript. Setiap pelajaran terbuka setelah yang sebelumnya selesai.", tone: "bg-indigo-500" },
++  { icon: <LayoutIcon size={26} />, title: "Jalur belajar terarah", text: "Pilih bahasa favoritmu, lalu ikuti jalurnya. Setiap pelajaran terbuka setelah yang sebelumnya selesai.", tone: "bg-indigo-500" },
+   { icon: <CodeIcon size={26} />, title: "Tiga jenis latihan", text: "Pilihan ganda, menyusun blok kode, dan mengisi bagian rumpang. Kamu benar-benar bermain dengan sintaks.", tone: "bg-teal-500" },
+-  { icon: <BoltIcon size={26} />, title: "XP, hati, dan streak", text: "Kumpulkan XP tiap jawaban benar, jaga lima hati, dan bangun kebiasaan belajar harian.", tone: "bg-amber-500" },
++  { icon: <BoltIcon size={26} />, title: "XP, bintang, dan streak", text: "Kumpulkan XP tiap jawaban benar, raih tiga bintang, dan bangun kebiasaan belajar harian.", tone: "bg-amber-500" },
+   { icon: <DownloadIcon size={26} />, title: "Progres aman", text: "Tersimpan otomatis di browser, dan bisa diekspor atau diimpor sebagai file JSON untuk pindah perangkat.", tone: "bg-rose-500" },
+ ];
+ 
+@@ -112,7 +104,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
+             Belajar koding, <span className="text-indigo-600">satu langkah</span> demi satu langkah.
+           </h1>
+           <p className="mx-auto mt-6 max-w-xl text-lg font-medium leading-relaxed text-slate-500 lg:mx-0">
+-            Pelajari dasar HTML, CSS, dan JavaScript lewat latihan singkat yang seru. Kumpulkan XP, jaga hatimu, dan bangun streak harianmu.
++            Pilih bahasa pemrograman, mulai dari HTML, CSS, JavaScript, Python, Java, hingga C++, lalu belajar lewat latihan singkat yang seru. Kumpulkan XP dan bangun streak harianmu.
+           </p>
+           <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
+             <PrimaryButton onClick={go} className="w-full sm:w-auto">{cta}</PrimaryButton>
+@@ -128,7 +120,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
+             {[
+               [String(ALL_LESSONS.length), "pelajaran"],
+               [String(ALL_LESSONS.reduce((n, l) => n + l.questions.length, 0)), "soal latihan"],
+-              [String(UNITS.length), "bahasa dasar"],
++              [String(LANGUAGES.length), "bahasa pemrograman"],
+             ].map(([v, l]) => (
+               <div key={l}>
+                 <dt className="text-3xl font-black text-indigo-950">{v}</dt>
+@@ -162,16 +154,16 @@ export function Landing({ onStart }: { onStart: () => void }) {
+       <section id="materi" className="scroll-mt-16 py-20">
+         <div className="mx-auto max-w-6xl px-5">
+           <h2 className="text-center text-3xl font-black text-indigo-950 sm:text-4xl">Apa yang akan kamu pelajari</h2>
+-          <p className="mx-auto mt-3 max-w-2xl text-center font-medium text-slate-500">Tiga unit berurutan, dari kerangka halaman sampai logika program.</p>
++          <p className="mx-auto mt-3 max-w-2xl text-center font-medium text-slate-500">Pilih bahasa pemrogramanmu. Tiap bahasa punya jalur pelajaran dan soal latihannya sendiri.</p>
+           <div className="mt-12 grid gap-6 lg:grid-cols-3">
+-            {UNITS.map((u, i) => {
+-              const c = UNIT_COLORS[u.color];
++            {LANGUAGES.map((u) => {
++              const c = LANGUAGE_STYLES[u.color];
+               return (
+                 <div key={u.id} className="overflow-hidden rounded-3xl border-2 border-slate-200 bg-white">
+                   <div className={`flex items-center justify-between px-5 py-4 text-white ${c.solid}`}>
+                     <div>
+-                      <p className="text-xs font-extrabold uppercase tracking-wide text-white/80">Unit {i + 1}</p>
+-                      <h3 className="text-xl font-black">{u.title.split("·")[1]?.trim() ?? u.title}</h3>
++                      <p className="text-xs font-extrabold uppercase tracking-wide text-white/80">Bahasa</p>
++                      <h3 className="text-xl font-black">{u.title}</h3>
+                     </div>
+                     <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/20">
+                       <UnitIcon unit={u.color} size={24} />
+@@ -200,10 +192,10 @@ export function Landing({ onStart }: { onStart: () => void }) {
+       <section className="bg-slate-50 py-20">
+         <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-2">
+           <div>
+-            <h2 className="text-3xl font-black text-indigo-950 sm:text-4xl">Hati dan XP membuat latihan terasa seperti permainan</h2>
++            <h2 className="text-3xl font-black text-indigo-950 sm:text-4xl">XP dan streak membuat latihan terasa seperti permainan</h2>
+             <ul className="mt-8 space-y-5">
+               {[
+-                [<HeartIcon key="h" size={22} />, "text-rose-500", "Lima hati", "Jawaban salah mengurangi satu hati. Hati pulih satu setiap 15 menit, atau diisi ulang dengan 50 XP."],
++                [<StarIcon key="s" size={22} />, "text-amber-400", "Tiga bintang", "Jawaban yang salah tidak mengurangi apa pun, tapi akan diulang di akhir. Makin akurat, makin banyak bintang."],
+                 [<BoltIcon key="b" size={22} />, "text-amber-500", "XP tiap jawaban benar", "Selesaikan pelajaran tanpa salah untuk bonus XP dan tiga bintang."],
+                 [<FlameIcon key="f" size={22} />, "text-orange-500", "Streak harian", "Belajar sehari sekali untuk menjaga streak tetap menyala."],
+               ].map(([icon, tone, title, text]) => (
+@@ -246,7 +238,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
+       <section className="px-5 py-20">
+         <div className="mx-auto max-w-4xl rounded-3xl bg-indigo-600 px-6 py-14 text-center text-white shadow-[0_8px_0_#3730a3] sm:px-12">
+           <h2 className="text-3xl font-black sm:text-4xl">Siap menulis kode pertamamu?</h2>
+-          <p className="mx-auto mt-3 max-w-xl font-medium text-indigo-100">Tidak perlu daftar atau memasang apa pun. Buka, pilih pelajaran, dan mulai.</p>
++          <p className="mx-auto mt-3 max-w-xl font-medium text-indigo-100">Tidak perlu daftar atau memasang apa pun. Buka, pilih bahasa, dan mulai.</p>
+           <button
+             onClick={go}
+             className="btn-3d mt-8 rounded-2xl bg-white px-8 py-4 text-base font-black uppercase tracking-wide text-indigo-600 shadow-[0_5px_0_#c7d2fe] hover:bg-indigo-50"
+@@ -256,7 +248,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
+         </div>
+       </section>
+ 
+-      <footer className="border-t-2 border-slate-100 py-8 text-center text-sm font-semibold text-slate-400">KodeQuest · Belajar fundamental HTML, CSS, dan JavaScript</footer>
++      <footer className="border-t-2 border-slate-100 py-8 text-center text-sm font-semibold text-slate-400">KodeQuest · Belajar fundamental pemrograman dari berbagai bahasa</footer>
+     </div>
+   );
+ }
+diff --git a/components/LanguagePathScreen.tsx b/components/LanguagePathScreen.tsx
+new file mode 100644
+index 0000000..b759ed3
+--- /dev/null
++++ b/components/LanguagePathScreen.tsx
+@@ -0,0 +1,43 @@
++"use client";
++
++import { useState } from "react";
++import Link from "next/link";
++import { useRouter } from "next/navigation";
++import { getLanguage } from "@/lib/data";
++import { sfx } from "@/lib/sound";
++import { Header } from "./Header";
++import { LearningPath } from "./LearningPath";
++import { SettingsModal } from "./SettingsModal";
++import { Sidebar } from "./Sidebar";
++
++/** Jalur belajar satu bahasa (/belajar/bahasa/<id>/). */
++export function LanguagePathScreen({ langId }: { langId: string }) {
++  const router = useRouter();
++  const [settingsOpen, setSettingsOpen] = useState(false);
++  const language = getLanguage(langId);
++  if (!language) return <div className="min-h-dvh" />;
++
++  const start = (id: string) => router.push(`/belajar/${id}/`);
++
++  return (
++    <>
++      <Header onOpenSettings={() => setSettingsOpen(true)} />
++      <main className="mx-auto grid w-full max-w-5xl gap-10 px-4 pb-24 pt-6 lg:grid-cols-[34rem_20rem] lg:justify-center lg:pt-8">
++        <div>
++          <Link
++            href="/belajar/"
++            onClick={() => sfx.click()}
++            className="mb-5 inline-flex items-center gap-1 rounded-xl text-sm font-extrabold uppercase tracking-wide text-slate-500 hover:text-indigo-600"
++          >
++            <span aria-hidden="true">←</span> Pilih bahasa lain
++          </Link>
++          <LearningPath language={language} onStart={start} />
++        </div>
++        <aside className="hidden lg:block" aria-label="Ringkasan belajar">
++          <Sidebar language={language} onStart={start} onOpenSettings={() => setSettingsOpen(true)} />
++        </aside>
++      </main>
++      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
++    </>
++  );
++}
+diff --git a/components/LanguagePicker.tsx b/components/LanguagePicker.tsx
+new file mode 100644
+index 0000000..5d6f475
+--- /dev/null
++++ b/components/LanguagePicker.tsx
+@@ -0,0 +1,80 @@
++"use client";
++
++import { LANGUAGES } from "@/lib/data";
++import { useProgress } from "@/lib/store";
++import { sfx } from "@/lib/sound";
++import { LANGUAGE_STYLES } from "@/lib/theme";
++import { CheckIcon, StarIcon } from "./Icons";
++
++/** Halaman pemilihan bahasa pemrograman. Tiap kartu membuka jalur pelajaran bahasa tersebut. */
++export function LanguagePicker({ onPick }: { onPick: (langId: string) => void }) {
++  const { progress, ready } = useProgress();
++
++  return (
++    <div className={`transition-opacity ${ready ? "opacity-100" : "opacity-0"}`}>
++      <div className="text-center">
++        <h1 className="text-3xl font-black text-indigo-950 sm:text-4xl">Pilih bahasa pemrograman</h1>
++        <p className="mx-auto mt-2 max-w-xl font-medium text-slate-500">
++          Setiap bahasa punya jalur pelajaran dan soal latihannya sendiri. XP dan streak dipakai bersama.
++        </p>
++      </div>
++
++      <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
++        {LANGUAGES.map((lang) => {
++          const st = LANGUAGE_STYLES[lang.color];
++          const total = lang.lessons.length;
++          const done = lang.lessons.filter((l) => progress.completed[l.id]).length;
++          const questions = lang.lessons.reduce((n, l) => n + l.questions.length, 0);
++          const stars = lang.lessons.reduce((n, l) => n + (progress.completed[l.id]?.stars ?? 0), 0);
++          const pct = Math.round((done / total) * 100);
++          const finished = done === total;
++
++          return (
++            <li key={lang.id}>
++              <button
++                onClick={() => {
++                  sfx.click();
++                  onPick(lang.id);
++                }}
++                aria-label={`${lang.title}: ${done} dari ${total} pelajaran selesai`}
++                className="btn-3d flex h-full w-full flex-col rounded-3xl border-2 border-slate-200 bg-white p-5 text-left shadow-[0_5px_0_#e2e8f0] hover:bg-slate-50"
++              >
++                <div className="flex items-center gap-4">
++                  <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl font-mono text-lg font-black text-white ${st.solid} ${st.shadow}`}>
++                    {lang.badge}
++                  </div>
++                  <div className="min-w-0 flex-1">
++                    <h2 className="text-xl font-black text-indigo-950">{lang.title}</h2>
++                    <p className="text-sm font-semibold text-slate-500">{lang.subtitle}</p>
++                  </div>
++                  {finished && (
++                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-400 text-white" aria-label="Selesai">
++                      <CheckIcon size={18} />
++                    </span>
++                  )}
++                </div>
++
++                <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
++                  <div className={`h-full rounded-full transition-all ${st.bar}`} style={{ width: `${pct}%` }} />
++                </div>
++
++                <div className="mt-3 flex items-center justify-between text-sm font-bold text-slate-500">
++                  <span>
++                    {done}/{total} pelajaran · {questions} soal
++                  </span>
++                  <span className="flex items-center gap-1 text-amber-500">
++                    <StarIcon size={14} /> {stars}/{total * 3}
++                  </span>
++                </div>
++
++                <span className={`mt-4 text-sm font-black uppercase tracking-wide ${st.text}`}>
++                  {done === 0 ? "Mulai belajar" : finished ? "Latihan lagi" : "Lanjutkan"}
++                </span>
++              </button>
++            </li>
++          );
++        })}
++      </ul>
++    </div>
++  );
++}
+diff --git a/components/LearningPath.tsx b/components/LearningPath.tsx
+index 510a6d2..db73bf1 100644
+--- a/components/LearningPath.tsx
++++ b/components/LearningPath.tsx
+@@ -1,20 +1,15 @@
+ "use client";
+ 
+ import { useEffect, useState } from "react";
+-import { UNITS } from "@/lib/data";
+-import { HEART_REGEN_MS, MAX_LIVES, REFILL_COST, useProgress } from "@/lib/store";
++import { type Language } from "@/lib/data";
++import { LANGUAGE_STYLES } from "@/lib/theme";
++import { useProgress } from "@/lib/store";
+ import { loadSession } from "@/lib/session";
+ import { sfx } from "@/lib/sound";
+ import { CheckIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
+ 
+ const OFFSETS = [0, 38, 58, 38, 0, -38, -58, -38];
+ 
+-const UNIT_STYLES = {
+-  emerald: { banner: "bg-teal-500 shadow-[0_5px_0_#0f766e]", node: "bg-teal-500 shadow-[0_6px_0_#0f766e]", text: "text-teal-600" },
+-  indigo: { banner: "bg-indigo-500 shadow-[0_5px_0_#3730a3]", node: "bg-indigo-500 shadow-[0_6px_0_#3730a3]", text: "text-indigo-600" },
+-  amber: { banner: "bg-amber-500 shadow-[0_5px_0_#b45309]", node: "bg-amber-500 shadow-[0_6px_0_#b45309]", text: "text-amber-600" },
+-} as const;
+-
+ function Stars({ count, size = 14 }: { count: number; size?: number }) {
+   return (
+     <span className="flex gap-0.5" aria-label={`${count} dari 3 bintang`}>
+@@ -25,8 +20,8 @@ function Stars({ count, size = 14 }: { count: number; size?: number }) {
+   );
+ }
+ 
+-export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
+-  const { progress, ready, refillLives } = useProgress();
++export function LearningPath({ language, onStart }: { language: Language; onStart: (id: string) => void }) {
++  const { progress, ready } = useProgress();
+   const [sheetId, setSheetId] = useState<string | null>(null);
+ 
+   useEffect(() => {
+@@ -36,24 +31,21 @@ export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
+     return () => window.removeEventListener("keydown", onKey);
+   }, [sheetId]);
+ 
+-  const flat = UNITS.flatMap((u) => u.lessons.map((l) => l.id));
++  const flat = language.lessons.map((l) => l.id);
+   const firstOpen = flat.find((id) => !progress.completed[id]) ?? null;
+   const unlocked = (id: string) => {
+     const i = flat.indexOf(id);
+     return i === 0 || !!progress.completed[flat[i - 1]];
+   };
+ 
+-  const regenMin = Math.max(1, Math.ceil((progress.livesAt + HEART_REGEN_MS - Date.now()) / 60000));
+-  const outOfLives = progress.lives <= 0;
+-
+-  const sheetLesson = sheetId ? UNITS.flatMap((u) => u.lessons.map((l) => ({ l, unit: u }))).find((x) => x.l.id === sheetId) : null;
++  const sheetLesson = sheetId ? language.lessons.map((l) => ({ l, unit: language })).find((x) => x.l.id === sheetId) : null;
+ 
+   let counter = 0;
+ 
+   return (
+     <div className={`transition-opacity ${ready ? "opacity-100" : "opacity-0"}`}>
+-      {UNITS.map((unit) => {
+-        const st = UNIT_STYLES[unit.color];
++      {[language].map((unit) => {
++        const st = LANGUAGE_STYLES[unit.color];
+         return (
+           <section key={unit.id} className="mb-12">
+             <div className={`flex items-center justify-between rounded-2xl px-5 py-4 text-white ${st.banner}`}>
+@@ -127,28 +119,13 @@ export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
+             className="anim-slide-up w-full max-w-md rounded-t-3xl bg-white p-6 sm:rounded-3xl"
+             onClick={(e) => e.stopPropagation()}
+           >
+-            <p className={`text-xs font-extrabold uppercase tracking-wide ${UNIT_STYLES[sheetLesson.unit.color].text}`}>{sheetLesson.unit.title}</p>
++            <p className={`text-xs font-extrabold uppercase tracking-wide ${LANGUAGE_STYLES[sheetLesson.unit.color].text}`}>{sheetLesson.unit.title}</p>
+             <h3 className="mt-1 text-2xl font-black text-indigo-950">{sheetLesson.l.title}</h3>
+             <p className="mt-1 text-sm font-semibold text-slate-500">
+               {sheetLesson.l.questions.length} soal
+               {progress.completed[sheetLesson.l.id] ? ` · akurasi terbaik ${progress.completed[sheetLesson.l.id].accuracy}%` : ""}
+             </p>
+ 
+-            {outOfLives ? (
+-              <div className="mt-5">
+-                <p className="text-sm font-bold text-rose-600">Hati habis. Satu hati pulih sekitar {regenMin} menit lagi.</p>
+-                <button
+-                  onClick={() => {
+-                    sfx.click();
+-                    refillLives();
+-                  }}
+-                  disabled={progress.xp < REFILL_COST}
+-                  className="btn-3d mt-3 w-full rounded-2xl bg-rose-500 px-6 py-3.5 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#be123c] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-[0_4px_0_#cbd5e1]"
+-                >
+-                  Isi ulang {MAX_LIVES} hati ({REFILL_COST} XP)
+-                </button>
+-              </div>
+-            ) : (
+               <button
+                 onClick={() => {
+                   sfx.click();
+@@ -161,12 +138,11 @@ export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
+               >
+                 {loadSession()?.lessonId === sheetLesson.l.id ? "Lanjutkan" : progress.completed[sheetLesson.l.id] ? "Latihan lagi" : "Mulai"}
+               </button>
+-            )}
+           </div>
+         </div>
+       )}
+ 
+-      <p className="pb-6 text-center text-sm font-semibold text-slate-400">Materi baru segera hadir</p>
++      <p className="pb-6 text-center text-sm font-semibold text-slate-400">Materi {language.title} berikutnya segera hadir</p>
+     </div>
+   );
+ }
+diff --git a/components/LessonComplete.tsx b/components/LessonComplete.tsx
+index 1f25e84..7f90f21 100644
+--- a/components/LessonComplete.tsx
++++ b/components/LessonComplete.tsx
+@@ -1,19 +1,16 @@
+ "use client";
+ 
+-import { HeartCount } from "./Header";
+ import { BoltIcon, StarIcon, TrophyIcon } from "./Icons";
+ 
+ export function LessonComplete({
+   title,
+   xp,
+   accuracy,
+-  lives,
+   onBack,
+ }: {
+   title: string;
+   xp: number;
+   accuracy: number;
+-  lives: number;
+   onBack: () => void;
+ }) {
+   const stars = accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : 1;
+@@ -32,7 +29,7 @@ export function LessonComplete({
+           ))}
+         </div>
+ 
+-        <div className="mt-8 grid w-full grid-cols-3 gap-3">
++        <div className="mt-8 grid w-full grid-cols-2 gap-3">
+           <div className="anim-fade-in overflow-hidden rounded-2xl border-2 border-amber-400 text-center">
+             <p className="bg-amber-400 py-1 text-xs font-extrabold uppercase tracking-wide text-white">XP</p>
+             <p className="flex items-center justify-center gap-1 py-3 text-xl font-black text-amber-500">
+@@ -44,12 +41,6 @@ export function LessonComplete({
+             <p className="bg-teal-500 py-1 text-xs font-extrabold uppercase tracking-wide text-white">Akurasi</p>
+             <p className="py-3 text-xl font-black text-teal-600">{accuracy}%</p>
+           </div>
+-          <div className="anim-fade-in overflow-hidden rounded-2xl border-2 border-rose-500 text-center" style={{ animationDelay: "0.16s" }}>
+-            <p className="bg-rose-500 py-1 text-xs font-extrabold uppercase tracking-wide text-white">Hati</p>
+-            <p className="flex items-center justify-center py-3 text-xl">
+-              <HeartCount lives={lives} />
+-            </p>
+-          </div>
+         </div>
+       </div>
+ 
+diff --git a/components/LessonPlayer.tsx b/components/LessonPlayer.tsx
+index 1ea0594..a1cbaa1 100644
+--- a/components/LessonPlayer.tsx
++++ b/components/LessonPlayer.tsx
+@@ -5,8 +5,7 @@ import type { Lesson, Question } from "@/lib/data";
+ import { useProgress } from "@/lib/store";
+ import { clearSession, loadSession, saveSession } from "@/lib/session";
+ import { sfx } from "@/lib/sound";
+-import { HeartCount } from "./Header";
+-import { CheckIcon, CloseIcon, HeartIcon } from "./Icons";
++import { CheckIcon, CloseIcon } from "./Icons";
+ import { CodeOrder, FillBlank, MultipleChoice } from "./questions";
+ import { LessonComplete } from "./LessonComplete";
+ 
+@@ -35,7 +34,7 @@ function correctText(q: Question): string {
+ }
+ 
+ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () => void }) {
+-  const { progress, loseLife, completeLesson } = useProgress();
++  const { completeLesson } = useProgress();
+   const total = lesson.questions.length;
+ 
+   const [hydrated, setHydrated] = useState(false);
+@@ -46,7 +45,6 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
+   const [wasCorrect, setWasCorrect] = useState(false);
+   const [stats, setStats] = useState({ correct: 0, total: 0 });
+   const [attempt, setAttempt] = useState(0);
+-  const [failed, setFailed] = useState(false);
+   const [summary, setSummary] = useState<{ xp: number; accuracy: number } | null>(null);
+ 
+   // Pulihkan sesi yang tersimpan (misalnya setelah refresh).
+@@ -59,7 +57,6 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
+       setPhase(s.phase);
+       setWasCorrect(s.wasCorrect);
+       setAttempt(s.attempt);
+-      setFailed(s.failed);
+       setSummary(s.summary);
+     }
+     setHydrated(true);
+@@ -68,8 +65,8 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
+   // Simpan sesi setiap ada perubahan.
+   useEffect(() => {
+     if (!hydrated) return;
+-    saveSession({ v: 1, lessonId: lesson.id, queue, idx, stats, phase, wasCorrect, attempt, failed, summary });
+-  }, [hydrated, lesson.id, queue, idx, stats, phase, wasCorrect, attempt, failed, summary]);
++    saveSession({ v: 1, lessonId: lesson.id, queue, idx, stats, phase, wasCorrect, attempt, summary });
++  }, [hydrated, lesson.id, queue, idx, stats, phase, wasCorrect, attempt, summary]);
+ 
+   const q = lesson.questions[queue[idx]];
+   const mastered = Math.min(stats.correct, total);
+@@ -85,17 +82,12 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
+       sfx.correct();
+     } else {
+       sfx.wrong();
+-      loseLife();
+       setQueue((cur) => [...cur, queue[idx]]); // soal salah diulang di akhir
+     }
+-  }, [phase, answer, q, loseLife, queue, idx]);
++  }, [phase, answer, q, queue, idx]);
+ 
+   const next = useCallback(() => {
+     if (phase !== "feedback") return;
+-    if (!wasCorrect && progress.lives <= 0) {
+-      setFailed(true);
+-      return;
+-    }
+     if (idx + 1 >= queue.length) {
+       const accuracy = Math.round((stats.correct / Math.max(1, stats.total)) * 100);
+       const xp = stats.correct * 10 + (accuracy === 100 ? 10 : 0);
+@@ -108,7 +100,7 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
+     setAnswer(null);
+     setPhase("answer");
+     setAttempt((a) => a + 1);
+-  }, [phase, wasCorrect, progress.lives, idx, queue.length, stats, completeLesson, lesson.id]);
++  }, [phase, idx, queue.length, stats, completeLesson, lesson.id]);
+ 
+   // Enter untuk memeriksa / lanjut
+   useEffect(() => {
+@@ -135,28 +127,7 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
+   if (!hydrated) return <div className="min-h-dvh" />;
+ 
+   if (summary) {
+-    return <LessonComplete title={lesson.title} xp={summary.xp} accuracy={summary.accuracy} lives={progress.lives} onBack={leave} />;
+-  }
+-
+-  if (failed) {
+-    return (
+-      <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center">
+-        <div className="anim-pop text-slate-300">
+-          <HeartIcon size={88} />
+-        </div>
+-        <h1 className="mt-4 text-3xl font-black text-indigo-950">Hati habis</h1>
+-        <p className="mt-2 font-semibold text-slate-500">
+-          Tenang, hati pulih 1 setiap 15 menit. Kamu juga bisa mengisi ulang dengan XP dari peta belajar.
+-        </p>
+-        <button
+-          onClick={leave}
+-          autoFocus
+-          className="btn-3d mt-8 w-full rounded-2xl bg-indigo-600 px-6 py-4 font-black uppercase tracking-wide text-white shadow-[0_5px_0_#3730a3]"
+-        >
+-          Kembali ke peta
+-        </button>
+-      </div>
+-    );
++    return <LessonComplete title={lesson.title} xp={summary.xp} accuracy={summary.accuracy} onBack={leave} />;
+   }
+ 
+   const canCheck = answer !== null;
+@@ -170,7 +141,6 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
+         <div className="h-4 flex-1 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+           <div className="h-full rounded-full bg-teal-500 transition-all duration-500" style={{ width: `${pct}%` }} />
+         </div>
+-        <HeartCount lives={progress.lives} />
+       </div>
+ 
+       <main className="mx-auto w-full max-w-xl flex-1 px-5 pb-56 pt-4 md:max-w-2xl">
+diff --git a/components/LessonScreen.tsx b/components/LessonScreen.tsx
+index 8df29fd..65790b2 100644
+--- a/components/LessonScreen.tsx
++++ b/components/LessonScreen.tsx
+@@ -2,34 +2,35 @@
+ 
+ import { useEffect, useState } from "react";
+ import { useRouter } from "next/navigation";
+-import { ALL_LESSONS } from "@/lib/data";
++import { ALL_LESSONS, isLessonUnlocked, languageOfLesson } from "@/lib/data";
+ import { loadSession } from "@/lib/session";
+ import { useProgress } from "@/lib/store";
+ import { LessonPlayer } from "./LessonPlayer";
+ 
+-/** Halaman satu pelajaran (/belajar/<id>/). Memeriksa akses lalu menampilkan pemutar. */
++/** Halaman satu pelajaran (/belajar/<id>/). Memeriksa akses (per bahasa) lalu menampilkan pemutar. */
+ export function LessonScreen({ lessonId }: { lessonId: string }) {
+   const router = useRouter();
+   const { ready, progress } = useProgress();
+   const [allowed, setAllowed] = useState(false);
+   const lesson = ALL_LESSONS.find((l) => l.id === lessonId);
++  const language = languageOfLesson(lessonId);
++  const backTo = language ? `/belajar/bahasa/${language.id}/` : "/belajar/";
+ 
+   useEffect(() => {
+     if (!ready || allowed) return;
+-    const i = ALL_LESSONS.findIndex((l) => l.id === lessonId);
+-    if (i < 0) {
++    if (!languageOfLesson(lessonId)) {
+       router.replace("/belajar/");
+       return;
+     }
+     const resume = loadSession()?.lessonId === lessonId;
+-    const unlocked = i === 0 || !!progress.completed[ALL_LESSONS[i - 1].id];
+-    if (!resume && (!unlocked || progress.lives <= 0)) {
+-      router.replace("/belajar/");
++    const unlocked = isLessonUnlocked(lessonId, progress.completed);
++    if (!resume && !unlocked) {
++      router.replace(backTo);
+       return;
+     }
+     setAllowed(true);
+-  }, [ready, allowed, lessonId, progress.completed, progress.lives, router]);
++  }, [ready, allowed, lessonId, progress.completed, router, backTo]);
+ 
+   if (!lesson || !allowed) return <div className="min-h-dvh" />;
+-  return <LessonPlayer lesson={lesson} onExit={() => router.push("/belajar/")} />;
++  return <LessonPlayer lesson={lesson} onExit={() => router.push(backTo)} />;
+ }
+diff --git a/components/SettingsModal.tsx b/components/SettingsModal.tsx
+index cf0e15b..608c6a1 100644
+--- a/components/SettingsModal.tsx
++++ b/components/SettingsModal.tsx
+@@ -100,7 +100,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
+ 
+           <div className="pt-4">
+             <h3 className="font-extrabold text-rose-600">Reset progres</h3>
+-            <p className="mb-3 mt-1 text-sm text-slate-500">Menghapus XP, hati, streak, dan semua pelajaran yang sudah selesai.</p>
++            <p className="mb-3 mt-1 text-sm text-slate-500">Menghapus XP, streak, dan semua pelajaran yang sudah selesai.</p>
+             {confirmReset ? (
+               <div className="flex items-center gap-2">
+                 <button
+diff --git a/components/Sidebar.tsx b/components/Sidebar.tsx
+index ffb4025..b162df1 100644
+--- a/components/Sidebar.tsx
++++ b/components/Sidebar.tsx
+@@ -1,9 +1,10 @@
+ "use client";
+ 
+-import { UNITS } from "@/lib/data";
+-import { MAX_LIVES, useProgress } from "@/lib/store";
++import Link from "next/link";
++import type { Language } from "@/lib/data";
++import { useProgress } from "@/lib/store";
+ import { sfx } from "@/lib/sound";
+-import { BoltIcon, DownloadIcon, FlameIcon, HeartIcon } from "./Icons";
++import { BoltIcon, DownloadIcon, FlameIcon } from "./Icons";
+ 
+ function Row({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: string }) {
+   return (
+@@ -15,10 +16,10 @@ function Row({ icon, label, value, tone }: { icon: React.ReactNode; label: strin
+   );
+ }
+ 
+-export function Sidebar({ onStart, onOpenSettings }: { onStart: (id: string) => void; onOpenSettings: () => void }) {
++export function Sidebar({ language, onStart, onOpenSettings }: { language: Language; onStart: (id: string) => void; onOpenSettings: () => void }) {
+   const { progress, streakShown } = useProgress();
+ 
+-  const all = UNITS.flatMap((u) => u.lessons.map((l) => ({ l, unit: u })));
++  const all = language.lessons.map((l) => ({ l, unit: language }));
+   const done = all.filter((x) => progress.completed[x.l.id]).length;
+   const next = all.find((x) => !progress.completed[x.l.id]);
+   const pct = Math.round((done / all.length) * 100);
+@@ -30,13 +31,12 @@ export function Sidebar({ onStart, onOpenSettings }: { onStart: (id: string) =>
+         <ul className="mt-1 divide-y-2 divide-slate-100">
+           <Row icon={<FlameIcon size={22} />} label="Streak hari" value={String(streakShown)} tone="text-orange-500" />
+           <Row icon={<BoltIcon size={22} />} label="Total XP" value={String(progress.xp)} tone="text-amber-500" />
+-          <Row icon={<HeartIcon size={22} />} label="Hati" value={`${progress.lives}/${MAX_LIVES}`} tone="text-rose-500" />
+         </ul>
+       </section>
+ 
+       <section className="rounded-3xl border-2 border-slate-200 p-5">
+         <div className="flex items-baseline justify-between">
+-          <h2 className="font-black text-indigo-950">Progres</h2>
++          <h2 className="font-black text-indigo-950">Progres {language.title}</h2>
+           <span className="text-sm font-extrabold text-teal-600">{pct}%</span>
+         </div>
+         <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+@@ -52,19 +52,25 @@ export function Sidebar({ onStart, onOpenSettings }: { onStart: (id: string) =>
+             <p className="mt-1 font-black text-indigo-950">{next.l.title}</p>
+             <p className="text-sm font-semibold text-slate-500">{next.unit.title}</p>
+             <button
+-              disabled={progress.lives <= 0}
+               onClick={() => {
+                 sfx.click();
+                 onStart(next.l.id);
+               }}
+-              className="btn-3d mt-4 w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#3730a3] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-[0_4px_0_#cbd5e1]"
++              className="btn-3d mt-4 w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#3730a3]"
+             >
+-              {progress.lives <= 0 ? "Hati habis" : "Lanjutkan"}
++              Lanjutkan
+             </button>
+           </div>
+         ) : (
+-          <p className="mt-4 border-t-2 border-slate-100 pt-4 text-sm font-bold text-teal-600">Semua pelajaran selesai. Ulangi kapan saja untuk berlatih.</p>
++          <p className="mt-4 border-t-2 border-slate-100 pt-4 text-sm font-bold text-teal-600">Semua pelajaran {language.title} selesai. Ulangi kapan saja, atau coba bahasa lain.</p>
+         )}
++        <Link
++          href="/belajar/"
++          onClick={() => sfx.click()}
++          className="btn-3d mt-4 block w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 text-center text-sm font-extrabold text-indigo-600 shadow-[0_3px_0_#e2e8f0]"
++        >
++          Ganti bahasa
++        </Link>
+       </section>
+ 
+       <section className="rounded-3xl border-2 border-slate-200 p-5">
+diff --git a/lib/data.ts b/lib/data.ts
+index 52486d1..8b0f4eb 100644
+--- a/lib/data.ts
++++ b/lib/data.ts
+@@ -36,11 +36,16 @@ export type Lesson = {
+   questions: Question[];
+ };
+ 
+-export type Unit = {
++export type LanguageColor = "emerald" | "indigo" | "amber" | "sky" | "rose" | "violet";
++
++export type Language = {
+   id: string;
++  /** Nama bahasa yang tampil di kartu dan banner */
+   title: string;
+   subtitle: string;
+-  color: "emerald" | "indigo" | "amber";
++  /** Singkatan pendek untuk lencana kartu (mis. "Py") */
++  badge: string;
++  color: LanguageColor;
+   lessons: Lesson[];
+ };
+ 
+@@ -66,11 +71,12 @@ const fill = (
+   explain: string
+ ): FillQuestion => ({ type: "fill", prompt, code, answers, options, explain });
+ 
+-export const UNITS: Unit[] = [
++export const LANGUAGES: Language[] = [
+   {
+     id: "html",
+-    title: "Unit 1 · HTML",
++    title: "HTML",
+     subtitle: "Kerangka halaman web",
++    badge: "</>",
+     color: "emerald",
+     lessons: [
+       {
+@@ -125,8 +131,9 @@ export const UNITS: Unit[] = [
+   },
+   {
+     id: "css",
+-    title: "Unit 2 · CSS",
++    title: "CSS",
+     subtitle: "Gaya dan tata letak",
++    badge: "{ }",
+     color: "indigo",
+     lessons: [
+       {
+@@ -169,8 +176,9 @@ export const UNITS: Unit[] = [
+   },
+   {
+     id: "js",
+-    title: "Unit 3 · JavaScript",
++    title: "JavaScript",
+     subtitle: "Logika dan interaksi",
++    badge: "JS",
+     color: "amber",
+     lessons: [
+       {
+@@ -211,6 +219,158 @@ export const UNITS: Unit[] = [
+       },
+     ],
+   },
++  {
++    id: "python",
++    title: "Python",
++    subtitle: "Sintaks ringkas, cocok untuk pemula",
++    badge: "Py",
++    color: "sky",
++    lessons: [
++      {
++        id: "python-1",
++        title: "Dasar Python",
++        questions: [
++          mc("Fungsi untuk menampilkan teks ke layar di Python adalah…", ["echo()", "print()", "console.log()", "write()"], 1, "print() mencetak nilai ke layar."),
++          mc("Tipe data dari 3.14 adalah…", ["int", "str", "float", "bool"], 2, "Bilangan desimal bertipe float."),
++          order("Susun pesan ke layar.", ["print(", '"Halo"', ")"], "print dipanggil dengan teks di dalam kurung."),
++          order("Susun deklarasi variabel.", ["nama", "=", '"Budi"'], "Python tidak butuh kata kunci khusus untuk membuat variabel.", ["let"]),
++          fill("Komentar satu baris di Python diawali dengan…", "___ ini komentar", ["#"], ["#", "//", "--", "/*"], "Python memakai tanda # untuk komentar."),
++          fill("Ubah teks menjadi bilangan bulat.", 'angka = ___("42")', ["int"], ["int", "str", "float", "num"], "int() mengubah nilai menjadi bilangan bulat."),
++        ],
++      },
++      {
++        id: "python-2",
++        title: "Kondisi & Perulangan",
++        questions: [
++          mc("Python menandai blok kode dengan…", ["kurung kurawal", "indentasi", "titik koma", "BEGIN dan END"], 1, "Indentasi (spasi di awal baris) menentukan blok kode."),
++          mc("Kata kunci untuk cabang kedua setelah if adalah…", ["else if", "elseif", "elif", "otherwise"], 2, "elif adalah singkatan dari else if."),
++          order("Susun kondisi if.", ["if umur >= 17:", 'print("Boleh")'], "Baris if diakhiri titik dua, lalu isi blok."),
++          order("Susun perulangan for.", ["for i in range(3):", "print(i)"], "range(3) menghasilkan 0, 1, 2.", ["for (i = 0; i < 3; i++)"]),
++          fill("Ulangi selama kondisi benar.", "___ x < 5:\n    x += 1", ["while"], ["while", "for", "if", "loop"], "while mengulang selama kondisinya True."),
++          fill("Lengkapi keluaran perulangan.", "for i in range(3):\n    print(i)  # 0, 1, ___", ["2"], ["1", "2", "3", "4"], "range(3) berhenti sebelum angka 3."),
++        ],
++      },
++      {
++        id: "python-3",
++        title: "Fungsi & List",
++        questions: [
++          mc("Kata kunci untuk membuat fungsi di Python adalah…", ["function", "def", "fun", "func"], 1, "Fungsi dibuat dengan def."),
++          mc("Hasil dari len([4, 5, 6]) adalah…", ["2", "3", "4", "6"], 1, "len() menghitung jumlah elemen: ada 3."),
++          order("Susun sebuah fungsi.", ["def tambah(a, b):", "return a + b"], "def, nama, parameter, titik dua, lalu isi fungsi."),
++          order("Susun penambahan elemen list.", ['buah = ["apel"]', 'buah.append("jeruk")'], "append menambah elemen di akhir list.", ['buah.push("jeruk")']),
++          fill("Lengkapi pembuatan fungsi.", "___ sapa(nama):\n    return nama", ["def"], ["def", "fn", "func", "lambda"], "Gunakan def untuk mendefinisikan fungsi."),
++          fill("Ambil elemen pertama list.", 'buah = ["apel", "jeruk"]\nprint(buah[___])', ["0"], ["0", "1", "2", "first"], "Indeks list dimulai dari 0."),
++        ],
++      },
++    ],
++  },
++  {
++    id: "java",
++    title: "Java",
++    subtitle: "Bahasa berorientasi objek yang kokoh",
++    badge: "Jv",
++    color: "rose",
++    lessons: [
++      {
++        id: "java-1",
++        title: "Struktur Program",
++        questions: [
++          mc("Titik masuk program Java adalah method…", ["start()", "main()", "run()", "init()"], 1, "JVM menjalankan program dari method main."),
++          mc("Ekstensi file kode sumber Java adalah…", [".java", ".class", ".jar", ".js"], 0, ".java adalah kode sumber; .class adalah hasil kompilasi."),
++          order("Susun perintah cetak.", ["System.out.println(", '"Halo"', ");"], "System.out.println mencetak teks lalu pindah baris."),
++          order("Susun method main.", ["public static void main(String[] args)", "{", 'System.out.println("Hi");', "}"], "Method main punya tanda tangan yang tetap."),
++          fill("Lengkapi deklarasi kelas.", "public ___ Halo { }", ["class"], ["class", "void", "static", "main"], "Semua kode Java berada di dalam class."),
++          fill("Setiap pernyataan Java diakhiri dengan…", 'System.out.println("a")___', [";"], [";", ":", ".", ","], "Titik koma menutup pernyataan."),
++        ],
++      },
++      {
++        id: "java-2",
++        title: "Tipe Data & Kondisi",
++        questions: [
++          mc("Tipe untuk bilangan bulat adalah…", ["int", "String", "boolean", "double"], 0, "int menyimpan bilangan bulat."),
++          mc("Tipe yang hanya bernilai true atau false adalah…", ["bool", "boolean", "binary", "flag"], 1, "Di Java namanya boolean."),
++          order("Susun deklarasi variabel.", ["int", "umur", "=", "20;"], "Tipe, nama, tanda sama dengan, nilai."),
++          order("Susun if-else.", ["if (nilai >= 70)", '{ System.out.println("Lulus"); }', "else", '{ System.out.println("Ulang"); }'], "else menangani kondisi yang tidak terpenuhi.", ["elif"]),
++          fill("Deklarasikan variabel teks.", '___ nama = "Sari";', ["String"], ["String", "string", "text", "char"], "Tipe teks di Java ditulis String dengan S besar."),
++          fill("Operator untuk membandingkan kesamaan:", "if (a ___ b) { }", ["=="], ["==", "=", "=>", "==="], "== membandingkan, sedangkan = memberi nilai."),
++        ],
++      },
++      {
++        id: "java-3",
++        title: "Perulangan & Array",
++        questions: [
++          mc("Cara mengambil panjang array arr adalah…", ["arr.length", "arr.length()", "arr.size()", "len(arr)"], 0, "Array memakai properti length tanpa kurung."),
++          mc("Kata kunci untuk keluar dari perulangan adalah…", ["exit", "break", "stop", "leave"], 1, "break menghentikan perulangan."),
++          order("Susun perulangan for.", ["for (int i = 0;", "i < 3;", "i++)", "{ System.out.println(i); }"], "Inisialisasi, kondisi, langkah.", ["i--)"]),
++          order("Susun deklarasi array.", ["int[]", "angka", "=", "{1, 2, 3};"], "Array diisi dengan kurung kurawal."),
++          fill("Buat array int berukuran 5.", "int[] a = new ___[5];", ["int"], ["int", "Int", "array", "String"], "new int[5] membuat array berisi lima bilangan bulat."),
++          fill("Ulangi selama kondisi benar.", "___ (x < 10) { x++; }", ["while"], ["while", "for", "if", "loop"], "while mengulang selama kondisinya true."),
++        ],
++      },
++    ],
++  },
++  {
++    id: "cpp",
++    title: "C++",
++    subtitle: "Cepat dan dekat dengan perangkat keras",
++    badge: "C++",
++    color: "violet",
++    lessons: [
++      {
++        id: "cpp-1",
++        title: "Struktur Program",
++        questions: [
++          mc("Header yang dibutuhkan untuk memakai cout adalah…", ["<iostream>", "<stdio>", "<cout>", "<io>"], 0, "<iostream> menyediakan cin dan cout."),
++          mc("Fungsi utama program C++ bernama…", ["start", "main", "run", "program"], 1, "Eksekusi dimulai dari main()."),
++          order("Susun perintah cetak.", ["std::cout", "<<", '"Halo"', "<<", "std::endl;"], "cout memakai operator << untuk mengirim data.", [">>"]),
++          order("Susun fungsi main.", ["int main()", "{", "return 0;", "}"], "main mengembalikan 0 bila program berhasil."),
++          fill("Lengkapi direktif impor header.", "#___ <iostream>", ["include"], ["include", "import", "using", "require"], "#include menyertakan header."),
++          fill("Setiap pernyataan C++ diakhiri dengan…", "int x = 5___", [";"], [";", ":", ".", ","], "Titik koma menutup pernyataan."),
++        ],
++      },
++      {
++        id: "cpp-2",
++        title: "Variabel & Kondisi",
++        questions: [
++          mc("Tipe untuk bilangan desimal berpresisi ganda adalah…", ["int", "char", "double", "bool"], 2, "double menyimpan bilangan desimal."),
++          mc("Objek untuk membaca input dari keyboard adalah…", ["cin", "cout", "read", "get"], 0, "std::cin membaca input dengan operator >>."),
++          order("Susun deklarasi variabel.", ["int", "umur", "=", "20;"], "Tipe, nama, tanda sama dengan, nilai."),
++          order("Susun if-else.", ["if (x > 0)", '{ std::cout << "Positif"; }', "else", '{ std::cout << "Bukan"; }'], "else menangani sisanya.", ["elif"]),
++          fill("Operator untuk membaca input:", "std::cin ___ x;", [">>"], [">>", "<<", "=", "->"], "cin memakai >>, sedangkan cout memakai <<."),
++          fill("Tipe untuk teks:", 'std::___ nama = "Ani";', ["string"], ["string", "String", "text", "char"], "std::string menyimpan teks."),
++        ],
++      },
++      {
++        id: "cpp-3",
++        title: "Perulangan & Fungsi",
++        questions: [
++          mc("Tipe kembalian untuk fungsi yang tidak mengembalikan nilai adalah…", ["null", "void", "empty", "none"], 1, "void berarti tidak ada nilai yang dikembalikan."),
++          mc("Hasil dari 10 / 3 jika keduanya bertipe int adalah…", ["3", "3.33", "4", "3.0"], 0, "Pembagian bilangan bulat membuang bagian pecahan."),
++          order("Susun perulangan for.", ["for (int i = 0;", "i < 3;", "i++)", "{ std::cout << i; }"], "Inisialisasi, kondisi, langkah.", ["i--)"]),
++          order("Susun fungsi penjumlahan.", ["int tambah(int a, int b)", "{", "return a + b;", "}"], "Fungsi punya tipe kembalian, nama, parameter, dan badan."),
++          fill("Fungsi tanpa nilai kembalian.", "___ sapa() { }", ["void"], ["void", "def", "function", "var"], "Tipe void dipakai bila fungsi tidak mengembalikan apa pun."),
++          fill("Ulangi selama kondisi benar.", "___ (n > 0) { n--; }", ["while"], ["while", "for", "if", "do"], "while mengulang selama kondisinya benar."),
++        ],
++      },
++    ],
++  },
+ ];
+ 
+-export const ALL_LESSONS: Lesson[] = UNITS.flatMap((u) => u.lessons);
++export const ALL_LESSONS: Lesson[] = LANGUAGES.flatMap((l) => l.lessons);
++
++export function getLanguage(id: string): Language | undefined {
++  return LANGUAGES.find((l) => l.id === id);
++}
++
++/** Bahasa pemilik sebuah pelajaran. */
++export function languageOfLesson(lessonId: string): Language | undefined {
++  return LANGUAGES.find((l) => l.lessons.some((x) => x.id === lessonId));
++}
++
++/** Pelajaran terbuka bila pertama di bahasanya, atau pelajaran sebelumnya (di bahasa yang sama) sudah selesai. */
++export function isLessonUnlocked(lessonId: string, completed: Record<string, unknown>): boolean {
++  const lang = languageOfLesson(lessonId);
++  if (!lang) return false;
++  const i = lang.lessons.findIndex((x) => x.id === lessonId);
++  return i === 0 || !!completed[lang.lessons[i - 1].id];
++}
+diff --git a/lib/session.ts b/lib/session.ts
+index 34d7e95..59810d9 100644
+--- a/lib/session.ts
++++ b/lib/session.ts
+@@ -9,7 +9,6 @@ export type LessonSession = {
+   phase: "answer" | "feedback";
+   wasCorrect: boolean;
+   attempt: number;
+-  failed: boolean;
+   summary: { xp: number; accuracy: number } | null;
+ };
+ 
+@@ -33,8 +32,7 @@ export function loadSession(): LessonSession | null {
+       !isInt(s.stats.total) ||
+       (s.phase !== "answer" && s.phase !== "feedback") ||
+       typeof s.wasCorrect !== "boolean" ||
+-      !isInt(s.attempt) ||
+-      typeof s.failed !== "boolean"
++      !isInt(s.attempt)
+     ) {
+       return null;
+     }
+diff --git a/lib/store.tsx b/lib/store.tsx
+index 6f2ff53..acd9056 100644
+--- a/lib/store.tsx
++++ b/lib/store.tsx
+@@ -5,18 +5,12 @@ import { ALL_LESSONS } from "./data";
+ import { clearSession } from "./session";
+ import { setSoundEnabled } from "./sound";
+ 
+-export const MAX_LIVES = 5;
+-export const HEART_REGEN_MS = 15 * 60 * 1000;
+-export const REFILL_COST = 50;
+ const STORAGE_KEY = "kodequest:v1";
+ 
+ export type LessonResult = { stars: number; accuracy: number };
+ 
+ export type Progress = {
+   xp: number;
+-  lives: number;
+-  /** Waktu (ms) acuan pemulihan hati berikutnya */
+-  livesAt: number;
+   streak: number;
+   /** Tanggal aktif terakhir, format YYYY-MM-DD (waktu lokal) */
+   lastActive: string | null;
+@@ -26,8 +20,6 @@ export type Progress = {
+ 
+ const initial = (): Progress => ({
+   xp: 0,
+-  lives: MAX_LIVES,
+-  livesAt: Date.now(),
+   streak: 0,
+   lastActive: null,
+   completed: {},
+@@ -46,15 +38,6 @@ function daysBetween(a: string, b: string) {
+   return Math.round((db.getTime() - da.getTime()) / 86400000);
+ }
+ 
+-/** Terapkan pemulihan hati berdasarkan waktu yang berlalu. */
+-function regen(p: Progress, now = Date.now()): Progress {
+-  if (p.lives >= MAX_LIVES) return p.livesAt === now ? p : { ...p, livesAt: now };
+-  const gained = Math.floor((now - p.livesAt) / HEART_REGEN_MS);
+-  if (gained <= 0) return p;
+-  const lives = Math.min(MAX_LIVES, p.lives + gained);
+-  return { ...p, lives, livesAt: lives >= MAX_LIVES ? now : p.livesAt + gained * HEART_REGEN_MS };
+-}
+-
+ /** Rapikan data dari storage / impor agar aman dipakai. */
+ function sanitize(raw: unknown): Progress | null {
+   if (!raw || typeof raw !== "object") return null;
+@@ -73,8 +56,6 @@ function sanitize(raw: unknown): Progress | null {
+   }
+   return {
+     xp: num(r.xp, base.xp),
+-    lives: num(r.lives, base.lives, 0, MAX_LIVES),
+-    livesAt: num(r.livesAt, base.livesAt),
+     streak: num(r.streak, 0),
+     lastActive: typeof r.lastActive === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.lastActive) ? r.lastActive : null,
+     completed,
+@@ -87,9 +68,7 @@ type Ctx = {
+   progress: Progress;
+   /** Streak yang ditampilkan (0 bila sudah putus) */
+   streakShown: number;
+-  loseLife: () => void;
+   completeLesson: (id: string, xpGained: number, accuracy: number) => void;
+-  refillLives: () => void;
+   toggleSound: () => void;
+   exportJson: () => string;
+   importJson: (text: string) => { ok: boolean; message: string };
+@@ -108,7 +87,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
+       const saved = localStorage.getItem(STORAGE_KEY);
+       if (saved) {
+         const p = sanitize(JSON.parse(saved));
+-        if (p) setProgress(regen(p));
++        if (p) setProgress(p);
+       }
+     } catch {
+       /* abaikan data rusak */
+@@ -127,20 +106,6 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
+     setSoundEnabled(progress.sound);
+   }, [progress, ready]);
+ 
+-  // Pemulihan hati berkala.
+-  useEffect(() => {
+-    const t = setInterval(() => setProgress((p) => regen(p)), 20000);
+-    return () => clearInterval(t);
+-  }, []);
+-
+-  const loseLife = useCallback(() => {
+-    setProgress((p) => {
+-      if (p.lives <= 0) return p;
+-      // Saat turun dari penuh, mulai hitung pemulihan dari sekarang.
+-      return { ...p, lives: p.lives - 1, livesAt: p.lives >= MAX_LIVES ? Date.now() : p.livesAt };
+-    });
+-  }, []);
+-
+   const completeLesson = useCallback((id: string, xpGained: number, accuracy: number) => {
+     setProgress((p) => {
+       const today = dayKey();
+@@ -157,13 +122,6 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
+     });
+   }, []);
+ 
+-  const refillLives = useCallback(() => {
+-    setProgress((p) => {
+-      if (p.xp < REFILL_COST || p.lives >= MAX_LIVES) return p;
+-      return { ...p, xp: p.xp - REFILL_COST, lives: MAX_LIVES, livesAt: Date.now() };
+-    });
+-  }, []);
+-
+   const toggleSound = useCallback(() => setProgress((p) => ({ ...p, sound: !p.sound })), []);
+ 
+   const exportJson = useCallback(
+@@ -177,7 +135,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
+       const p = sanitize(parsed?.app === "kodequest" ? parsed.data : parsed);
+       if (!p) return { ok: false, message: "Format file tidak dikenali." };
+       clearSession();
+-      setProgress(regen(p));
++      setProgress(p);
+       return { ok: true, message: "Progres berhasil dipulihkan." };
+     } catch {
+       return { ok: false, message: "File bukan JSON yang valid." };
+@@ -196,8 +154,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
+   }, [progress.lastActive, progress.streak]);
+ 
+   const value = useMemo<Ctx>(
+-    () => ({ ready, progress, streakShown, loseLife, completeLesson, refillLives, toggleSound, exportJson, importJson, reset }),
+-    [ready, progress, streakShown, loseLife, completeLesson, refillLives, toggleSound, exportJson, importJson, reset]
++    () => ({ ready, progress, streakShown, completeLesson, toggleSound, exportJson, importJson, reset }),
++    [ready, progress, streakShown, completeLesson, toggleSound, exportJson, importJson, reset]
+   );
+ 
+   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
+diff --git a/lib/theme.ts b/lib/theme.ts
+new file mode 100644
+index 0000000..fdf1ddb
+--- /dev/null
++++ b/lib/theme.ts
+@@ -0,0 +1,14 @@
++import type { LanguageColor } from "./data";
++
++/** Kelas Tailwind per warna bahasa (ditulis lengkap agar terdeteksi Tailwind). */
++export const LANGUAGE_STYLES: Record<
++  LanguageColor,
++  { banner: string; node: string; solid: string; shadow: string; text: string; soft: string; bar: string }
++> = {
++  emerald: { banner: "bg-teal-500 shadow-[0_5px_0_#0f766e]", node: "bg-teal-500 shadow-[0_6px_0_#0f766e]", solid: "bg-teal-500", shadow: "shadow-[0_5px_0_#0f766e]", text: "text-teal-600", soft: "bg-teal-50", bar: "bg-teal-500" },
++  indigo: { banner: "bg-indigo-500 shadow-[0_5px_0_#3730a3]", node: "bg-indigo-500 shadow-[0_6px_0_#3730a3]", solid: "bg-indigo-500", shadow: "shadow-[0_5px_0_#3730a3]", text: "text-indigo-600", soft: "bg-indigo-50", bar: "bg-indigo-500" },
++  amber: { banner: "bg-amber-500 shadow-[0_5px_0_#b45309]", node: "bg-amber-500 shadow-[0_6px_0_#b45309]", solid: "bg-amber-500", shadow: "shadow-[0_5px_0_#b45309]", text: "text-amber-600", soft: "bg-amber-50", bar: "bg-amber-500" },
++  sky: { banner: "bg-sky-500 shadow-[0_5px_0_#0369a1]", node: "bg-sky-500 shadow-[0_6px_0_#0369a1]", solid: "bg-sky-500", shadow: "shadow-[0_5px_0_#0369a1]", text: "text-sky-600", soft: "bg-sky-50", bar: "bg-sky-500" },
++  rose: { banner: "bg-rose-500 shadow-[0_5px_0_#be123c]", node: "bg-rose-500 shadow-[0_6px_0_#be123c]", solid: "bg-rose-500", shadow: "shadow-[0_5px_0_#be123c]", text: "text-rose-600", soft: "bg-rose-50", bar: "bg-rose-500" },
++  violet: { banner: "bg-violet-500 shadow-[0_5px_0_#5b21b6]", node: "bg-violet-500 shadow-[0_6px_0_#5b21b6]", solid: "bg-violet-500", shadow: "shadow-[0_5px_0_#5b21b6]", text: "text-violet-600", soft: "bg-violet-50", bar: "bg-violet-500" },
++};

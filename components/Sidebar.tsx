@@ -1,9 +1,10 @@
 "use client";
 
-import { UNITS } from "@/lib/data";
-import { MAX_LIVES, useProgress } from "@/lib/store";
+import Link from "next/link";
+import type { Language } from "@/lib/data";
+import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
-import { BoltIcon, DownloadIcon, FlameIcon, HeartIcon } from "./Icons";
+import { BoltIcon, DownloadIcon, FlameIcon } from "./Icons";
 
 function Row({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: string }) {
   return (
@@ -15,10 +16,10 @@ function Row({ icon, label, value, tone }: { icon: React.ReactNode; label: strin
   );
 }
 
-export function Sidebar({ onStart, onOpenSettings }: { onStart: (id: string) => void; onOpenSettings: () => void }) {
+export function Sidebar({ language, onStart, onOpenSettings }: { language: Language; onStart: (id: string) => void; onOpenSettings: () => void }) {
   const { progress, streakShown } = useProgress();
 
-  const all = UNITS.flatMap((u) => u.lessons.map((l) => ({ l, unit: u })));
+  const all = language.lessons.map((l) => ({ l, unit: language }));
   const done = all.filter((x) => progress.completed[x.l.id]).length;
   const next = all.find((x) => !progress.completed[x.l.id]);
   const pct = Math.round((done / all.length) * 100);
@@ -30,13 +31,12 @@ export function Sidebar({ onStart, onOpenSettings }: { onStart: (id: string) => 
         <ul className="mt-1 divide-y-2 divide-slate-100">
           <Row icon={<FlameIcon size={22} />} label="Streak hari" value={String(streakShown)} tone="text-orange-500" />
           <Row icon={<BoltIcon size={22} />} label="Total XP" value={String(progress.xp)} tone="text-amber-500" />
-          <Row icon={<HeartIcon size={22} />} label="Hati" value={`${progress.lives}/${MAX_LIVES}`} tone="text-rose-500" />
         </ul>
       </section>
 
       <section className="rounded-3xl border-2 border-slate-200 p-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-black text-indigo-950">Progres</h2>
+          <h2 className="font-black text-indigo-950">Progres {language.title}</h2>
           <span className="text-sm font-extrabold text-teal-600">{pct}%</span>
         </div>
         <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
@@ -52,19 +52,25 @@ export function Sidebar({ onStart, onOpenSettings }: { onStart: (id: string) => 
             <p className="mt-1 font-black text-indigo-950">{next.l.title}</p>
             <p className="text-sm font-semibold text-slate-500">{next.unit.title}</p>
             <button
-              disabled={progress.lives <= 0}
               onClick={() => {
                 sfx.click();
                 onStart(next.l.id);
               }}
-              className="btn-3d mt-4 w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#3730a3] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-[0_4px_0_#cbd5e1]"
+              className="btn-3d mt-4 w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#3730a3]"
             >
-              {progress.lives <= 0 ? "Hati habis" : "Lanjutkan"}
+              Lanjutkan
             </button>
           </div>
         ) : (
-          <p className="mt-4 border-t-2 border-slate-100 pt-4 text-sm font-bold text-teal-600">Semua pelajaran selesai. Ulangi kapan saja untuk berlatih.</p>
+          <p className="mt-4 border-t-2 border-slate-100 pt-4 text-sm font-bold text-teal-600">Semua pelajaran {language.title} selesai. Ulangi kapan saja, atau coba bahasa lain.</p>
         )}
+        <Link
+          href="/belajar/"
+          onClick={() => sfx.click()}
+          className="btn-3d mt-4 block w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 text-center text-sm font-extrabold text-indigo-600 shadow-[0_3px_0_#e2e8f0]"
+        >
+          Ganti bahasa
+        </Link>
       </section>
 
       <section className="rounded-3xl border-2 border-slate-200 p-5">

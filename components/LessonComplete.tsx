@@ -1,19 +1,16 @@
 "use client";
 
-import { HeartCount } from "./Header";
 import { BoltIcon, StarIcon, TrophyIcon } from "./Icons";
 
 export function LessonComplete({
   title,
   xp,
   accuracy,
-  lives,
   onBack,
 }: {
   title: string;
   xp: number;
   accuracy: number;
-  lives: number;
   onBack: () => void;
 }) {
   const stars = accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : 1;
@@ -32,7 +29,7 @@ export function LessonComplete({
           ))}
         </div>
 
-        <div className="mt-8 grid w-full grid-cols-3 gap-3">
+        <div className="mt-8 grid w-full grid-cols-2 gap-3">
           <div className="anim-fade-in overflow-hidden rounded-2xl border-2 border-amber-400 text-center">
             <p className="bg-amber-400 py-1 text-xs font-extrabold uppercase tracking-wide text-white">XP</p>
             <p className="flex items-center justify-center gap-1 py-3 text-xl font-black text-amber-500">
@@ -43,12 +40,6 @@ export function LessonComplete({
           <div className="anim-fade-in overflow-hidden rounded-2xl border-2 border-teal-500 text-center" style={{ animationDelay: "0.08s" }}>
             <p className="bg-teal-500 py-1 text-xs font-extrabold uppercase tracking-wide text-white">Akurasi</p>
             <p className="py-3 text-xl font-black text-teal-600">{accuracy}%</p>
-          </div>
-          <div className="anim-fade-in overflow-hidden rounded-2xl border-2 border-rose-500 text-center" style={{ animationDelay: "0.16s" }}>
-            <p className="bg-rose-500 py-1 text-xs font-extrabold uppercase tracking-wide text-white">Hati</p>
-            <p className="flex items-center justify-center py-3 text-xl">
-              <HeartCount lives={lives} />
-            </p>
           </div>
         </div>
       </div>

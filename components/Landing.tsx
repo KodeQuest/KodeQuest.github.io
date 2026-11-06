@@ -1,16 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ALL_LESSONS, UNITS } from "@/lib/data";
+import { ALL_LESSONS, LANGUAGES } from "@/lib/data";
+import { LANGUAGE_STYLES } from "@/lib/theme";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
-import { BoltIcon, CheckIcon, CodeIcon, DownloadIcon, FlameIcon, HeartIcon, LayoutIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
-
-const UNIT_COLORS = {
-  emerald: { solid: "bg-teal-500", shadow: "shadow-[0_5px_0_#0f766e]", text: "text-teal-600", soft: "bg-teal-50" },
-  indigo: { solid: "bg-indigo-500", shadow: "shadow-[0_5px_0_#3730a3]", text: "text-indigo-600", soft: "bg-indigo-50" },
-  amber: { solid: "bg-amber-500", shadow: "shadow-[0_5px_0_#b45309]", text: "text-amber-600", soft: "bg-amber-50" },
-} as const;
+import { BoltIcon, CheckIcon, CodeIcon, DownloadIcon, FlameIcon, LayoutIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
 
 function PrimaryButton({ children, onClick, className = "" }: { children: ReactNode; onClick: () => void; className?: string }) {
   return (
@@ -31,9 +26,6 @@ function HeroVisual() {
           <div className="h-3.5 flex-1 overflow-hidden rounded-full bg-slate-200">
             <div className="h-full w-2/3 rounded-full bg-teal-500" />
           </div>
-          <span className="flex items-center gap-1 text-sm font-extrabold text-rose-500">
-            <HeartIcon size={18} /> 5
-          </span>
         </div>
         <p className="text-xs font-extrabold uppercase tracking-wide text-indigo-400">Susun kode</p>
         <p className="mb-4 mt-1 text-lg font-black text-indigo-950">Susun sebuah tautan.</p>
@@ -65,9 +57,9 @@ function HeroVisual() {
 }
 
 const FEATURES = [
-  { icon: <LayoutIcon size={26} />, title: "Jalur belajar terarah", text: "Mulai dari HTML, lanjut CSS, lalu JavaScript. Setiap pelajaran terbuka setelah yang sebelumnya selesai.", tone: "bg-indigo-500" },
+  { icon: <LayoutIcon size={26} />, title: "Jalur belajar terarah", text: "Pilih bahasa favoritmu, lalu ikuti jalurnya. Setiap pelajaran terbuka setelah yang sebelumnya selesai.", tone: "bg-indigo-500" },
   { icon: <CodeIcon size={26} />, title: "Tiga jenis latihan", text: "Pilihan ganda, menyusun blok kode, dan mengisi bagian rumpang. Kamu benar-benar bermain dengan sintaks.", tone: "bg-teal-500" },
-  { icon: <BoltIcon size={26} />, title: "XP, hati, dan streak", text: "Kumpulkan XP tiap jawaban benar, jaga lima hati, dan bangun kebiasaan belajar harian.", tone: "bg-amber-500" },
+  { icon: <BoltIcon size={26} />, title: "XP, bintang, dan streak", text: "Kumpulkan XP tiap jawaban benar, raih tiga bintang, dan bangun kebiasaan belajar harian.", tone: "bg-amber-500" },
   { icon: <DownloadIcon size={26} />, title: "Progres aman", text: "Tersimpan otomatis di browser, dan bisa diekspor atau diimpor sebagai file JSON untuk pindah perangkat.", tone: "bg-rose-500" },
 ];
 
@@ -112,7 +104,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
             Belajar koding, <span className="text-indigo-600">satu langkah</span> demi satu langkah.
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg font-medium leading-relaxed text-slate-500 lg:mx-0">
-            Pelajari dasar HTML, CSS, dan JavaScript lewat latihan singkat yang seru. Kumpulkan XP, jaga hatimu, dan bangun streak harianmu.
+            Pilih bahasa pemrograman, mulai dari HTML, CSS, JavaScript, Python, Java, hingga C++, lalu belajar lewat latihan singkat yang seru. Kumpulkan XP dan bangun streak harianmu.
           </p>
           <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
             <PrimaryButton onClick={go} className="w-full sm:w-auto">{cta}</PrimaryButton>
@@ -128,7 +120,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
             {[
               [String(ALL_LESSONS.length), "pelajaran"],
               [String(ALL_LESSONS.reduce((n, l) => n + l.questions.length, 0)), "soal latihan"],
-              [String(UNITS.length), "bahasa dasar"],
+              [String(LANGUAGES.length), "bahasa pemrograman"],
             ].map(([v, l]) => (
               <div key={l}>
                 <dt className="text-3xl font-black text-indigo-950">{v}</dt>
@@ -162,16 +154,16 @@ export function Landing({ onStart }: { onStart: () => void }) {
       <section id="materi" className="scroll-mt-16 py-20">
         <div className="mx-auto max-w-6xl px-5">
           <h2 className="text-center text-3xl font-black text-indigo-950 sm:text-4xl">Apa yang akan kamu pelajari</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-center font-medium text-slate-500">Tiga unit berurutan, dari kerangka halaman sampai logika program.</p>
+          <p className="mx-auto mt-3 max-w-2xl text-center font-medium text-slate-500">Pilih bahasa pemrogramanmu. Tiap bahasa punya jalur pelajaran dan soal latihannya sendiri.</p>
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {UNITS.map((u, i) => {
-              const c = UNIT_COLORS[u.color];
+            {LANGUAGES.map((u) => {
+              const c = LANGUAGE_STYLES[u.color];
               return (
                 <div key={u.id} className="overflow-hidden rounded-3xl border-2 border-slate-200 bg-white">
                   <div className={`flex items-center justify-between px-5 py-4 text-white ${c.solid}`}>
                     <div>
-                      <p className="text-xs font-extrabold uppercase tracking-wide text-white/80">Unit {i + 1}</p>
-                      <h3 className="text-xl font-black">{u.title.split("·")[1]?.trim() ?? u.title}</h3>
+                      <p className="text-xs font-extrabold uppercase tracking-wide text-white/80">Bahasa</p>
+                      <h3 className="text-xl font-black">{u.title}</h3>
                     </div>
                     <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/20">
                       <UnitIcon unit={u.color} size={24} />
@@ -200,10 +192,10 @@ export function Landing({ onStart }: { onStart: () => void }) {
       <section className="bg-slate-50 py-20">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-2">
           <div>
-            <h2 className="text-3xl font-black text-indigo-950 sm:text-4xl">Hati dan XP membuat latihan terasa seperti permainan</h2>
+            <h2 className="text-3xl font-black text-indigo-950 sm:text-4xl">XP dan streak membuat latihan terasa seperti permainan</h2>
             <ul className="mt-8 space-y-5">
               {[
-                [<HeartIcon key="h" size={22} />, "text-rose-500", "Lima hati", "Jawaban salah mengurangi satu hati. Hati pulih satu setiap 15 menit, atau diisi ulang dengan 50 XP."],
+                [<StarIcon key="s" size={22} />, "text-amber-400", "Tiga bintang", "Jawaban yang salah tidak mengurangi apa pun, tapi akan diulang di akhir. Makin akurat, makin banyak bintang."],
                 [<BoltIcon key="b" size={22} />, "text-amber-500", "XP tiap jawaban benar", "Selesaikan pelajaran tanpa salah untuk bonus XP dan tiga bintang."],
                 [<FlameIcon key="f" size={22} />, "text-orange-500", "Streak harian", "Belajar sehari sekali untuk menjaga streak tetap menyala."],
               ].map(([icon, tone, title, text]) => (
@@ -246,7 +238,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
       <section className="px-5 py-20">
         <div className="mx-auto max-w-4xl rounded-3xl bg-indigo-600 px-6 py-14 text-center text-white shadow-[0_8px_0_#3730a3] sm:px-12">
           <h2 className="text-3xl font-black sm:text-4xl">Siap menulis kode pertamamu?</h2>
-          <p className="mx-auto mt-3 max-w-xl font-medium text-indigo-100">Tidak perlu daftar atau memasang apa pun. Buka, pilih pelajaran, dan mulai.</p>
+          <p className="mx-auto mt-3 max-w-xl font-medium text-indigo-100">Tidak perlu daftar atau memasang apa pun. Buka, pilih bahasa, dan mulai.</p>
           <button
             onClick={go}
             className="btn-3d mt-8 rounded-2xl bg-white px-8 py-4 text-base font-black uppercase tracking-wide text-indigo-600 shadow-[0_5px_0_#c7d2fe] hover:bg-indigo-50"
@@ -256,7 +248,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
         </div>
       </section>
 
-      <footer className="border-t-2 border-slate-100 py-8 text-center text-sm font-semibold text-slate-400">KodeQuest · Belajar fundamental HTML, CSS, dan JavaScript</footer>
+      <footer className="border-t-2 border-slate-100 py-8 text-center text-sm font-semibold text-slate-400">KodeQuest · Belajar fundamental pemrograman dari berbagai bahasa</footer>
     </div>
   );
 }

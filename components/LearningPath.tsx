@@ -1,19 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { UNITS } from "@/lib/data";
-import { HEART_REGEN_MS, MAX_LIVES, REFILL_COST, useProgress } from "@/lib/store";
+import { type Language } from "@/lib/data";
+import { LANGUAGE_STYLES } from "@/lib/theme";
+import { useProgress } from "@/lib/store";
 import { loadSession } from "@/lib/session";
 import { sfx } from "@/lib/sound";
 import { CheckIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
 
 const OFFSETS = [0, 38, 58, 38, 0, -38, -58, -38];
-
-const UNIT_STYLES = {
-  emerald: { banner: "bg-teal-500 shadow-[0_5px_0_#0f766e]", node: "bg-teal-500 shadow-[0_6px_0_#0f766e]", text: "text-teal-600" },
-  indigo: { banner: "bg-indigo-500 shadow-[0_5px_0_#3730a3]", node: "bg-indigo-500 shadow-[0_6px_0_#3730a3]", text: "text-indigo-600" },
-  amber: { banner: "bg-amber-500 shadow-[0_5px_0_#b45309]", node: "bg-amber-500 shadow-[0_6px_0_#b45309]", text: "text-amber-600" },
-} as const;
 
 function Stars({ count, size = 14 }: { count: number; size?: number }) {
   return (
@@ -25,8 +20,8 @@ function Stars({ count, size = 14 }: { count: number; size?: number }) {
   );
 }
 
-export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
-  const { progress, ready, refillLives } = useProgress();
+export function LearningPath({ language, onStart }: { language: Language; onStart: (id: string) => void }) {
+  const { progress, ready } = useProgress();
   const [sheetId, setSheetId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,24 +31,21 @@ export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [sheetId]);
 
-  const flat = UNITS.flatMap((u) => u.lessons.map((l) => l.id));
+  const flat = language.lessons.map((l) => l.id);
   const firstOpen = flat.find((id) => !progress.completed[id]) ?? null;
   const unlocked = (id: string) => {
     const i = flat.indexOf(id);
     return i === 0 || !!progress.completed[flat[i - 1]];
   };
 
-  const regenMin = Math.max(1, Math.ceil((progress.livesAt + HEART_REGEN_MS - Date.now()) / 60000));
-  const outOfLives = progress.lives <= 0;
-
-  const sheetLesson = sheetId ? UNITS.flatMap((u) => u.lessons.map((l) => ({ l, unit: u }))).find((x) => x.l.id === sheetId) : null;
+  const sheetLesson = sheetId ? language.lessons.map((l) => ({ l, unit: language })).find((x) => x.l.id === sheetId) : null;
 
   let counter = 0;
 
   return (
     <div className={`transition-opacity ${ready ? "opacity-100" : "opacity-0"}`}>
-      {UNITS.map((unit) => {
-        const st = UNIT_STYLES[unit.color];
+      {[language].map((unit) => {
+        const st = LANGUAGE_STYLES[unit.color];
         return (
           <section key={unit.id} className="mb-12">
             <div className={`flex items-center justify-between rounded-2xl px-5 py-4 text-white ${st.banner}`}>
@@ -127,28 +119,13 @@ export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
             className="anim-slide-up w-full max-w-md rounded-t-3xl bg-white p-6 sm:rounded-3xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className={`text-xs font-extrabold uppercase tracking-wide ${UNIT_STYLES[sheetLesson.unit.color].text}`}>{sheetLesson.unit.title}</p>
+            <p className={`text-xs font-extrabold uppercase tracking-wide ${LANGUAGE_STYLES[sheetLesson.unit.color].text}`}>{sheetLesson.unit.title}</p>
             <h3 className="mt-1 text-2xl font-black text-indigo-950">{sheetLesson.l.title}</h3>
             <p className="mt-1 text-sm font-semibold text-slate-500">
               {sheetLesson.l.questions.length} soal
               {progress.completed[sheetLesson.l.id] ? ` · akurasi terbaik ${progress.completed[sheetLesson.l.id].accuracy}%` : ""}
             </p>
 
-            {outOfLives ? (
-              <div className="mt-5">
-                <p className="text-sm font-bold text-rose-600">Hati habis. Satu hati pulih sekitar {regenMin} menit lagi.</p>
-                <button
-                  onClick={() => {
-                    sfx.click();
-                    refillLives();
-                  }}
-                  disabled={progress.xp < REFILL_COST}
-                  className="btn-3d mt-3 w-full rounded-2xl bg-rose-500 px-6 py-3.5 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#be123c] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-[0_4px_0_#cbd5e1]"
-                >
-                  Isi ulang {MAX_LIVES} hati ({REFILL_COST} XP)
-                </button>
-              </div>
-            ) : (
               <button
                 onClick={() => {
                   sfx.click();
@@ -161,12 +138,11 @@ export function LearningPath({ onStart }: { onStart: (id: string) => void }) {
               >
                 {loadSession()?.lessonId === sheetLesson.l.id ? "Lanjutkan" : progress.completed[sheetLesson.l.id] ? "Latihan lagi" : "Mulai"}
               </button>
-            )}
           </div>
         </div>
       )}
 
-      <p className="pb-6 text-center text-sm font-semibold text-slate-400">Materi baru segera hadir</p>
+      <p className="pb-6 text-center text-sm font-semibold text-slate-400">Materi {language.title} berikutnya segera hadir</p>
     </div>
   );
 }
