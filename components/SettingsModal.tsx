@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 import { CloseIcon, DownloadIcon, UploadIcon } from "./Icons";
+import { Modal } from "./Modal";
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
   const { progress, exportJson, importJson, toggleSound, reset } = useProgress();
@@ -39,17 +40,12 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 sm:items-center sm:p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Pengaturan"
-    >
-      <div className="anim-slide-up w-full max-w-md rounded-t-3xl bg-white p-6 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+    <Modal label="Pengaturan" onClose={onClose}>
+      {(close) => (
+      <>
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-xl font-black text-indigo-950">Pengaturan</h2>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label="Tutup">
+          <button onClick={close} className="grid h-9 w-9 place-items-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label="Tutup">
             <CloseIcon size={20} />
           </button>
         </div>
@@ -124,7 +120,8 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </>
+      )}
+    </Modal>
   );
 }

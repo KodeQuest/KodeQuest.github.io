@@ -8,6 +8,7 @@ import { sfx } from "@/lib/sound";
 import { CheckIcon, CloseIcon } from "./Icons";
 import { CodeOrder, FillBlank, MultipleChoice, TypeAnswer } from "./questions";
 import { LessonComplete } from "./LessonComplete";
+import { ConfirmModal } from "./Modal";
 
 type Answer = number | string[] | string;
 
@@ -48,6 +49,7 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
   const [wasCorrect, setWasCorrect] = useState(false);
   const [stats, setStats] = useState({ correct: 0, total: 0 });
   const [attempt, setAttempt] = useState(0);
+  const [confirmExit, setConfirmExit] = useState(false);
   const [summary, setSummary] = useState<{ xp: number; accuracy: number } | null>(null);
 
   // Pulihkan sesi yang tersimpan (misalnya setelah refresh).
@@ -108,7 +110,7 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
   // Enter untuk memeriksa / lanjut
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Enter") return;
+      if (e.key !== "Enter" || confirmExit) return;
       if ((e.target as HTMLElement | null)?.tagName === "BUTTON") return;
       e.preventDefault();
       if (phase === "answer") check();
@@ -116,16 +118,14 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, check, next]);
+  }, [phase, check, next, confirmExit]);
 
   const leave = () => {
     clearSession();
     onExit();
   };
 
-  const exit = () => {
-    if (window.confirm("Keluar dari pelajaran? Progres pelajaran ini tidak akan disimpan.")) leave();
-  };
+  const exit = () => setConfirmExit(true);
 
   if (!hydrated) return <div className="min-h-dvh" />;
 
@@ -137,6 +137,17 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
 
   return (
     <div className="flex min-h-dvh flex-col">
+      {confirmExit && (
+        <ConfirmModal
+          title="Keluar dari pelajaran?"
+          message="Progres pelajaran ini tidak akan disimpan."
+          confirmLabel="Ya, keluar"
+          cancelLabel="Lanjut belajar"
+          danger
+          onConfirm={leave}
+          onCancel={() => setConfirmExit(false)}
+        />
+      )}
       <div className="mx-auto flex w-full max-w-3xl items-center gap-4 px-4 py-5">
         <button onClick={exit} aria-label="Keluar dari pelajaran" className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600">
           <CloseIcon size={22} />

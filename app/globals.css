@@ -45,11 +45,28 @@ body {
   50% { transform: translateY(-5px); }
 }
 
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheet-out { from { transform: translateY(0); } to { transform: translateY(100%); } }
+@keyframes dialog-in { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes dialog-out { from { transform: scale(1); opacity: 1; } to { transform: scale(0.92); opacity: 0; } }
+
+.anim-backdrop-in { animation: backdrop-in 0.2s ease-out both; }
+.anim-backdrop-out { animation: backdrop-out 0.2s ease-in both; }
+.anim-sheet-in { animation: sheet-in 0.22s ease-out both; }
+.anim-sheet-out { animation: sheet-out 0.2s ease-in both; }
+@media (min-width: 640px) {
+  .anim-sheet-in { animation: dialog-in 0.2s ease-out both; }
+  .anim-sheet-out { animation: dialog-out 0.2s ease-in both; }
+}
+
 .anim-pop { animation: pop 0.25s ease-out both; }
 .anim-slide-up { animation: slide-up 0.22s ease-out both; }
 .anim-fade-in { animation: fade-in 0.25s ease-out both; }
 .anim-bob { animation: bob 1.6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .anim-pop, .anim-slide-up, .anim-fade-in, .anim-bob { animation: none; }
+  .anim-pop, .anim-slide-up, .anim-fade-in, .anim-bob,
+  .anim-backdrop-in, .anim-backdrop-out, .anim-sheet-in, .anim-sheet-out { animation: none; }
 }
