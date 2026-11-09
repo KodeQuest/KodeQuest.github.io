@@ -1,0 +1,349 @@
+{
+  "id": "cpp",
+  "title": "C++",
+  "subtitle": "Cepat dan dekat dengan perangkat keras",
+  "badge": "C++",
+  "color": "violet",
+  "lessons": [
+    {
+      "id": "cpp-1",
+      "title": "Struktur Program",
+      "questions": [
+        {
+          "id": "cpp-1-q1",
+          "type": "mc",
+          "prompt": "Header yang dibutuhkan untuk memakai cout adalah…",
+          "options": [
+            "<iostream>",
+            "<stdio>",
+            "<cout>",
+            "<io>"
+          ],
+          "answer": 0,
+          "explain": "<iostream> menyediakan cin dan cout."
+        },
+        {
+          "id": "cpp-1-q2",
+          "type": "mc",
+          "prompt": "Fungsi utama program C++ bernama…",
+          "options": [
+            "start",
+            "main",
+            "run",
+            "program"
+          ],
+          "answer": 1,
+          "explain": "Eksekusi dimulai dari main()."
+        },
+        {
+          "id": "cpp-1-q3",
+          "type": "order",
+          "prompt": "Susun perintah cetak.",
+          "pieces": [
+            "std::cout",
+            "<<",
+            "\"Halo\"",
+            "<<",
+            "std::endl;"
+          ],
+          "decoys": [
+            ">>"
+          ],
+          "explain": "cout memakai operator << untuk mengirim data."
+        },
+        {
+          "id": "cpp-1-q4",
+          "type": "order",
+          "prompt": "Susun fungsi main.",
+          "pieces": [
+            "int main()",
+            "{",
+            "return 0;",
+            "}"
+          ],
+          "explain": "main mengembalikan 0 bila program berhasil."
+        },
+        {
+          "id": "cpp-1-q5",
+          "type": "fill",
+          "prompt": "Lengkapi direktif impor header.",
+          "code": "#___ <iostream>",
+          "answers": [
+            "include"
+          ],
+          "options": [
+            "include",
+            "import",
+            "using",
+            "require"
+          ],
+          "explain": "#include menyertakan header."
+        },
+        {
+          "id": "cpp-1-q6",
+          "type": "fill",
+          "prompt": "Setiap pernyataan C++ diakhiri dengan…",
+          "code": "int x = 5___",
+          "answers": [
+            ";"
+          ],
+          "options": [
+            ";",
+            ":",
+            ".",
+            ","
+          ],
+          "explain": "Titik koma menutup pernyataan."
+        },
+        {
+          "id": "cpp-1-q7",
+          "type": "type",
+          "prompt": "Ketik perintah cetak Halo dengan cout, diakhiri std::endl.",
+          "preview": "Halo",
+          "clue": "std::cout, operator <<, teks, operator <<, std::endl.",
+          "answers": [
+            "std::cout << \"Halo\" << std::endl;"
+          ],
+          "explain": "cout memakai operator << untuk mengirim data."
+        },
+        {
+          "id": "cpp-1-q8",
+          "type": "type",
+          "prompt": "Ketik direktif yang menyertakan header iostream.",
+          "preview": "(baris paling atas file C++)",
+          "clue": "Diawali #include lalu header dalam < >.",
+          "answers": [
+            "#include <iostream>"
+          ],
+          "explain": "#include menyertakan header."
+        }
+      ]
+    },
+    {
+      "id": "cpp-2",
+      "title": "Variabel & Kondisi",
+      "questions": [
+        {
+          "id": "cpp-2-q1",
+          "type": "mc",
+          "prompt": "Tipe untuk bilangan desimal berpresisi ganda adalah…",
+          "options": [
+            "int",
+            "char",
+            "double",
+            "bool"
+          ],
+          "answer": 2,
+          "explain": "double menyimpan bilangan desimal."
+        },
+        {
+          "id": "cpp-2-q2",
+          "type": "mc",
+          "prompt": "Objek untuk membaca input dari keyboard adalah…",
+          "options": [
+            "cin",
+            "cout",
+            "read",
+            "get"
+          ],
+          "answer": 0,
+          "explain": "std::cin membaca input dengan operator >>."
+        },
+        {
+          "id": "cpp-2-q3",
+          "type": "order",
+          "prompt": "Susun deklarasi variabel.",
+          "pieces": [
+            "int",
+            "umur",
+            "=",
+            "20;"
+          ],
+          "explain": "Tipe, nama, tanda sama dengan, nilai."
+        },
+        {
+          "id": "cpp-2-q4",
+          "type": "order",
+          "prompt": "Susun if-else.",
+          "pieces": [
+            "if (x > 0)",
+            "{ std::cout << \"Positif\"; }",
+            "else",
+            "{ std::cout << \"Bukan\"; }"
+          ],
+          "decoys": [
+            "elif"
+          ],
+          "explain": "else menangani sisanya."
+        },
+        {
+          "id": "cpp-2-q5",
+          "type": "fill",
+          "prompt": "Operator untuk membaca input:",
+          "code": "std::cin ___ x;",
+          "answers": [
+            ">>"
+          ],
+          "options": [
+            ">>",
+            "<<",
+            "=",
+            "->"
+          ],
+          "explain": "cin memakai >>, sedangkan cout memakai <<."
+        },
+        {
+          "id": "cpp-2-q6",
+          "type": "fill",
+          "prompt": "Tipe untuk teks:",
+          "code": "std::___ nama = \"Ani\";",
+          "answers": [
+            "string"
+          ],
+          "options": [
+            "string",
+            "String",
+            "text",
+            "char"
+          ],
+          "explain": "std::string menyimpan teks."
+        },
+        {
+          "id": "cpp-2-q7",
+          "type": "type",
+          "prompt": "Ketik perintah membaca input keyboard ke variabel x.",
+          "preview": "Nilai yang diketik tersimpan di x",
+          "clue": "std::cin dengan operator >>.",
+          "answers": [
+            "std::cin >> x;"
+          ],
+          "explain": "cin memakai >>, sedangkan cout memakai <<."
+        },
+        {
+          "id": "cpp-2-q8",
+          "type": "type",
+          "prompt": "Ketik deklarasi std::string nama berisi teks Ani.",
+          "preview": "nama → Ani",
+          "clue": "std::string, nama, =, teks, titik koma.",
+          "answers": [
+            "std::string nama = \"Ani\";"
+          ],
+          "explain": "std::string menyimpan teks."
+        }
+      ]
+    },
+    {
+      "id": "cpp-3",
+      "title": "Perulangan & Fungsi",
+      "questions": [
+        {
+          "id": "cpp-3-q1",
+          "type": "mc",
+          "prompt": "Tipe kembalian untuk fungsi yang tidak mengembalikan nilai adalah…",
+          "options": [
+            "null",
+            "void",
+            "empty",
+            "none"
+          ],
+          "answer": 1,
+          "explain": "void berarti tidak ada nilai yang dikembalikan."
+        },
+        {
+          "id": "cpp-3-q2",
+          "type": "mc",
+          "prompt": "Hasil dari 10 / 3 jika keduanya bertipe int adalah…",
+          "options": [
+            "3",
+            "3.33",
+            "4",
+            "3.0"
+          ],
+          "answer": 0,
+          "explain": "Pembagian bilangan bulat membuang bagian pecahan."
+        },
+        {
+          "id": "cpp-3-q3",
+          "type": "order",
+          "prompt": "Susun perulangan for.",
+          "pieces": [
+            "for (int i = 0;",
+            "i < 3;",
+            "i++)",
+            "{ std::cout << i; }"
+          ],
+          "decoys": [
+            "i--)"
+          ],
+          "explain": "Inisialisasi, kondisi, langkah."
+        },
+        {
+          "id": "cpp-3-q4",
+          "type": "order",
+          "prompt": "Susun fungsi penjumlahan.",
+          "pieces": [
+            "int tambah(int a, int b)",
+            "{",
+            "return a + b;",
+            "}"
+          ],
+          "explain": "Fungsi punya tipe kembalian, nama, parameter, dan badan."
+        },
+        {
+          "id": "cpp-3-q5",
+          "type": "fill",
+          "prompt": "Fungsi tanpa nilai kembalian.",
+          "code": "___ sapa() { }",
+          "answers": [
+            "void"
+          ],
+          "options": [
+            "void",
+            "def",
+            "function",
+            "var"
+          ],
+          "explain": "Tipe void dipakai bila fungsi tidak mengembalikan apa pun."
+        },
+        {
+          "id": "cpp-3-q6",
+          "type": "fill",
+          "prompt": "Ulangi selama kondisi benar.",
+          "code": "___ (n > 0) { n--; }",
+          "answers": [
+            "while"
+          ],
+          "options": [
+            "while",
+            "for",
+            "if",
+            "do"
+          ],
+          "explain": "while mengulang selama kondisinya benar."
+        },
+        {
+          "id": "cpp-3-q7",
+          "type": "type",
+          "prompt": "Ketik fungsi sapa tanpa nilai kembalian, tanpa parameter, badan kosong.",
+          "preview": "(fungsi yang tidak mengembalikan apa pun)",
+          "clue": "Tipe kembalian void, lalu sapa(), lalu kurung kurawal.",
+          "answers": [
+            "void sapa() { }"
+          ],
+          "explain": "void dipakai bila fungsi tidak mengembalikan nilai."
+        },
+        {
+          "id": "cpp-3-q8",
+          "type": "type",
+          "prompt": "Ketik perulangan while selama n > 0 yang mengurangi n.",
+          "preview": "n turun sampai 0",
+          "clue": "while (kondisi) lalu badan berisi n--;",
+          "answers": [
+            "while (n > 0) { n--; }"
+          ],
+          "explain": "while mengulang selama kondisinya benar."
+        }
+      ]
+    }
+  ]
+}

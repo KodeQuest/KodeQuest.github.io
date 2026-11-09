@@ -18,7 +18,8 @@ npm run build    # hasil statis ada di folder out/
 
 ## Struktur
 
-- `lib/data.ts` — daftar bahasa (`LANGUAGES`), pelajaran, dan soal. Tambah bahasa baru dengan satu objek baru di sini
+- `data/languages/<bahasa>.json` — semua soal per bahasa (pelajaran > soal, tiap soal punya `id` unik). Jenis soal: `mc`, `order`, `fill`, `type` (ketik manual: `preview`, `clue`, `answers`)
+- `lib/data.ts` — tipe, daftar bahasa (`LANGUAGES`), dan helper `getLesson`, `getQuestion(id)`, `getQuestionsByType(type, langId?)`. Bahasa baru: tambah file JSON lalu daftarkan di sini
 - `lib/theme.ts` — warna tiap bahasa
 - `app/belajar/` — halaman pilih bahasa; `app/belajar/bahasa/[langId]/` — jalur belajar per bahasa; `app/belajar/[lessonId]/` — pelajaran
 - `lib/store.tsx` — progres (XP, streak), localStorage, ekspor/impor JSON

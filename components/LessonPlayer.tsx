@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { Lesson, Question } from "@/lib/data";
+import { isTypedAnswerCorrect, type Lesson, type Question } from "@/lib/data";
 import { useProgress } from "@/lib/store";
 import { clearSession, loadSession, saveSession } from "@/lib/session";
 import { sfx } from "@/lib/sound";
 import { CheckIcon, CloseIcon } from "./Icons";
-import { CodeOrder, FillBlank, MultipleChoice } from "./questions";
+import { CodeOrder, FillBlank, MultipleChoice, TypeAnswer } from "./questions";
 import { LessonComplete } from "./LessonComplete";
 
 type Answer = number | string[] | string;
@@ -19,6 +19,8 @@ function evaluate(q: Question, a: Answer): boolean {
       return Array.isArray(a) && a.length === q.pieces.length && a.every((t, i) => t === q.pieces[i]);
     case "fill":
       return typeof a === "string" && q.answers.some((x) => x.toLowerCase() === a.trim().toLowerCase());
+    case "type":
+      return typeof a === "string" && isTypedAnswerCorrect(q, a);
   }
 }
 
@@ -29,6 +31,7 @@ function correctText(q: Question): string {
     case "order":
       return q.pieces.join(" ");
     case "fill":
+    case "type":
       return q.answers[0];
   }
 }
@@ -146,13 +149,14 @@ export function LessonPlayer({ lesson, onExit }: { lesson: Lesson; onExit: () =>
       <main className="mx-auto w-full max-w-xl flex-1 px-5 pb-56 pt-4 md:max-w-2xl">
         <div key={`${idx}-${attempt}`} className="anim-fade-in">
           <p className="mb-1 text-xs font-extrabold uppercase tracking-wide text-indigo-400">
-            {q.type === "mc" ? "Pilihan ganda" : q.type === "order" ? "Susun kode" : "Isi bagian rumpang"}
+            {q.type === "mc" ? "Pilihan ganda" : q.type === "order" ? "Susun kode" : q.type === "fill" ? "Isi bagian rumpang" : "Ketik manual"}
           </p>
           <h1 className="mb-6 text-2xl font-black leading-snug text-indigo-950">{q.prompt}</h1>
 
           {q.type === "mc" && <MultipleChoice q={q} locked={phase === "feedback"} onChange={setAnswer} />}
           {q.type === "order" && <CodeOrder q={q} locked={phase === "feedback"} onChange={setAnswer} />}
           {q.type === "fill" && <FillBlank q={q} locked={phase === "feedback"} onChange={setAnswer} />}
+          {q.type === "type" && <TypeAnswer q={q} locked={phase === "feedback"} onChange={setAnswer} />}
         </div>
       </main>
 

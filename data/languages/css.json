@@ -1,0 +1,351 @@
+{
+  "id": "css",
+  "title": "CSS",
+  "subtitle": "Gaya dan tata letak",
+  "badge": "{ }",
+  "color": "indigo",
+  "lessons": [
+    {
+      "id": "css-1",
+      "title": "Selektor & Warna",
+      "questions": [
+        {
+          "id": "css-1-q1",
+          "type": "mc",
+          "prompt": "Apa fungsi CSS?",
+          "options": [
+            "Mengatur tampilan halaman",
+            "Menyimpan data",
+            "Membuat logika program",
+            "Mengirim email"
+          ],
+          "answer": 0,
+          "explain": "CSS (Cascading Style Sheets) mengatur tampilan."
+        },
+        {
+          "id": "css-1-q2",
+          "type": "mc",
+          "prompt": "Selektor untuk elemen ber-class \"kartu\" adalah…",
+          "options": [
+            "#kartu",
+            ".kartu",
+            "kartu",
+            "*kartu"
+          ],
+          "answer": 1,
+          "explain": "Titik (.) menandai class, tanda pagar (#) menandai id."
+        },
+        {
+          "id": "css-1-q3",
+          "type": "order",
+          "prompt": "Susun aturan CSS yang benar.",
+          "pieces": [
+            "p",
+            "{",
+            "color: red;",
+            "}"
+          ],
+          "explain": "Selektor, kurung kurawal, deklarasi, tutup."
+        },
+        {
+          "id": "css-1-q4",
+          "type": "order",
+          "prompt": "Susun warna latar.",
+          "pieces": [
+            "body",
+            "{",
+            "background-color: #fff;",
+            "}"
+          ],
+          "decoys": [
+            "background-color = #fff;"
+          ],
+          "explain": "Properti dan nilai dipisah titik dua dan diakhiri titik koma."
+        },
+        {
+          "id": "css-1-q5",
+          "type": "fill",
+          "prompt": "Ubah warna teks menjadi biru.",
+          "code": "h1 { ___: blue; }",
+          "answers": [
+            "color"
+          ],
+          "options": [
+            "color",
+            "text",
+            "font-color",
+            "fill"
+          ],
+          "explain": "Properti color mengubah warna teks."
+        },
+        {
+          "id": "css-1-q6",
+          "type": "fill",
+          "prompt": "Selektor id bernama menu:",
+          "code": "___menu { margin: 0; }",
+          "answers": [
+            "#"
+          ],
+          "options": [
+            "#",
+            ".",
+            "@",
+            "&"
+          ],
+          "explain": "Tanda # dipakai untuk id."
+        },
+        {
+          "id": "css-1-q7",
+          "type": "type",
+          "prompt": "Ketik aturan CSS agar semua paragraf (p) berwarna merah.",
+          "preview": "Teks paragraf tampil merah",
+          "clue": "Selektor p, lalu kurung kurawal berisi properti color.",
+          "answers": [
+            "p { color: red; }"
+          ],
+          "explain": "Aturan CSS: selektor, kurung kurawal, deklarasi properti: nilai;"
+        },
+        {
+          "id": "css-1-q8",
+          "type": "type",
+          "prompt": "Ketik aturan untuk class kartu dengan warna latar putih.",
+          "preview": "Elemen .kartu berlatar putih",
+          "clue": "Class diawali titik. Properti: background-color.",
+          "answers": [
+            ".kartu { background-color: white; }",
+            ".kartu { background: white; }"
+          ],
+          "explain": "Titik (.) menandai class; background-color mengatur warna latar."
+        }
+      ]
+    },
+    {
+      "id": "css-2",
+      "title": "Box Model",
+      "questions": [
+        {
+          "id": "css-2-q1",
+          "type": "mc",
+          "prompt": "Urutan lapisan box model dari dalam ke luar:",
+          "options": [
+            "content, padding, border, margin",
+            "content, margin, border, padding",
+            "padding, content, border, margin",
+            "border, padding, content, margin"
+          ],
+          "answer": 0,
+          "explain": "Isi > padding > border > margin."
+        },
+        {
+          "id": "css-2-q2",
+          "type": "mc",
+          "prompt": "Properti untuk ruang DI DALAM border adalah…",
+          "options": [
+            "margin",
+            "gap",
+            "padding",
+            "spacing"
+          ],
+          "answer": 2,
+          "explain": "padding = jarak isi ke border; margin = jarak ke luar."
+        },
+        {
+          "id": "css-2-q3",
+          "type": "order",
+          "prompt": "Susun aturan kotak.",
+          "pieces": [
+            ".kotak",
+            "{",
+            "padding: 16px;",
+            "border: 1px solid;",
+            "}"
+          ],
+          "explain": "Beberapa deklarasi bisa berada dalam satu aturan."
+        },
+        {
+          "id": "css-2-q4",
+          "type": "order",
+          "prompt": "Susun margin otomatis agar rata tengah.",
+          "pieces": [
+            ".wadah",
+            "{",
+            "width: 600px;",
+            "margin: 0 auto;",
+            "}"
+          ],
+          "explain": "margin 0 auto memusatkan blok yang memiliki lebar."
+        },
+        {
+          "id": "css-2-q5",
+          "type": "fill",
+          "prompt": "Beri jarak luar 20px.",
+          "code": ".a { ___: 20px; }",
+          "answers": [
+            "margin"
+          ],
+          "options": [
+            "margin",
+            "padding",
+            "gap",
+            "space"
+          ],
+          "explain": "margin mengatur jarak di luar elemen."
+        },
+        {
+          "id": "css-2-q6",
+          "type": "fill",
+          "prompt": "Sudut membulat:",
+          "code": ".btn { border-___: 8px; }",
+          "answers": [
+            "radius"
+          ],
+          "options": [
+            "radius",
+            "round",
+            "corner",
+            "curve"
+          ],
+          "explain": "border-radius membulatkan sudut."
+        },
+        {
+          "id": "css-2-q7",
+          "type": "type",
+          "prompt": "Ketik aturan .kotak dengan padding 16px.",
+          "preview": "Isi kotak berjarak 16px dari tepinya",
+          "clue": "padding adalah jarak di dalam border.",
+          "answers": [
+            ".kotak { padding: 16px; }"
+          ],
+          "explain": "padding mengatur jarak isi ke border."
+        },
+        {
+          "id": "css-2-q8",
+          "type": "type",
+          "prompt": "Ketik aturan .wadah yang membuat blok rata tengah dengan margin otomatis.",
+          "preview": "Blok berada di tengah halaman",
+          "clue": "Nilai margin: 0 lalu auto.",
+          "answers": [
+            ".wadah { margin: 0 auto; }"
+          ],
+          "explain": "margin: 0 auto memusatkan blok yang memiliki lebar."
+        }
+      ]
+    },
+    {
+      "id": "css-3",
+      "title": "Flexbox",
+      "questions": [
+        {
+          "id": "css-3-q1",
+          "type": "mc",
+          "prompt": "Nilai display untuk mengaktifkan flexbox:",
+          "options": [
+            "block",
+            "flex",
+            "inline",
+            "grid"
+          ],
+          "answer": 1,
+          "explain": "display: flex menjadikan elemen flex container."
+        },
+        {
+          "id": "css-3-q2",
+          "type": "mc",
+          "prompt": "Properti untuk merapikan item di sumbu utama:",
+          "options": [
+            "align-items",
+            "justify-content",
+            "flex-wrap",
+            "order"
+          ],
+          "answer": 1,
+          "explain": "justify-content mengatur sumbu utama; align-items sumbu silang."
+        },
+        {
+          "id": "css-3-q3",
+          "type": "order",
+          "prompt": "Susun flex container yang memusatkan isi.",
+          "pieces": [
+            ".baris",
+            "{",
+            "display: flex;",
+            "justify-content: center;",
+            "}"
+          ],
+          "explain": "Aktifkan flex dulu, lalu atur perataan."
+        },
+        {
+          "id": "css-3-q4",
+          "type": "order",
+          "prompt": "Susun flex arah kolom.",
+          "pieces": [
+            ".kolom",
+            "{",
+            "display: flex;",
+            "flex-direction: column;",
+            "}"
+          ],
+          "decoys": [
+            "flex-direction: wrap;"
+          ],
+          "explain": "flex-direction: column menyusun item vertikal."
+        },
+        {
+          "id": "css-3-q5",
+          "type": "fill",
+          "prompt": "Beri jarak antar item flex.",
+          "code": ".baris { display: flex; ___: 12px; }",
+          "answers": [
+            "gap"
+          ],
+          "options": [
+            "gap",
+            "margin",
+            "space",
+            "pad"
+          ],
+          "explain": "gap memberi jarak antar item tanpa margin tambahan."
+        },
+        {
+          "id": "css-3-q6",
+          "type": "fill",
+          "prompt": "Pusatkan item secara vertikal.",
+          "code": ".baris { display: flex; ___-items: center; }",
+          "answers": [
+            "align"
+          ],
+          "options": [
+            "align",
+            "justify",
+            "vertical",
+            "center"
+          ],
+          "explain": "align-items: center memusatkan di sumbu silang."
+        },
+        {
+          "id": "css-3-q7",
+          "type": "type",
+          "prompt": "Ketik aturan .baris yang mengaktifkan flexbox.",
+          "preview": "Anak-anak .baris tersusun sejajar",
+          "clue": "Properti display dengan nilai flex.",
+          "answers": [
+            ".baris { display: flex; }"
+          ],
+          "explain": "display: flex menjadikan elemen flex container."
+        },
+        {
+          "id": "css-3-q8",
+          "type": "type",
+          "prompt": "Ketik aturan .baris: flex dengan isi rata tengah di sumbu utama.",
+          "preview": "Anak-anak .baris berkumpul di tengah",
+          "clue": "Tambahkan justify-content: center.",
+          "answers": [
+            ".baris { display: flex; justify-content: center; }",
+            ".baris { justify-content: center; display: flex; }"
+          ],
+          "explain": "justify-content mengatur perataan di sumbu utama."
+        }
+      ]
+    }
+  ]
+}

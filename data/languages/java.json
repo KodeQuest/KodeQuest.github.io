@@ -1,0 +1,344 @@
+{
+  "id": "java",
+  "title": "Java",
+  "subtitle": "Bahasa berorientasi objek yang kokoh",
+  "badge": "Jv",
+  "color": "rose",
+  "lessons": [
+    {
+      "id": "java-1",
+      "title": "Struktur Program",
+      "questions": [
+        {
+          "id": "java-1-q1",
+          "type": "mc",
+          "prompt": "Titik masuk program Java adalah method…",
+          "options": [
+            "start()",
+            "main()",
+            "run()",
+            "init()"
+          ],
+          "answer": 1,
+          "explain": "JVM menjalankan program dari method main."
+        },
+        {
+          "id": "java-1-q2",
+          "type": "mc",
+          "prompt": "Ekstensi file kode sumber Java adalah…",
+          "options": [
+            ".java",
+            ".class",
+            ".jar",
+            ".js"
+          ],
+          "answer": 0,
+          "explain": ".java adalah kode sumber; .class adalah hasil kompilasi."
+        },
+        {
+          "id": "java-1-q3",
+          "type": "order",
+          "prompt": "Susun perintah cetak.",
+          "pieces": [
+            "System.out.println(",
+            "\"Halo\"",
+            ");"
+          ],
+          "explain": "System.out.println mencetak teks lalu pindah baris."
+        },
+        {
+          "id": "java-1-q4",
+          "type": "order",
+          "prompt": "Susun method main.",
+          "pieces": [
+            "public static void main(String[] args)",
+            "{",
+            "System.out.println(\"Hi\");",
+            "}"
+          ],
+          "explain": "Method main punya tanda tangan yang tetap."
+        },
+        {
+          "id": "java-1-q5",
+          "type": "fill",
+          "prompt": "Lengkapi deklarasi kelas.",
+          "code": "public ___ Halo { }",
+          "answers": [
+            "class"
+          ],
+          "options": [
+            "class",
+            "void",
+            "static",
+            "main"
+          ],
+          "explain": "Semua kode Java berada di dalam class."
+        },
+        {
+          "id": "java-1-q6",
+          "type": "fill",
+          "prompt": "Setiap pernyataan Java diakhiri dengan…",
+          "code": "System.out.println(\"a\")___",
+          "answers": [
+            ";"
+          ],
+          "options": [
+            ";",
+            ":",
+            ".",
+            ","
+          ],
+          "explain": "Titik koma menutup pernyataan."
+        },
+        {
+          "id": "java-1-q7",
+          "type": "type",
+          "prompt": "Ketik perintah Java mencetak teks Halo.",
+          "preview": "Halo",
+          "clue": "System.out.println dengan teks di dalam kurung, akhiri titik koma.",
+          "answers": [
+            "System.out.println(\"Halo\");"
+          ],
+          "explain": "System.out.println mencetak teks lalu pindah baris."
+        },
+        {
+          "id": "java-1-q8",
+          "type": "type",
+          "prompt": "Ketik deklarasi kelas publik bernama Halo dengan badan kosong.",
+          "preview": "(kerangka kelas tanpa isi)",
+          "clue": "public class lalu nama, lalu kurung kurawal.",
+          "answers": [
+            "public class Halo { }"
+          ],
+          "explain": "Semua kode Java berada di dalam class."
+        }
+      ]
+    },
+    {
+      "id": "java-2",
+      "title": "Tipe Data & Kondisi",
+      "questions": [
+        {
+          "id": "java-2-q1",
+          "type": "mc",
+          "prompt": "Tipe untuk bilangan bulat adalah…",
+          "options": [
+            "int",
+            "String",
+            "boolean",
+            "double"
+          ],
+          "answer": 0,
+          "explain": "int menyimpan bilangan bulat."
+        },
+        {
+          "id": "java-2-q2",
+          "type": "mc",
+          "prompt": "Tipe yang hanya bernilai true atau false adalah…",
+          "options": [
+            "bool",
+            "boolean",
+            "binary",
+            "flag"
+          ],
+          "answer": 1,
+          "explain": "Di Java namanya boolean."
+        },
+        {
+          "id": "java-2-q3",
+          "type": "order",
+          "prompt": "Susun deklarasi variabel.",
+          "pieces": [
+            "int",
+            "umur",
+            "=",
+            "20;"
+          ],
+          "explain": "Tipe, nama, tanda sama dengan, nilai."
+        },
+        {
+          "id": "java-2-q4",
+          "type": "order",
+          "prompt": "Susun if-else.",
+          "pieces": [
+            "if (nilai >= 70)",
+            "{ System.out.println(\"Lulus\"); }",
+            "else",
+            "{ System.out.println(\"Ulang\"); }"
+          ],
+          "decoys": [
+            "elif"
+          ],
+          "explain": "else menangani kondisi yang tidak terpenuhi."
+        },
+        {
+          "id": "java-2-q5",
+          "type": "fill",
+          "prompt": "Deklarasikan variabel teks.",
+          "code": "___ nama = \"Sari\";",
+          "answers": [
+            "String"
+          ],
+          "options": [
+            "String",
+            "string",
+            "text",
+            "char"
+          ],
+          "explain": "Tipe teks di Java ditulis String dengan S besar."
+        },
+        {
+          "id": "java-2-q6",
+          "type": "fill",
+          "prompt": "Operator untuk membandingkan kesamaan:",
+          "code": "if (a ___ b) { }",
+          "answers": [
+            "=="
+          ],
+          "options": [
+            "==",
+            "=",
+            "=>",
+            "==="
+          ],
+          "explain": "== membandingkan, sedangkan = memberi nilai."
+        },
+        {
+          "id": "java-2-q7",
+          "type": "type",
+          "prompt": "Ketik deklarasi variabel String nama berisi teks Sari.",
+          "preview": "nama → Sari",
+          "clue": "Tipe teks ditulis dengan huruf S besar.",
+          "answers": [
+            "String nama = \"Sari\";"
+          ],
+          "explain": "Tipe teks di Java adalah String."
+        },
+        {
+          "id": "java-2-q8",
+          "type": "type",
+          "prompt": "Ketik deklarasi variabel int umur bernilai 20.",
+          "preview": "umur → 20",
+          "clue": "Tipe, nama, tanda =, nilai, titik koma.",
+          "answers": [
+            "int umur = 20;"
+          ],
+          "explain": "int menyimpan bilangan bulat."
+        }
+      ]
+    },
+    {
+      "id": "java-3",
+      "title": "Perulangan & Array",
+      "questions": [
+        {
+          "id": "java-3-q1",
+          "type": "mc",
+          "prompt": "Cara mengambil panjang array arr adalah…",
+          "options": [
+            "arr.length",
+            "arr.length()",
+            "arr.size()",
+            "len(arr)"
+          ],
+          "answer": 0,
+          "explain": "Array memakai properti length tanpa kurung."
+        },
+        {
+          "id": "java-3-q2",
+          "type": "mc",
+          "prompt": "Kata kunci untuk keluar dari perulangan adalah…",
+          "options": [
+            "exit",
+            "break",
+            "stop",
+            "leave"
+          ],
+          "answer": 1,
+          "explain": "break menghentikan perulangan."
+        },
+        {
+          "id": "java-3-q3",
+          "type": "order",
+          "prompt": "Susun perulangan for.",
+          "pieces": [
+            "for (int i = 0;",
+            "i < 3;",
+            "i++)",
+            "{ System.out.println(i); }"
+          ],
+          "decoys": [
+            "i--)"
+          ],
+          "explain": "Inisialisasi, kondisi, langkah."
+        },
+        {
+          "id": "java-3-q4",
+          "type": "order",
+          "prompt": "Susun deklarasi array.",
+          "pieces": [
+            "int[]",
+            "angka",
+            "=",
+            "{1, 2, 3};"
+          ],
+          "explain": "Array diisi dengan kurung kurawal."
+        },
+        {
+          "id": "java-3-q5",
+          "type": "fill",
+          "prompt": "Buat array int berukuran 5.",
+          "code": "int[] a = new ___[5];",
+          "answers": [
+            "int"
+          ],
+          "options": [
+            "int",
+            "Int",
+            "array",
+            "String"
+          ],
+          "explain": "new int[5] membuat array berisi lima bilangan bulat."
+        },
+        {
+          "id": "java-3-q6",
+          "type": "fill",
+          "prompt": "Ulangi selama kondisi benar.",
+          "code": "___ (x < 10) { x++; }",
+          "answers": [
+            "while"
+          ],
+          "options": [
+            "while",
+            "for",
+            "if",
+            "loop"
+          ],
+          "explain": "while mengulang selama kondisinya true."
+        },
+        {
+          "id": "java-3-q7",
+          "type": "type",
+          "prompt": "Ketik deklarasi array int bernama angka berisi 1, 2, 3.",
+          "preview": "angka → {1, 2, 3}",
+          "clue": "Tipe int[] lalu isi dalam kurung kurawal.",
+          "answers": [
+            "int[] angka = {1, 2, 3};"
+          ],
+          "explain": "Array diisi dengan kurung kurawal."
+        },
+        {
+          "id": "java-3-q8",
+          "type": "type",
+          "prompt": "Ketik deklarasi int n yang berisi panjang array arr.",
+          "preview": "n → jumlah elemen arr",
+          "clue": "Array memakai properti length, tanpa kurung.",
+          "answers": [
+            "int n = arr.length;"
+          ],
+          "explain": "Panjang array diambil dengan arr.length."
+        }
+      ]
+    }
+  ]
+}

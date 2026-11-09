@@ -1,0 +1,359 @@
+{
+  "id": "js",
+  "title": "JavaScript",
+  "subtitle": "Logika dan interaksi",
+  "badge": "JS",
+  "color": "amber",
+  "lessons": [
+    {
+      "id": "js-1",
+      "title": "Variabel & Tipe",
+      "questions": [
+        {
+          "id": "js-1-q1",
+          "type": "mc",
+          "prompt": "Kata kunci untuk variabel yang nilainya tidak boleh diganti:",
+          "options": [
+            "var",
+            "let",
+            "const",
+            "fixed"
+          ],
+          "answer": 2,
+          "explain": "const dipakai untuk referensi yang tidak diubah."
+        },
+        {
+          "id": "js-1-q2",
+          "type": "mc",
+          "prompt": "Hasil dari typeof \"halo\" adalah…",
+          "options": [
+            "\"text\"",
+            "\"string\"",
+            "\"char\"",
+            "\"word\""
+          ],
+          "answer": 1,
+          "explain": "Teks bertipe string."
+        },
+        {
+          "id": "js-1-q3",
+          "type": "order",
+          "prompt": "Susun deklarasi variabel.",
+          "pieces": [
+            "let",
+            "skor",
+            "=",
+            "10;"
+          ],
+          "explain": "let nama = nilai;"
+        },
+        {
+          "id": "js-1-q4",
+          "type": "order",
+          "prompt": "Susun pesan ke konsol.",
+          "pieces": [
+            "console",
+            ".log(",
+            "\"Halo\"",
+            ");"
+          ],
+          "decoys": [
+            "print("
+          ],
+          "explain": "console.log mencetak ke konsol."
+        },
+        {
+          "id": "js-1-q5",
+          "type": "fill",
+          "prompt": "Lengkapi deklarasi konstanta.",
+          "code": "___ PI = 3.14;",
+          "answers": [
+            "const"
+          ],
+          "options": [
+            "const",
+            "let",
+            "var",
+            "set"
+          ],
+          "explain": "PI tidak perlu berubah, jadi pakai const."
+        },
+        {
+          "id": "js-1-q6",
+          "type": "fill",
+          "prompt": "Gabungkan teks dengan template string:",
+          "code": "const s = `Halo, ${___}`;",
+          "answers": [
+            "nama"
+          ],
+          "options": [
+            "nama",
+            "\"nama\"",
+            "$nama",
+            "{nama}"
+          ],
+          "explain": "Di dalam ${ } kita menulis ekspresi atau variabel."
+        },
+        {
+          "id": "js-1-q7",
+          "type": "type",
+          "prompt": "Ketik deklarasi konstanta nama berisi teks Budi.",
+          "preview": "nama → Budi",
+          "clue": "Kata kunci const, lalu nama, tanda =, dan teks dalam tanda kutip.",
+          "answers": [
+            "const nama = \"Budi\";",
+            "const nama = 'Budi';",
+            "const nama = \"Budi\"",
+            "const nama = 'Budi'"
+          ],
+          "explain": "const dipakai untuk nilai yang tidak diganti."
+        },
+        {
+          "id": "js-1-q8",
+          "type": "type",
+          "prompt": "Ketik perintah mencetak Halo ke konsol.",
+          "preview": "Konsol: Halo",
+          "clue": "Pakai console.log dengan teks di dalam kurung.",
+          "answers": [
+            "console.log(\"Halo\");",
+            "console.log('Halo');",
+            "console.log(\"Halo\")",
+            "console.log('Halo')"
+          ],
+          "explain": "console.log mencetak ke konsol."
+        }
+      ]
+    },
+    {
+      "id": "js-2",
+      "title": "Fungsi & Kondisi",
+      "questions": [
+        {
+          "id": "js-2-q1",
+          "type": "mc",
+          "prompt": "Kata kunci untuk mengembalikan nilai dari fungsi:",
+          "options": [
+            "give",
+            "return",
+            "output",
+            "send"
+          ],
+          "answer": 1,
+          "explain": "return mengembalikan hasil ke pemanggil."
+        },
+        {
+          "id": "js-2-q2",
+          "type": "mc",
+          "prompt": "Operator untuk perbandingan ketat (nilai dan tipe sama):",
+          "options": [
+            "=",
+            "==",
+            "===",
+            "=>"
+          ],
+          "answer": 2,
+          "explain": "=== membandingkan nilai sekaligus tipe."
+        },
+        {
+          "id": "js-2-q3",
+          "type": "order",
+          "prompt": "Susun fungsi penjumlahan.",
+          "pieces": [
+            "function tambah(a, b)",
+            "{",
+            "return a + b;",
+            "}"
+          ],
+          "explain": "Fungsi punya nama, parameter, dan badan."
+        },
+        {
+          "id": "js-2-q4",
+          "type": "order",
+          "prompt": "Susun kondisi if-else.",
+          "pieces": [
+            "if (umur >= 17)",
+            "{ masuk(); }",
+            "else",
+            "{ tolak(); }"
+          ],
+          "decoys": [
+            "elif"
+          ],
+          "explain": "if menjalankan blok bila benar; else bila tidak."
+        },
+        {
+          "id": "js-2-q5",
+          "type": "fill",
+          "prompt": "Lengkapi fungsi panah.",
+          "code": "const kali = (a, b) ___ a * b;",
+          "answers": [
+            "=>"
+          ],
+          "options": [
+            "=>",
+            "->",
+            "=",
+            "::"
+          ],
+          "explain": "Fungsi panah memakai =>."
+        },
+        {
+          "id": "js-2-q6",
+          "type": "fill",
+          "prompt": "Hasil dari 7 % 3 adalah…",
+          "code": "console.log(7 % 3); // ___",
+          "answers": [
+            "1"
+          ],
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ],
+          "explain": "% adalah sisa bagi: 7 dibagi 3 bersisa 1."
+        },
+        {
+          "id": "js-2-q7",
+          "type": "type",
+          "prompt": "Ketik fungsi panah kali yang mengalikan a dan b.",
+          "preview": "kali(3, 4) → 12",
+          "clue": "Bentuknya (a, b) => ... disimpan ke const kali.",
+          "answers": [
+            "const kali = (a, b) => a * b;",
+            "const kali = (a, b) => a * b"
+          ],
+          "explain": "Fungsi panah memakai =>; badan satu ekspresi langsung dikembalikan."
+        },
+        {
+          "id": "js-2-q8",
+          "type": "type",
+          "prompt": "Ketik fungsi tambah(a, b) yang mengembalikan a + b dalam satu baris.",
+          "preview": "tambah(2, 3) → 5",
+          "clue": "function, nama, parameter, lalu { return ...; }",
+          "answers": [
+            "function tambah(a, b) { return a + b; }"
+          ],
+          "explain": "Fungsi punya nama, parameter, dan badan; return mengembalikan hasil."
+        }
+      ]
+    },
+    {
+      "id": "js-3",
+      "title": "Array & Perulangan",
+      "questions": [
+        {
+          "id": "js-3-q1",
+          "type": "mc",
+          "prompt": "Indeks elemen pertama array di JavaScript adalah…",
+          "options": [
+            "0",
+            "1",
+            "-1",
+            "first"
+          ],
+          "answer": 0,
+          "explain": "Indeks array dimulai dari 0."
+        },
+        {
+          "id": "js-3-q2",
+          "type": "mc",
+          "prompt": "Method untuk menambah elemen di akhir array:",
+          "options": [
+            "push()",
+            "pop()",
+            "shift()",
+            "add()"
+          ],
+          "answer": 0,
+          "explain": "push menambah di akhir; pop menghapus dari akhir."
+        },
+        {
+          "id": "js-3-q3",
+          "type": "order",
+          "prompt": "Susun array buah.",
+          "pieces": [
+            "const buah",
+            "=",
+            "[\"apel\", \"jeruk\"]",
+            ";"
+          ],
+          "explain": "Array ditulis dalam kurung siku."
+        },
+        {
+          "id": "js-3-q4",
+          "type": "order",
+          "prompt": "Susun perulangan for.",
+          "pieces": [
+            "for (let i = 0;",
+            "i < 3;",
+            "i++)",
+            "{ console.log(i); }"
+          ],
+          "decoys": [
+            "i--)"
+          ],
+          "explain": "for punya inisialisasi, kondisi, dan langkah."
+        },
+        {
+          "id": "js-3-q5",
+          "type": "fill",
+          "prompt": "Panjang array:",
+          "code": "const n = buah.___;",
+          "answers": [
+            "length"
+          ],
+          "options": [
+            "length",
+            "size",
+            "count",
+            "len()"
+          ],
+          "explain": "Properti length memberi jumlah elemen."
+        },
+        {
+          "id": "js-3-q6",
+          "type": "fill",
+          "prompt": "Ubah setiap elemen:",
+          "code": "const dua = [1, 2, 3].___(x => x * 2);",
+          "answers": [
+            "map"
+          ],
+          "options": [
+            "map",
+            "filter",
+            "forEach",
+            "reduce"
+          ],
+          "explain": "map mengembalikan array baru hasil transformasi."
+        },
+        {
+          "id": "js-3-q7",
+          "type": "type",
+          "prompt": "Ketik deklarasi array buah berisi apel dan jeruk dengan const.",
+          "preview": "buah → [\"apel\", \"jeruk\"]",
+          "clue": "Array ditulis dalam kurung siku, elemen dipisah koma.",
+          "answers": [
+            "const buah = [\"apel\", \"jeruk\"];",
+            "const buah = ['apel', 'jeruk'];",
+            "const buah = [\"apel\", \"jeruk\"]",
+            "const buah = ['apel', 'jeruk']"
+          ],
+          "explain": "Array ditulis dalam kurung siku."
+        },
+        {
+          "id": "js-3-q8",
+          "type": "type",
+          "prompt": "Ketik perintah menambah angka 3 ke akhir array angka.",
+          "preview": "angka → [..., 3]",
+          "clue": "Method yang menambah di akhir array adalah push.",
+          "answers": [
+            "angka.push(3);",
+            "angka.push(3)"
+          ],
+          "explain": "push menambah elemen di akhir array."
+        }
+      ]
+    }
+  ]
+}

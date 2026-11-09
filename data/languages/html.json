@@ -1,0 +1,464 @@
+{
+  "id": "html",
+  "title": "HTML",
+  "subtitle": "Kerangka halaman web",
+  "badge": "</>",
+  "color": "emerald",
+  "lessons": [
+    {
+      "id": "html-1",
+      "title": "Struktur Dasar",
+      "questions": [
+        {
+          "id": "html-1-q1",
+          "type": "mc",
+          "prompt": "Apa kepanjangan HTML?",
+          "options": [
+            "HyperText Markup Language",
+            "High Tech Modern Language",
+            "Hyperlink Text Making Logic",
+            "Home Tool Markup Language"
+          ],
+          "answer": 0,
+          "explain": "HTML adalah HyperText Markup Language, bahasa penanda untuk struktur halaman web."
+        },
+        {
+          "id": "html-1-q2",
+          "type": "mc",
+          "prompt": "Tag mana yang berisi seluruh konten yang tampil di halaman?",
+          "options": [
+            "<head>",
+            "<body>",
+            "<title>",
+            "<meta>"
+          ],
+          "answer": 1,
+          "explain": "<body> memuat semua yang terlihat oleh pengunjung."
+        },
+        {
+          "id": "html-1-q3",
+          "type": "order",
+          "prompt": "Susun kerangka dokumen HTML yang benar.",
+          "pieces": [
+            "<html>",
+            "<head>",
+            "<title>Halo</title>",
+            "</head>",
+            "<body>",
+            "</body>",
+            "</html>"
+          ],
+          "explain": "Urutannya: html > head (berisi title) > body."
+        },
+        {
+          "id": "html-1-q4",
+          "type": "order",
+          "prompt": "Susun sebuah paragraf.",
+          "pieces": [
+            "<p>",
+            "Selamat belajar",
+            "</p>"
+          ],
+          "decoys": [
+            "<br>"
+          ],
+          "explain": "Tag pembuka, isi, lalu tag penutup."
+        },
+        {
+          "id": "html-1-q5",
+          "type": "fill",
+          "prompt": "Lengkapi deklarasi tipe dokumen.",
+          "code": "<!___ html>",
+          "answers": [
+            "DOCTYPE"
+          ],
+          "options": [
+            "DOCTYPE",
+            "HTML",
+            "TYPE",
+            "DOC"
+          ],
+          "explain": "<!DOCTYPE html> memberi tahu browser bahwa ini HTML5."
+        },
+        {
+          "id": "html-1-q6",
+          "type": "fill",
+          "prompt": "Tag untuk judul tab browser:",
+          "code": "<head>\n  <___>KodeQuest</title>\n</head>",
+          "answers": [
+            "title"
+          ],
+          "options": [
+            "title",
+            "h1",
+            "name",
+            "header"
+          ],
+          "explain": "<title> menentukan teks pada tab browser."
+        },
+        {
+          "id": "html-1-q7",
+          "type": "type",
+          "prompt": "Ketik satu baris HTML yang menampilkan paragraf berisi: Halo",
+          "preview": "Halo",
+          "clue": "Bungkus teks dengan tag p (buka dan tutup).",
+          "answers": [
+            "<p>Halo</p>"
+          ],
+          "explain": "Paragraf memakai <p> sebagai pembuka dan </p> sebagai penutup."
+        },
+        {
+          "id": "html-1-q8",
+          "type": "type",
+          "prompt": "Ketik deklarasi tipe dokumen HTML5.",
+          "preview": "(baris pertama di setiap dokumen HTML5)",
+          "clue": "Diawali <! lalu kata DOCTYPE, lalu html.",
+          "answers": [
+            "<!DOCTYPE html>",
+            "<!doctype html>"
+          ],
+          "explain": "<!DOCTYPE html> memberi tahu browser bahwa dokumen ini HTML5."
+        }
+      ]
+    },
+    {
+      "id": "html-2",
+      "title": "Teks & Tautan",
+      "questions": [
+        {
+          "id": "html-2-q1",
+          "type": "mc",
+          "prompt": "Tag judul terbesar dan terpenting adalah…",
+          "options": [
+            "<h6>",
+            "<h1>",
+            "<head>",
+            "<big>"
+          ],
+          "answer": 1,
+          "explain": "<h1> adalah heading level tertinggi."
+        },
+        {
+          "id": "html-2-q2",
+          "type": "mc",
+          "prompt": "Atribut yang menyimpan alamat tujuan pada tautan adalah…",
+          "options": [
+            "src",
+            "link",
+            "href",
+            "url"
+          ],
+          "answer": 2,
+          "explain": "Atribut href pada <a> berisi tujuan tautan."
+        },
+        {
+          "id": "html-2-q3",
+          "type": "order",
+          "prompt": "Susun sebuah tautan.",
+          "pieces": [
+            "<a href=\"https://github.com\">",
+            "Buka GitHub",
+            "</a>"
+          ],
+          "explain": "Tag <a> dengan href membungkus teks tautan."
+        },
+        {
+          "id": "html-2-q4",
+          "type": "order",
+          "prompt": "Susun teks tebal di dalam paragraf.",
+          "pieces": [
+            "<p>",
+            "Ini ",
+            "<strong>",
+            "penting",
+            "</strong>",
+            "</p>"
+          ],
+          "explain": "<strong> membuat teks ditekankan (tebal)."
+        },
+        {
+          "id": "html-2-q5",
+          "type": "fill",
+          "prompt": "Lengkapi tautan.",
+          "code": "<a ___=\"https://example.com\">Contoh</a>",
+          "answers": [
+            "href"
+          ],
+          "options": [
+            "href",
+            "src",
+            "link",
+            "to"
+          ],
+          "explain": "Gunakan href untuk alamat tautan."
+        },
+        {
+          "id": "html-2-q6",
+          "type": "fill",
+          "prompt": "Tag untuk teks miring (penekanan):",
+          "code": "<___>Hati-hati</em>",
+          "answers": [
+            "em"
+          ],
+          "options": [
+            "em",
+            "b",
+            "u",
+            "small"
+          ],
+          "explain": "<em> menandai penekanan, biasanya tampil miring."
+        },
+        {
+          "id": "html-2-q7",
+          "type": "type",
+          "prompt": "Ketik tautan ke https://github.com dengan teks: GitHub",
+          "preview": "GitHub  (tautan, bisa diklik)",
+          "clue": "Tag a dengan atribut href berisi alamat tujuan.",
+          "answers": [
+            "<a href=\"https://github.com\">GitHub</a>",
+            "<a href='https://github.com'>GitHub</a>"
+          ],
+          "explain": "Atribut href pada <a> berisi tujuan tautan."
+        },
+        {
+          "id": "html-2-q8",
+          "type": "type",
+          "prompt": "Ketik judul terbesar berisi: KodeQuest",
+          "preview": "KodeQuest  (huruf besar dan tebal)",
+          "clue": "Heading level tertinggi adalah h1.",
+          "answers": [
+            "<h1>KodeQuest</h1>"
+          ],
+          "explain": "<h1> adalah heading level tertinggi."
+        }
+      ]
+    },
+    {
+      "id": "html-3",
+      "title": "Daftar & Gambar",
+      "questions": [
+        {
+          "id": "html-3-q1",
+          "type": "mc",
+          "prompt": "Tag yang membuat daftar berbutir (bullet) adalah…",
+          "options": [
+            "<ol>",
+            "<ul>",
+            "<li>",
+            "<dl>"
+          ],
+          "answer": 1,
+          "explain": "<ul> = unordered list, <ol> = ordered list."
+        },
+        {
+          "id": "html-3-q2",
+          "type": "mc",
+          "prompt": "Atribut wajib pada <img> untuk menunjuk file gambar adalah…",
+          "options": [
+            "href",
+            "alt",
+            "src",
+            "path"
+          ],
+          "answer": 2,
+          "explain": "src berisi lokasi gambar; alt berisi teks alternatif."
+        },
+        {
+          "id": "html-3-q3",
+          "type": "order",
+          "prompt": "Susun daftar dengan dua item.",
+          "pieces": [
+            "<ul>",
+            "<li>HTML</li>",
+            "<li>CSS</li>",
+            "</ul>"
+          ],
+          "explain": "Setiap item daftar memakai <li> di dalam <ul>."
+        },
+        {
+          "id": "html-3-q4",
+          "type": "order",
+          "prompt": "Susun sebuah gambar.",
+          "pieces": [
+            "<img",
+            "src=\"kucing.png\"",
+            "alt=\"Kucing lucu\"",
+            "/>"
+          ],
+          "decoys": [
+            "href=\"kucing.png\""
+          ],
+          "explain": "Gambar memakai src dan sebaiknya alt."
+        },
+        {
+          "id": "html-3-q5",
+          "type": "fill",
+          "prompt": "Lengkapi daftar bernomor.",
+          "code": "<___>\n  <li>Satu</li>\n  <li>Dua</li>\n</ol>",
+          "answers": [
+            "ol"
+          ],
+          "options": [
+            "ol",
+            "ul",
+            "li",
+            "list"
+          ],
+          "explain": "<ol> menampilkan nomor otomatis."
+        },
+        {
+          "id": "html-3-q6",
+          "type": "fill",
+          "prompt": "Teks pengganti saat gambar gagal dimuat:",
+          "code": "<img src=\"a.png\" ___=\"Logo\">",
+          "answers": [
+            "alt"
+          ],
+          "options": [
+            "alt",
+            "title",
+            "text",
+            "name"
+          ],
+          "explain": "Atribut alt penting untuk aksesibilitas."
+        },
+        {
+          "id": "html-3-q7",
+          "type": "type",
+          "prompt": "Ketik daftar berbutir dengan satu item berisi: HTML (satu baris)",
+          "preview": "• HTML",
+          "clue": "ul membungkus li.",
+          "answers": [
+            "<ul><li>HTML</li></ul>"
+          ],
+          "explain": "Setiap item daftar memakai <li> di dalam <ul>."
+        },
+        {
+          "id": "html-3-q8",
+          "type": "type",
+          "prompt": "Ketik gambar logo.png dengan teks pengganti: Logo",
+          "preview": "[gambar logo.png]",
+          "clue": "Tag img tidak punya penutup. Pakai atribut src dan alt.",
+          "answers": [
+            "<img src=\"logo.png\" alt=\"Logo\">",
+            "<img src='logo.png' alt='Logo'>"
+          ],
+          "explain": "src menunjuk file gambar; alt adalah teks pengganti untuk aksesibilitas."
+        }
+      ]
+    },
+    {
+      "id": "html-4",
+      "title": "Formulir",
+      "questions": [
+        {
+          "id": "html-4-q1",
+          "type": "mc",
+          "prompt": "Tag yang membungkus kolom isian pengguna adalah…",
+          "options": [
+            "<form>",
+            "<table>",
+            "<section>",
+            "<fieldset>"
+          ],
+          "answer": 0,
+          "explain": "<form> mengelompokkan input untuk dikirim."
+        },
+        {
+          "id": "html-4-q2",
+          "type": "mc",
+          "prompt": "Tipe input untuk menyembunyikan karakter saat mengetik?",
+          "options": [
+            "type=\"text\"",
+            "type=\"hidden\"",
+            "type=\"password\"",
+            "type=\"secret\""
+          ],
+          "answer": 2,
+          "explain": "type=\"password\" menampilkan titik pengganti karakter."
+        },
+        {
+          "id": "html-4-q3",
+          "type": "order",
+          "prompt": "Susun sebuah label dan input.",
+          "pieces": [
+            "<label for=\"nama\">",
+            "Nama",
+            "</label>",
+            "<input id=\"nama\" type=\"text\">"
+          ],
+          "explain": "label terhubung ke input lewat for dan id."
+        },
+        {
+          "id": "html-4-q4",
+          "type": "order",
+          "prompt": "Susun tombol kirim di dalam form.",
+          "pieces": [
+            "<form>",
+            "<button type=\"submit\">",
+            "Kirim",
+            "</button>",
+            "</form>"
+          ],
+          "explain": "Tombol submit mengirim isi form."
+        },
+        {
+          "id": "html-4-q5",
+          "type": "fill",
+          "prompt": "Lengkapi input email.",
+          "code": "<input type=\"___\">",
+          "answers": [
+            "email"
+          ],
+          "options": [
+            "email",
+            "mail",
+            "text",
+            "address"
+          ],
+          "explain": "type=\"email\" memvalidasi format email."
+        },
+        {
+          "id": "html-4-q6",
+          "type": "fill",
+          "prompt": "Atribut agar kolom wajib diisi:",
+          "code": "<input type=\"text\" ___>",
+          "answers": [
+            "required"
+          ],
+          "options": [
+            "required",
+            "must",
+            "needed",
+            "fill"
+          ],
+          "explain": "required mencegah form terkirim bila kosong."
+        },
+        {
+          "id": "html-4-q7",
+          "type": "type",
+          "prompt": "Ketik kolom input bertipe password.",
+          "preview": "••••••••  (karakter tersembunyi)",
+          "clue": "Tag input dengan atribut type.",
+          "answers": [
+            "<input type=\"password\">",
+            "<input type='password'>"
+          ],
+          "explain": "type=\"password\" menampilkan titik pengganti karakter."
+        },
+        {
+          "id": "html-4-q8",
+          "type": "type",
+          "prompt": "Ketik tombol kirim form yang bertuliskan: Kirim",
+          "preview": "[ Kirim ]",
+          "clue": "Tag button dengan type submit.",
+          "answers": [
+            "<button type=\"submit\">Kirim</button>",
+            "<button type='submit'>Kirim</button>"
+          ],
+          "explain": "Tombol submit mengirim isi form."
+        }
+      ]
+    }
+  ]
+}

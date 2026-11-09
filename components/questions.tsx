@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { FillQuestion, MCQuestion, OrderQuestion } from "@/lib/data";
+import type { FillQuestion, MCQuestion, OrderQuestion, TypeQuestion } from "@/lib/data";
 import { sfx } from "@/lib/sound";
 
 type Common<A> = { locked: boolean; onChange: (answer: A | null) => void };
@@ -172,6 +172,55 @@ export function FillBlank({ q, locked, onChange }: { q: FillQuestion } & Common<
             {o}
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+export function TypeAnswer({ q, locked, onChange }: { q: TypeQuestion } & Common<string>) {
+  const [value, setValue] = useState("");
+  const [showClue, setShowClue] = useState(false);
+
+  return (
+    <div>
+      <div className="rounded-2xl border-2 border-slate-200 bg-white p-4">
+        <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">Pratinjau hasil</p>
+        <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-sm font-bold text-indigo-950 sm:text-base">{q.preview}</pre>
+      </div>
+
+      <input
+        type="text"
+        value={value}
+        disabled={locked}
+        onChange={(e) => {
+          setValue(e.target.value);
+          onChange(e.target.value.trim() ? e.target.value : null);
+        }}
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        aria-label="Ketik jawaban kamu"
+        placeholder="Ketik kodenya di sini…"
+        className="mt-4 w-full rounded-2xl bg-indigo-950 p-4 font-mono text-sm leading-relaxed text-teal-200 caret-teal-300 outline-none placeholder:text-indigo-400 focus:ring-2 focus:ring-indigo-400 sm:text-base"
+      />
+
+      <div className="mt-3">
+        {showClue ? (
+          <p className="rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800" role="note">
+            Petunjuk: {q.clue}
+          </p>
+        ) : (
+          <button
+            disabled={locked}
+            onClick={() => {
+              sfx.click();
+              setShowClue(true);
+            }}
+            className="btn-3d rounded-xl border-2 border-amber-200 bg-white px-4 py-2 text-sm font-extrabold text-amber-700 shadow-[0_3px_0_#fde68a] hover:bg-amber-50"
+          >
+            Lihat petunjuk
+          </button>
+        )}
       </div>
     </div>
   );

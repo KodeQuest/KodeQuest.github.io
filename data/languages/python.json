@@ -1,0 +1,340 @@
+{
+  "id": "python",
+  "title": "Python",
+  "subtitle": "Sintaks ringkas, cocok untuk pemula",
+  "badge": "Py",
+  "color": "sky",
+  "lessons": [
+    {
+      "id": "python-1",
+      "title": "Dasar Python",
+      "questions": [
+        {
+          "id": "python-1-q1",
+          "type": "mc",
+          "prompt": "Fungsi untuk menampilkan teks ke layar di Python adalah…",
+          "options": [
+            "echo()",
+            "print()",
+            "console.log()",
+            "write()"
+          ],
+          "answer": 1,
+          "explain": "print() mencetak nilai ke layar."
+        },
+        {
+          "id": "python-1-q2",
+          "type": "mc",
+          "prompt": "Tipe data dari 3.14 adalah…",
+          "options": [
+            "int",
+            "str",
+            "float",
+            "bool"
+          ],
+          "answer": 2,
+          "explain": "Bilangan desimal bertipe float."
+        },
+        {
+          "id": "python-1-q3",
+          "type": "order",
+          "prompt": "Susun pesan ke layar.",
+          "pieces": [
+            "print(",
+            "\"Halo\"",
+            ")"
+          ],
+          "explain": "print dipanggil dengan teks di dalam kurung."
+        },
+        {
+          "id": "python-1-q4",
+          "type": "order",
+          "prompt": "Susun deklarasi variabel.",
+          "pieces": [
+            "nama",
+            "=",
+            "\"Budi\""
+          ],
+          "decoys": [
+            "let"
+          ],
+          "explain": "Python tidak butuh kata kunci khusus untuk membuat variabel."
+        },
+        {
+          "id": "python-1-q5",
+          "type": "fill",
+          "prompt": "Komentar satu baris di Python diawali dengan…",
+          "code": "___ ini komentar",
+          "answers": [
+            "#"
+          ],
+          "options": [
+            "#",
+            "//",
+            "--",
+            "/*"
+          ],
+          "explain": "Python memakai tanda # untuk komentar."
+        },
+        {
+          "id": "python-1-q6",
+          "type": "fill",
+          "prompt": "Ubah teks menjadi bilangan bulat.",
+          "code": "angka = ___(\"42\")",
+          "answers": [
+            "int"
+          ],
+          "options": [
+            "int",
+            "str",
+            "float",
+            "num"
+          ],
+          "explain": "int() mengubah nilai menjadi bilangan bulat."
+        },
+        {
+          "id": "python-1-q7",
+          "type": "type",
+          "prompt": "Ketik perintah mencetak teks Halo.",
+          "preview": "Halo",
+          "clue": "Fungsi print dengan teks dalam tanda kutip.",
+          "answers": [
+            "print(\"Halo\")",
+            "print('Halo')"
+          ],
+          "explain": "print() mencetak nilai ke layar."
+        },
+        {
+          "id": "python-1-q8",
+          "type": "type",
+          "prompt": "Ketik deklarasi variabel nama berisi teks Budi.",
+          "preview": "nama → Budi",
+          "clue": "Python tidak butuh kata kunci khusus. Cukup nama = nilai.",
+          "answers": [
+            "nama = \"Budi\"",
+            "nama = 'Budi'"
+          ],
+          "explain": "Python membuat variabel langsung lewat penugasan."
+        }
+      ]
+    },
+    {
+      "id": "python-2",
+      "title": "Kondisi & Perulangan",
+      "questions": [
+        {
+          "id": "python-2-q1",
+          "type": "mc",
+          "prompt": "Python menandai blok kode dengan…",
+          "options": [
+            "kurung kurawal",
+            "indentasi",
+            "titik koma",
+            "BEGIN dan END"
+          ],
+          "answer": 1,
+          "explain": "Indentasi (spasi di awal baris) menentukan blok kode."
+        },
+        {
+          "id": "python-2-q2",
+          "type": "mc",
+          "prompt": "Kata kunci untuk cabang kedua setelah if adalah…",
+          "options": [
+            "else if",
+            "elseif",
+            "elif",
+            "otherwise"
+          ],
+          "answer": 2,
+          "explain": "elif adalah singkatan dari else if."
+        },
+        {
+          "id": "python-2-q3",
+          "type": "order",
+          "prompt": "Susun kondisi if.",
+          "pieces": [
+            "if umur >= 17:",
+            "print(\"Boleh\")"
+          ],
+          "explain": "Baris if diakhiri titik dua, lalu isi blok."
+        },
+        {
+          "id": "python-2-q4",
+          "type": "order",
+          "prompt": "Susun perulangan for.",
+          "pieces": [
+            "for i in range(3):",
+            "print(i)"
+          ],
+          "decoys": [
+            "for (i = 0; i < 3; i++)"
+          ],
+          "explain": "range(3) menghasilkan 0, 1, 2."
+        },
+        {
+          "id": "python-2-q5",
+          "type": "fill",
+          "prompt": "Ulangi selama kondisi benar.",
+          "code": "___ x < 5:\n    x += 1",
+          "answers": [
+            "while"
+          ],
+          "options": [
+            "while",
+            "for",
+            "if",
+            "loop"
+          ],
+          "explain": "while mengulang selama kondisinya True."
+        },
+        {
+          "id": "python-2-q6",
+          "type": "fill",
+          "prompt": "Lengkapi keluaran perulangan.",
+          "code": "for i in range(3):\n    print(i)  # 0, 1, ___",
+          "answers": [
+            "2"
+          ],
+          "options": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "explain": "range(3) berhenti sebelum angka 3."
+        },
+        {
+          "id": "python-2-q7",
+          "type": "type",
+          "prompt": "Ketik baris kondisi if untuk umur >= 17 (sampai titik dua).",
+          "preview": "Blok di bawahnya jalan bila umur 17 atau lebih",
+          "clue": "Baris if diakhiri titik dua. Tanpa kurung dan tanpa kurung kurawal.",
+          "answers": [
+            "if umur >= 17:"
+          ],
+          "explain": "Baris if diakhiri titik dua, lalu isi blok diberi indentasi."
+        },
+        {
+          "id": "python-2-q8",
+          "type": "type",
+          "prompt": "Ketik baris perulangan for dengan i dalam range(5).",
+          "preview": "i = 0, 1, 2, 3, 4",
+          "clue": "for i in range(...) lalu titik dua.",
+          "answers": [
+            "for i in range(5):"
+          ],
+          "explain": "range(5) menghasilkan 0 sampai 4."
+        }
+      ]
+    },
+    {
+      "id": "python-3",
+      "title": "Fungsi & List",
+      "questions": [
+        {
+          "id": "python-3-q1",
+          "type": "mc",
+          "prompt": "Kata kunci untuk membuat fungsi di Python adalah…",
+          "options": [
+            "function",
+            "def",
+            "fun",
+            "func"
+          ],
+          "answer": 1,
+          "explain": "Fungsi dibuat dengan def."
+        },
+        {
+          "id": "python-3-q2",
+          "type": "mc",
+          "prompt": "Hasil dari len([4, 5, 6]) adalah…",
+          "options": [
+            "2",
+            "3",
+            "4",
+            "6"
+          ],
+          "answer": 1,
+          "explain": "len() menghitung jumlah elemen: ada 3."
+        },
+        {
+          "id": "python-3-q3",
+          "type": "order",
+          "prompt": "Susun sebuah fungsi.",
+          "pieces": [
+            "def tambah(a, b):",
+            "return a + b"
+          ],
+          "explain": "def, nama, parameter, titik dua, lalu isi fungsi."
+        },
+        {
+          "id": "python-3-q4",
+          "type": "order",
+          "prompt": "Susun penambahan elemen list.",
+          "pieces": [
+            "buah = [\"apel\"]",
+            "buah.append(\"jeruk\")"
+          ],
+          "decoys": [
+            "buah.push(\"jeruk\")"
+          ],
+          "explain": "append menambah elemen di akhir list."
+        },
+        {
+          "id": "python-3-q5",
+          "type": "fill",
+          "prompt": "Lengkapi pembuatan fungsi.",
+          "code": "___ sapa(nama):\n    return nama",
+          "answers": [
+            "def"
+          ],
+          "options": [
+            "def",
+            "fn",
+            "func",
+            "lambda"
+          ],
+          "explain": "Gunakan def untuk mendefinisikan fungsi."
+        },
+        {
+          "id": "python-3-q6",
+          "type": "fill",
+          "prompt": "Ambil elemen pertama list.",
+          "code": "buah = [\"apel\", \"jeruk\"]\nprint(buah[___])",
+          "answers": [
+            "0"
+          ],
+          "options": [
+            "0",
+            "1",
+            "2",
+            "first"
+          ],
+          "explain": "Indeks list dimulai dari 0."
+        },
+        {
+          "id": "python-3-q7",
+          "type": "type",
+          "prompt": "Ketik baris definisi fungsi sapa dengan parameter nama.",
+          "preview": "sapa(\"Ani\") dapat dipanggil",
+          "clue": "Mulai dengan def, akhiri dengan titik dua.",
+          "answers": [
+            "def sapa(nama):"
+          ],
+          "explain": "def mendefinisikan fungsi."
+        },
+        {
+          "id": "python-3-q8",
+          "type": "type",
+          "prompt": "Ketik perintah mencetak jumlah elemen list buah.",
+          "preview": "3  (jika buah berisi 3 elemen)",
+          "clue": "Gabungkan print dan len.",
+          "answers": [
+            "print(len(buah))"
+          ],
+          "explain": "len() menghitung jumlah elemen."
+        }
+      ]
+    }
+  ]
+}
