@@ -106,7 +106,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
             Belajar koding, <span className="text-indigo-600">satu langkah</span> demi satu langkah.
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg font-medium leading-relaxed text-slate-500 lg:mx-0">
-            Pilih bahasa pemrograman, mulai dari HTML, CSS, JavaScript, React, Python, Java, hingga C++, lalu belajar lewat latihan singkat yang seru. Kumpulkan XP dan bangun streak harianmu.
+            Pilih bahasa pemrograman, mulai dari HTML, CSS, JavaScript, React, PHP, Python, Java, hingga C++, lalu belajar lewat latihan singkat yang seru. Kumpulkan XP dan bangun streak harianmu.
           </p>
           <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
             <PrimaryButton onClick={go} className="w-full sm:w-auto">{cta}</PrimaryButton>

@@ -1,0 +1,404 @@
+{
+  "id": "php",
+  "title": "PHP",
+  "subtitle": "Bahasa sisi server untuk web",
+  "badge": "PHP",
+  "color": "fuchsia",
+  "lessons": [
+    {
+      "id": "php-1",
+      "title": "Dasar PHP",
+      "questions": [
+        {
+          "id": "php-1-q1",
+          "type": "mc",
+          "prompt": "Tag pembuka kode PHP adalah…",
+          "options": [
+            "<?php",
+            "<php>",
+            "<%",
+            "<?js"
+          ],
+          "answer": 0,
+          "explain": "Kode PHP berada di antara <?php dan ?>."
+        },
+        {
+          "id": "php-1-q2",
+          "type": "mc",
+          "prompt": "Variabel di PHP diawali dengan tanda…",
+          "options": [
+            "$",
+            "@",
+            "#",
+            "&"
+          ],
+          "answer": 0,
+          "explain": "Semua variabel PHP diawali tanda dolar, mis. $nama."
+        },
+        {
+          "id": "php-1-q3",
+          "type": "order",
+          "prompt": "Susun skrip PHP yang mencetak teks.",
+          "pieces": [
+            "<?php",
+            "echo \"Halo\";",
+            "?>"
+          ],
+          "explain": "Skrip dibuka dengan <?php dan echo mencetak teks."
+        },
+        {
+          "id": "php-1-q4",
+          "type": "order",
+          "prompt": "Susun deklarasi variabel.",
+          "pieces": [
+            "$nama",
+            "=",
+            "\"Budi\";"
+          ],
+          "decoys": [
+            "nama ="
+          ],
+          "explain": "Variabel ditulis $nama = nilai;"
+        },
+        {
+          "id": "php-1-q5",
+          "type": "fill",
+          "prompt": "Lengkapi perintah mencetak.",
+          "code": "echo \"Halo\"___",
+          "answers": [
+            ";"
+          ],
+          "options": [
+            ";",
+            ":",
+            ".",
+            ","
+          ],
+          "explain": "Setiap pernyataan PHP diakhiri titik koma."
+        },
+        {
+          "id": "php-1-q6",
+          "type": "fill",
+          "prompt": "Operator untuk menggabungkan teks di PHP:",
+          "code": "echo \"Halo \" ___ $nama;",
+          "answers": [
+            "."
+          ],
+          "options": [
+            ".",
+            "+",
+            "&",
+            "-"
+          ],
+          "explain": "Titik (.) menyambung teks, bukan tanda +."
+        },
+        {
+          "id": "php-1-q7",
+          "type": "type",
+          "prompt": "Ketik perintah mencetak teks Halo.",
+          "preview": "Halo",
+          "clue": "echo lalu teks dalam tanda kutip.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^echo([\\\"'])(.*)\\1;$",
+                "output": "$2"
+              }
+            ]
+          },
+          "answers": [
+            "echo \"Halo\";",
+            "echo 'Halo';"
+          ],
+          "explain": "echo mencetak teks ke keluaran."
+        },
+        {
+          "id": "php-1-q8",
+          "type": "type",
+          "prompt": "Ketik deklarasi variabel $umur berisi 20.",
+          "preview": "umur → 20",
+          "clue": "Variabel diawali $, nilai ditulis setelah =.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^\\$(\\w+)=(.*);$",
+                "output": "$1 → $2"
+              }
+            ]
+          },
+          "answers": [
+            "$umur = 20;"
+          ],
+          "explain": "Variabel PHP dibuat lewat penugasan dan diawali $."
+        }
+      ]
+    },
+    {
+      "id": "php-2",
+      "title": "Kondisi & Perulangan",
+      "questions": [
+        {
+          "id": "php-2-q1",
+          "type": "mc",
+          "prompt": "Operator perbandingan ketat (nilai dan tipe sama):",
+          "options": [
+            "=",
+            "==",
+            "===",
+            "=>"
+          ],
+          "answer": 2,
+          "explain": "=== membandingkan nilai sekaligus tipe."
+        },
+        {
+          "id": "php-2-q2",
+          "type": "mc",
+          "prompt": "Kata kunci untuk cabang kedua setelah if:",
+          "options": [
+            "elif",
+            "elseif",
+            "elsif",
+            "otherwise"
+          ],
+          "answer": 1,
+          "explain": "PHP memakai elseif (juga boleh else if)."
+        },
+        {
+          "id": "php-2-q3",
+          "type": "order",
+          "prompt": "Susun kondisi if-else.",
+          "pieces": [
+            "if ($umur >= 17)",
+            "{ echo \"Boleh\"; }",
+            "else",
+            "{ echo \"Tidak\"; }"
+          ],
+          "decoys": [
+            "elif"
+          ],
+          "explain": "if menjalankan blok bila benar; else bila tidak."
+        },
+        {
+          "id": "php-2-q4",
+          "type": "order",
+          "prompt": "Susun perulangan for.",
+          "pieces": [
+            "for ($i = 0;",
+            "$i < 3;",
+            "$i++)",
+            "{ echo $i; }"
+          ],
+          "decoys": [
+            "i++)"
+          ],
+          "explain": "for punya inisialisasi, kondisi, dan langkah."
+        },
+        {
+          "id": "php-2-q5",
+          "type": "fill",
+          "prompt": "Ulangi selama kondisi benar.",
+          "code": "___ ($x < 5) { $x++; }",
+          "answers": [
+            "while"
+          ],
+          "options": [
+            "while",
+            "for",
+            "if",
+            "loop"
+          ],
+          "explain": "while mengulang selama kondisinya benar."
+        },
+        {
+          "id": "php-2-q6",
+          "type": "fill",
+          "prompt": "Perulangan atas setiap elemen array.",
+          "code": "foreach ($buah ___ $b) { }",
+          "answers": [
+            "as"
+          ],
+          "options": [
+            "as",
+            "in",
+            "of",
+            "to"
+          ],
+          "explain": "foreach ($array as $item) mengambil tiap elemen."
+        },
+        {
+          "id": "php-2-q7",
+          "type": "type",
+          "prompt": "Ketik kondisi if untuk $umur >= 17 dengan badan kosong.",
+          "preview": "Blok jalan bila umur 17 atau lebih",
+          "clue": "if, kurung berisi perbandingan, lalu { }.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^if\\(\\$(\\w+)>=(\\d+)\\)\\{\\}$",
+                "output": "blok jalan bila $1 ≥ $2"
+              }
+            ]
+          },
+          "answers": [
+            "if ($umur >= 17) { }"
+          ],
+          "explain": "Kondisi if ditulis dalam kurung, badannya dalam kurung kurawal."
+        },
+        {
+          "id": "php-2-q8",
+          "type": "type",
+          "prompt": "Ketik perulangan while selama $x < 5 yang menambah $x.",
+          "preview": "x naik sampai 5",
+          "clue": "while (kondisi) lalu badan berisi $x++;",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^while\\(\\$x<5\\)\\{\\$x\\+\\+;\\}$",
+                "output": "x naik sampai 5"
+              }
+            ]
+          },
+          "answers": [
+            "while ($x < 5) { $x++; }"
+          ],
+          "explain": "while mengulang selama kondisinya benar."
+        }
+      ]
+    },
+    {
+      "id": "php-3",
+      "title": "Fungsi & Array",
+      "questions": [
+        {
+          "id": "php-3-q1",
+          "type": "mc",
+          "prompt": "Kata kunci untuk membuat fungsi di PHP:",
+          "options": [
+            "function",
+            "def",
+            "fun",
+            "func"
+          ],
+          "answer": 0,
+          "explain": "Fungsi dibuat dengan function."
+        },
+        {
+          "id": "php-3-q2",
+          "type": "mc",
+          "prompt": "Fungsi untuk menghitung jumlah elemen array:",
+          "options": [
+            "count()",
+            "length()",
+            "size()",
+            "len()"
+          ],
+          "answer": 0,
+          "explain": "count($array) mengembalikan jumlah elemen."
+        },
+        {
+          "id": "php-3-q3",
+          "type": "order",
+          "prompt": "Susun fungsi penjumlahan.",
+          "pieces": [
+            "function tambah($a, $b)",
+            "{",
+            "return $a + $b;",
+            "}"
+          ],
+          "explain": "Fungsi punya nama, parameter, dan badan."
+        },
+        {
+          "id": "php-3-q4",
+          "type": "order",
+          "prompt": "Susun array buah.",
+          "pieces": [
+            "$buah",
+            "=",
+            "[\"apel\", \"jeruk\"];"
+          ],
+          "decoys": [
+            "{\"apel\"};"
+          ],
+          "explain": "Array ditulis dalam kurung siku."
+        },
+        {
+          "id": "php-3-q5",
+          "type": "fill",
+          "prompt": "Kembalikan nilai dari fungsi.",
+          "code": "function dua($x) { ___ $x * 2; }",
+          "answers": [
+            "return"
+          ],
+          "options": [
+            "return",
+            "give",
+            "send",
+            "output"
+          ],
+          "explain": "return mengembalikan hasil ke pemanggil."
+        },
+        {
+          "id": "php-3-q6",
+          "type": "fill",
+          "prompt": "Ambil elemen pertama array.",
+          "code": "$buah = [\"apel\", \"jeruk\"];\necho $buah[___];",
+          "answers": [
+            "0"
+          ],
+          "options": [
+            "0",
+            "1",
+            "2",
+            "first"
+          ],
+          "explain": "Indeks array dimulai dari 0."
+        },
+        {
+          "id": "php-3-q7",
+          "type": "type",
+          "prompt": "Ketik fungsi tambah($a, $b) yang mengembalikan $a + $b dalam satu baris.",
+          "preview": "tambah(2, 3) → 5",
+          "clue": "function, nama, parameter, lalu { return ...; }",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^function tambah\\(\\$a,\\$b\\)\\{return\\$a\\+\\$b;\\}$",
+                "output": "tambah(2, 3) → 5"
+              }
+            ]
+          },
+          "answers": [
+            "function tambah($a, $b) { return $a + $b; }"
+          ],
+          "explain": "Fungsi punya nama, parameter, dan badan; return mengembalikan hasil."
+        },
+        {
+          "id": "php-3-q8",
+          "type": "type",
+          "prompt": "Ketik array $buah berisi apel dan jeruk dengan kurung siku.",
+          "preview": "buah → [\"apel\", \"jeruk\"]",
+          "clue": "Array ditulis dalam kurung siku, elemen dipisah koma.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^\\$(\\w+)=\\[(.*)\\];$",
+                "output": "$1 → [$2]"
+              }
+            ]
+          },
+          "answers": [
+            "$buah = [\"apel\", \"jeruk\"];",
+            "$buah = ['apel', 'jeruk'];"
+          ],
+          "explain": "Array PHP modern ditulis dengan kurung siku."
+        }
+      ]
+    }
+  ]
+}

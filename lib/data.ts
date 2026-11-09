@@ -6,6 +6,7 @@ import java from "@/data/languages/java.json";
 import cpp from "@/data/languages/cpp.json";
 import { normalizeTyped } from "./live";
 import react from "@/data/languages/react.json";
+import php from "@/data/languages/php.json";
 
 /** Semua soal disimpan sebagai JSON di data/languages/<bahasa>.json */
 
@@ -78,7 +79,7 @@ export type Lesson = {
   questions: Question[];
 };
 
-export type LanguageColor = "emerald" | "indigo" | "amber" | "sky" | "rose" | "violet" | "cyan";
+export type LanguageColor = "emerald" | "indigo" | "amber" | "sky" | "rose" | "violet" | "cyan" | "fuchsia";
 
 export type Language = {
   id: string;
@@ -92,7 +93,7 @@ export type Language = {
 };
 
 /** Urutan di sini = urutan tampil di aplikasi. Bahasa baru: tambah file JSON lalu daftarkan di sini. */
-export const LANGUAGES: Language[] = [html, css, js, react, python, java, cpp] as unknown as Language[];
+export const LANGUAGES: Language[] = [html, css, js, react, php, python, java, cpp] as unknown as Language[];
 
 export const ALL_LESSONS: Lesson[] = LANGUAGES.flatMap((l) => l.lessons);
 

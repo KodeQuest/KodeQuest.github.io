@@ -8,7 +8,7 @@ import { ExitGuard } from "@/components/ExitGuard";
 
 export const metadata: Metadata = {
   title: "KodeQuest · Belajar koding seperti bermain",
-  description: "Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, React, Python, Java, C++) dengan XP dan streak.",
+  description: "Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, React, PHP, Python, Java, C++) dengan XP dan streak.",
 };
 
 export const viewport: Viewport = {
