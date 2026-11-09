@@ -70,3 +70,15 @@ body {
   .anim-pop, .anim-slide-up, .anim-fade-in, .anim-bob,
   .anim-backdrop-in, .anim-backdrop-out, .anim-sheet-in, .anim-sheet-out { animation: none; }
 }
+
+/* Seleksi teks dimatikan di /belajar ke bawah (diatur oleh NoSelect); kolom isian tetap bisa dipilih. */
+html[data-noselect] body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+html[data-noselect] input,
+html[data-noselect] textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}

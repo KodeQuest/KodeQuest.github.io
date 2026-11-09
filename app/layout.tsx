@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import { ProgressProvider } from "@/lib/store";
 import { NoContextMenu } from "@/components/NoContextMenu";
+import { NoSelect } from "@/components/NoSelect";
 import { ExitGuard } from "@/components/ExitGuard";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="id">
       <body className="font-sans antialiased">
         <NoContextMenu />
+        <NoSelect />
         <ProgressProvider>
           {children}
           <ExitGuard />
