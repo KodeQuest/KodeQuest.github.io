@@ -64,7 +64,7 @@ export function LiveResult({ q, typed }: { q: TypeQuestion; typed: string }) {
     return () => window.removeEventListener("message", onMsg);
   }, [live]);
 
-  const matched = useMemo(() => (live?.kind === "match" ? matchLive(live.rules, debounced) : null), [live, debounced]);
+  const matched = useMemo(() => (live?.kind === "match" ? matchLive(live.rules, debounced, q.ignoreCase) : null), [live, debounced, q.ignoreCase]);
 
   let body: React.ReactNode;
   if (live?.kind === "html") {

@@ -6,13 +6,13 @@ export function normalizeTyped(text: string): string {
 }
 
 /** Cocokkan ketikan (sudah dinormalkan) dengan aturan; kembalikan teks hasil atau null. */
-export function matchLive(rules: { pattern: string; output: string }[], typed: string): string | null {
+export function matchLive(rules: { pattern: string; output: string }[], typed: string, ignoreCase = false): string | null {
   const t = normalizeTyped(typed);
   if (!t) return null;
   for (const r of rules) {
     let m: RegExpExecArray | null = null;
     try {
-      m = new RegExp(r.pattern).exec(t);
+      m = new RegExp(r.pattern, ignoreCase ? "i" : "").exec(t);
     } catch {
       continue;
     }

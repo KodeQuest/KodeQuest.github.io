@@ -1,0 +1,411 @@
+{
+  "id": "mysql",
+  "title": "MySQL",
+  "subtitle": "Basis data dan query SQL",
+  "badge": "SQL",
+  "color": "orange",
+  "lessons": [
+    {
+      "id": "mysql-1",
+      "title": "SELECT Dasar",
+      "questions": [
+        {
+          "id": "mysql-1-q1",
+          "type": "mc",
+          "prompt": "Perintah untuk mengambil data dari tabel:",
+          "options": [
+            "SELECT",
+            "GET",
+            "FETCH",
+            "OPEN"
+          ],
+          "answer": 0,
+          "explain": "SELECT dipakai untuk membaca data."
+        },
+        {
+          "id": "mysql-1-q2",
+          "type": "mc",
+          "prompt": "Tanda untuk memilih semua kolom:",
+          "options": [
+            "*",
+            "%",
+            "#",
+            "&"
+          ],
+          "answer": 0,
+          "explain": "SELECT * mengambil semua kolom."
+        },
+        {
+          "id": "mysql-1-q3",
+          "type": "order",
+          "prompt": "Susun query mengambil kolom nama.",
+          "pieces": [
+            "SELECT",
+            "nama",
+            "FROM",
+            "siswa;"
+          ],
+          "decoys": [
+            "INTO"
+          ],
+          "explain": "SELECT kolom FROM tabel;"
+        },
+        {
+          "id": "mysql-1-q4",
+          "type": "order",
+          "prompt": "Susun query dengan batas 5 baris.",
+          "pieces": [
+            "SELECT *",
+            "FROM siswa",
+            "LIMIT 5;"
+          ],
+          "decoys": [
+            "TOP 5;"
+          ],
+          "explain": "LIMIT membatasi jumlah baris hasil."
+        },
+        {
+          "id": "mysql-1-q5",
+          "type": "fill",
+          "prompt": "Lengkapi query.",
+          "code": "SELECT * ___ siswa;",
+          "answers": [
+            "FROM"
+          ],
+          "options": [
+            "FROM",
+            "IN",
+            "OF",
+            "TABLE"
+          ],
+          "explain": "FROM menunjuk tabel sumber data."
+        },
+        {
+          "id": "mysql-1-q6",
+          "type": "fill",
+          "prompt": "Ambil kolom nama dan umur.",
+          "code": "SELECT nama, ___ FROM siswa;",
+          "answers": [
+            "umur"
+          ],
+          "options": [
+            "umur",
+            "tabel",
+            "kolom",
+            "data"
+          ],
+          "explain": "Kolom dipisah dengan koma."
+        },
+        {
+          "id": "mysql-1-q7",
+          "type": "type",
+          "prompt": "Ketik query untuk mengambil semua data dari tabel siswa.",
+          "preview": "id | nama | umur\n1 | Budi | 17\n2 | Sari | 18\n3 | Andi | 16",
+          "clue": "Pakai tanda * untuk semua kolom.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^SELECT\\*FROM siswa;$",
+                "output": "id | nama | umur\n1 | Budi | 17\n2 | Sari | 18\n3 | Andi | 16"
+              }
+            ]
+          },
+          "ignoreCase": true,
+          "answers": [
+            "SELECT * FROM siswa;"
+          ],
+          "explain": "SELECT * FROM tabel; mengambil semua kolom dan baris."
+        },
+        {
+          "id": "mysql-1-q8",
+          "type": "type",
+          "prompt": "Ketik query untuk mengambil kolom nama saja dari tabel siswa.",
+          "preview": "nama\nBudi\nSari\nAndi",
+          "clue": "Sebut nama kolom setelah SELECT.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^SELECT nama FROM siswa;$",
+                "output": "nama\nBudi\nSari\nAndi"
+              }
+            ]
+          },
+          "ignoreCase": true,
+          "answers": [
+            "SELECT nama FROM siswa;"
+          ],
+          "explain": "Sebut kolom yang dibutuhkan setelah SELECT."
+        }
+      ]
+    },
+    {
+      "id": "mysql-2",
+      "title": "Filter & Urutan",
+      "questions": [
+        {
+          "id": "mysql-2-q1",
+          "type": "mc",
+          "prompt": "Klausa untuk menyaring baris:",
+          "options": [
+            "WHERE",
+            "FILTER",
+            "IF",
+            "FIND"
+          ],
+          "answer": 0,
+          "explain": "WHERE menyaring baris sesuai kondisi."
+        },
+        {
+          "id": "mysql-2-q2",
+          "type": "mc",
+          "prompt": "Klausa untuk mengurutkan hasil:",
+          "options": [
+            "ORDER BY",
+            "SORT BY",
+            "ARRANGE",
+            "GROUP BY"
+          ],
+          "answer": 0,
+          "explain": "ORDER BY mengurutkan; tambahkan ASC atau DESC."
+        },
+        {
+          "id": "mysql-2-q3",
+          "type": "order",
+          "prompt": "Susun query siswa yang umurnya di atas 17.",
+          "pieces": [
+            "SELECT * FROM siswa",
+            "WHERE umur > 17;"
+          ],
+          "decoys": [
+            "IF umur > 17;"
+          ],
+          "explain": "WHERE diletakkan setelah FROM."
+        },
+        {
+          "id": "mysql-2-q4",
+          "type": "order",
+          "prompt": "Susun query diurutkan dari umur terbesar.",
+          "pieces": [
+            "SELECT * FROM siswa",
+            "ORDER BY umur DESC;"
+          ],
+          "decoys": [
+            "SORT umur DESC;"
+          ],
+          "explain": "DESC = menurun, ASC = menaik."
+        },
+        {
+          "id": "mysql-2-q5",
+          "type": "fill",
+          "prompt": "Cari siswa bernama Budi.",
+          "code": "SELECT * FROM siswa WHERE nama ___ 'Budi';",
+          "answers": [
+            "="
+          ],
+          "options": [
+            "=",
+            "==",
+            "IS",
+            "EQUALS"
+          ],
+          "explain": "MySQL memakai satu tanda sama dengan untuk perbandingan."
+        },
+        {
+          "id": "mysql-2-q6",
+          "type": "fill",
+          "prompt": "Gabungkan dua kondisi.",
+          "code": "... WHERE umur > 16 ___ umur < 18;",
+          "answers": [
+            "AND"
+          ],
+          "options": [
+            "AND",
+            "OR",
+            "NOT",
+            "XOR"
+          ],
+          "explain": "AND mensyaratkan kedua kondisi benar."
+        },
+        {
+          "id": "mysql-2-q7",
+          "type": "type",
+          "prompt": "Ketik query siswa yang umurnya lebih dari 17.",
+          "preview": "id | nama | umur\n2 | Sari | 18",
+          "clue": "Tambahkan WHERE setelah FROM.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^SELECT\\*FROM siswa WHERE umur>17;$",
+                "output": "id | nama | umur\n2 | Sari | 18"
+              }
+            ]
+          },
+          "ignoreCase": true,
+          "answers": [
+            "SELECT * FROM siswa WHERE umur > 17;"
+          ],
+          "explain": "WHERE menyaring baris sesuai kondisi."
+        },
+        {
+          "id": "mysql-2-q8",
+          "type": "type",
+          "prompt": "Ketik query semua siswa diurutkan dari umur terbesar.",
+          "preview": "2 | Sari | 18\n1 | Budi | 17\n3 | Andi | 16",
+          "clue": "ORDER BY kolom lalu DESC.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^SELECT\\*FROM siswa ORDER BY umur DESC;$",
+                "output": "2 | Sari | 18\n1 | Budi | 17\n3 | Andi | 16"
+              }
+            ]
+          },
+          "ignoreCase": true,
+          "answers": [
+            "SELECT * FROM siswa ORDER BY umur DESC;"
+          ],
+          "explain": "ORDER BY ... DESC mengurutkan dari terbesar."
+        }
+      ]
+    },
+    {
+      "id": "mysql-3",
+      "title": "Ubah Data & Fungsi",
+      "questions": [
+        {
+          "id": "mysql-3-q1",
+          "type": "mc",
+          "prompt": "Perintah untuk menambah baris baru:",
+          "options": [
+            "INSERT INTO",
+            "ADD ROW",
+            "APPEND",
+            "NEW"
+          ],
+          "answer": 0,
+          "explain": "INSERT INTO menambah baris ke tabel."
+        },
+        {
+          "id": "mysql-3-q2",
+          "type": "mc",
+          "prompt": "Perintah untuk mengubah data yang sudah ada:",
+          "options": [
+            "UPDATE",
+            "MODIFY",
+            "CHANGE",
+            "EDIT"
+          ],
+          "answer": 0,
+          "explain": "UPDATE ... SET mengubah nilai kolom."
+        },
+        {
+          "id": "mysql-3-q3",
+          "type": "order",
+          "prompt": "Susun query menambah siswa.",
+          "pieces": [
+            "INSERT INTO siswa",
+            "(nama, umur)",
+            "VALUES ('Dewi', 17);"
+          ],
+          "decoys": [
+            "SET ('Dewi', 17);"
+          ],
+          "explain": "Sebut kolom, lalu nilai lewat VALUES."
+        },
+        {
+          "id": "mysql-3-q4",
+          "type": "order",
+          "prompt": "Susun query mengubah umur siswa id 1.",
+          "pieces": [
+            "UPDATE siswa",
+            "SET umur = 19",
+            "WHERE id = 1;"
+          ],
+          "decoys": [
+            "PUT umur = 19"
+          ],
+          "explain": "Selalu pakai WHERE agar tidak mengubah semua baris."
+        },
+        {
+          "id": "mysql-3-q5",
+          "type": "fill",
+          "prompt": "Hapus baris dengan id 3.",
+          "code": "___ FROM siswa WHERE id = 3;",
+          "answers": [
+            "DELETE"
+          ],
+          "options": [
+            "DELETE",
+            "REMOVE",
+            "ERASE",
+            "CLEAR"
+          ],
+          "explain": "DELETE FROM menghapus baris yang cocok dengan WHERE."
+        },
+        {
+          "id": "mysql-3-q6",
+          "type": "fill",
+          "prompt": "Hitung jumlah baris.",
+          "code": "SELECT ___(*) FROM siswa;",
+          "answers": [
+            "COUNT"
+          ],
+          "options": [
+            "COUNT",
+            "SUM",
+            "TOTAL",
+            "LEN"
+          ],
+          "explain": "COUNT(*) menghitung jumlah baris."
+        },
+        {
+          "id": "mysql-3-q7",
+          "type": "type",
+          "prompt": "Ketik query menambah siswa Dewi umur 17 (kolom nama dan umur).",
+          "preview": "1 baris ditambah: Dewi, 17 tahun",
+          "clue": "INSERT INTO tabel (kolom) VALUES (nilai);",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^INSERT INTO siswa\\(nama,umur\\)VALUES\\(['\\\"](.*)['\\\"],(\\d+)\\);$",
+                "output": "1 baris ditambah: $1, $2 tahun"
+              }
+            ]
+          },
+          "ignoreCase": true,
+          "answers": [
+            "INSERT INTO siswa (nama, umur) VALUES ('Dewi', 17);",
+            "INSERT INTO siswa (nama, umur) VALUES (\"Dewi\", 17);"
+          ],
+          "explain": "INSERT INTO menambah baris; VALUES berisi nilainya."
+        },
+        {
+          "id": "mysql-3-q8",
+          "type": "type",
+          "prompt": "Ketik query mengubah umur siswa dengan id 1 menjadi 19.",
+          "preview": "siswa id 1: umur → 19",
+          "clue": "UPDATE tabel SET kolom = nilai WHERE ...",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^UPDATE siswa SET umur=(\\d+) WHERE id=(\\d+);$",
+                "output": "siswa id $2: umur → $1"
+              }
+            ]
+          },
+          "ignoreCase": true,
+          "answers": [
+            "UPDATE siswa SET umur = 19 WHERE id = 1;"
+          ],
+          "explain": "UPDATE mengubah nilai; WHERE membatasi baris yang diubah."
+        }
+      ]
+    }
+  ]
+}

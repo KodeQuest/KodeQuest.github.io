@@ -7,6 +7,7 @@ import cpp from "@/data/languages/cpp.json";
 import { normalizeTyped } from "./live";
 import react from "@/data/languages/react.json";
 import php from "@/data/languages/php.json";
+import mysql from "@/data/languages/mysql.json";
 
 /** Semua soal disimpan sebagai JSON di data/languages/<bahasa>.json */
 
@@ -66,6 +67,8 @@ export type TypeQuestion = {
   clue: string;
   /** Pratinjau langsung dari ketikan pemain */
   live?: LiveSpec;
+  /** Abaikan huruf besar/kecil saat menilai (mis. SQL). Default: dibedakan */
+  ignoreCase?: boolean;
   /** Jawaban yang diterima. Spasi di sekitar tanda baca diabaikan; huruf besar/kecil dibedakan */
   answers: string[];
   explain: string;
@@ -79,7 +82,7 @@ export type Lesson = {
   questions: Question[];
 };
 
-export type LanguageColor = "emerald" | "indigo" | "amber" | "sky" | "rose" | "violet" | "cyan" | "fuchsia";
+export type LanguageColor = "emerald" | "indigo" | "amber" | "sky" | "rose" | "violet" | "cyan" | "fuchsia" | "orange";
 
 export type Language = {
   id: string;
@@ -93,7 +96,7 @@ export type Language = {
 };
 
 /** Urutan di sini = urutan tampil di aplikasi. Bahasa baru: tambah file JSON lalu daftarkan di sini. */
-export const LANGUAGES: Language[] = [html, css, js, react, php, python, java, cpp] as unknown as Language[];
+export const LANGUAGES: Language[] = [html, css, js, react, php, mysql, python, java, cpp] as unknown as Language[];
 
 export const ALL_LESSONS: Lesson[] = LANGUAGES.flatMap((l) => l.lessons);
 
@@ -133,6 +136,7 @@ export function getQuestionsByType<T extends Question["type"]>(type: T, language
 
 
 export function isTypedAnswerCorrect(q: TypeQuestion, typed: string): boolean {
-  const t = normalizeTyped(typed);
-  return t !== "" && q.answers.some((a) => normalizeTyped(a) === t);
+  const fold = (x: string) => (q.ignoreCase ? normalizeTyped(x).toLowerCase() : normalizeTyped(x));
+  const t = fold(typed);
+  return t !== "" && q.answers.some((a) => fold(a) === t);
 }
