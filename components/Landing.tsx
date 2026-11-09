@@ -5,6 +5,7 @@ import { ALL_LESSONS, LANGUAGES } from "@/lib/data";
 import { LANGUAGE_STYLES } from "@/lib/theme";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
+import { ContactButton } from "./ContactButton";
 import { BoltIcon, CheckIcon, CodeIcon, DownloadIcon, FlameIcon, LayoutIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
 
 function PrimaryButton({ children, onClick, className = "" }: { children: ReactNode; onClick: () => void; className?: string }) {
@@ -90,6 +91,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
             >
               {cta}
             </button>
+            <ContactButton />
           </div>
         </div>
       </nav>

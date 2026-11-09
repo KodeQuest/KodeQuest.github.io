@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
+import { ContactButton } from "./ContactButton";
 import { BoltIcon, FlameIcon, SettingsIcon } from "./Icons";
 
 function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: number; label: string; color: string }) {
@@ -40,6 +41,7 @@ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
           >
             <SettingsIcon size={22} />
           </button>
+          <ContactButton />
         </div>
       </div>
     </header>
