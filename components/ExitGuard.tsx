@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
@@ -8,26 +9,32 @@ import { Modal } from "./Modal";
 
 /**
  * Modal dalam halaman yang menawarkan unduh progres (.json) saat pemain hendak menutup tab.
+ * Hanya aktif di /belajar (bukan landing page) dan hanya bila sudah ada progres (XP atau pelajaran selesai).
  * - Browser tidak mengizinkan modal sendiri saat tab ditutup, jadi dipicu dari dua sinyal:
  *   kursor keluar lewat tepi atas jendela (menuju tombol tutup tab) dan `beforeunload`.
  * - `beforeunload` membuat browser menampilkan dialog bawaannya (teks tidak bisa diubah).
  *   Bila pemain memilih tetap di halaman, modal ini yang tampil.
  */
 export function ExitGuard() {
-  const { progress, unsaved, backup } = useProgress();
+  const { progress, backup } = useProgress();
+  const pathname = usePathname();
+  const active = pathname.startsWith("/belajar") && (progress.xp > 0 || Object.keys(progress.completed).length > 0);
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
-  const unsavedRef = useRef(unsaved);
+  const activeRef = useRef(active);
   const shownFor = useRef<string | null>(null);
 
   useEffect(() => {
-    unsavedRef.current = unsaved;
-    if (!unsaved) shownFor.current = null;
-  }, [unsaved]);
+    activeRef.current = active;
+    if (!active) {
+      shownFor.current = null;
+      setOpen(false);
+    }
+  }, [active]);
 
   useEffect(() => {
     const show = (key: string) => {
-      if (!unsavedRef.current || shownFor.current === key) return;
+      if (!activeRef.current || shownFor.current === key) return;
       shownFor.current = key;
       setSaved(false);
       setOpen(true);
@@ -37,7 +44,7 @@ export function ExitGuard() {
       if (e.clientY <= 0 && !e.relatedTarget) show(`${progress.xp}:${Object.keys(progress.completed).length}`);
     };
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!unsavedRef.current) return;
+      if (!activeRef.current) return;
       e.preventDefault();
       e.returnValue = "";
       shownFor.current = null;
