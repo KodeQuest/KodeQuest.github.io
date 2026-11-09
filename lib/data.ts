@@ -4,6 +4,7 @@ import js from "@/data/languages/js.json";
 import python from "@/data/languages/python.json";
 import java from "@/data/languages/java.json";
 import cpp from "@/data/languages/cpp.json";
+import react from "@/data/languages/react.json";
 
 /** Semua soal disimpan sebagai JSON di data/languages/<bahasa>.json */
 
@@ -63,7 +64,7 @@ export type Lesson = {
   questions: Question[];
 };
 
-export type LanguageColor = "emerald" | "indigo" | "amber" | "sky" | "rose" | "violet";
+export type LanguageColor = "emerald" | "indigo" | "amber" | "sky" | "rose" | "violet" | "cyan";
 
 export type Language = {
   id: string;
@@ -77,7 +78,7 @@ export type Language = {
 };
 
 /** Urutan di sini = urutan tampil di aplikasi. Bahasa baru: tambah file JSON lalu daftarkan di sini. */
-export const LANGUAGES: Language[] = [html, css, js, python, java, cpp] as unknown as Language[];
+export const LANGUAGES: Language[] = [html, css, js, react, python, java, cpp] as unknown as Language[];
 
 export const ALL_LESSONS: Lesson[] = LANGUAGES.flatMap((l) => l.lessons);
 

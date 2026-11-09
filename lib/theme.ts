@@ -11,4 +11,5 @@ export const LANGUAGE_STYLES: Record<
   sky: { banner: "bg-sky-500 shadow-[0_5px_0_#0369a1]", node: "bg-sky-500 shadow-[0_6px_0_#0369a1]", solid: "bg-sky-500", shadow: "shadow-[0_5px_0_#0369a1]", text: "text-sky-600", soft: "bg-sky-50", bar: "bg-sky-500" },
   rose: { banner: "bg-rose-500 shadow-[0_5px_0_#be123c]", node: "bg-rose-500 shadow-[0_6px_0_#be123c]", solid: "bg-rose-500", shadow: "shadow-[0_5px_0_#be123c]", text: "text-rose-600", soft: "bg-rose-50", bar: "bg-rose-500" },
   violet: { banner: "bg-violet-500 shadow-[0_5px_0_#5b21b6]", node: "bg-violet-500 shadow-[0_6px_0_#5b21b6]", solid: "bg-violet-500", shadow: "shadow-[0_5px_0_#5b21b6]", text: "text-violet-600", soft: "bg-violet-50", bar: "bg-violet-500" },
+  cyan: { banner: "bg-cyan-500 shadow-[0_5px_0_#0e7490]", node: "bg-cyan-500 shadow-[0_6px_0_#0e7490]", solid: "bg-cyan-500", shadow: "shadow-[0_5px_0_#0e7490]", text: "text-cyan-600", soft: "bg-cyan-50", bar: "bg-cyan-500" },
 };

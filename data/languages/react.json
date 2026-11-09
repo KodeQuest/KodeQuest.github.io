@@ -1,0 +1,348 @@
+{
+  "id": "react",
+  "title": "React",
+  "subtitle": "Antarmuka berbasis komponen",
+  "badge": "Re",
+  "color": "cyan",
+  "lessons": [
+    {
+      "id": "react-1",
+      "title": "Komponen & JSX",
+      "questions": [
+        {
+          "id": "react-1-q1",
+          "type": "mc",
+          "prompt": "Apa itu JSX?",
+          "options": [
+            "Ekstensi sintaks JavaScript yang mirip HTML",
+            "Bahasa template di sisi server",
+            "Framework CSS",
+            "Basis data"
+          ],
+          "answer": 0,
+          "explain": "JSX memungkinkan menulis markup di dalam JavaScript; Babel/compiler mengubahnya menjadi pemanggilan fungsi React."
+        },
+        {
+          "id": "react-1-q2",
+          "type": "mc",
+          "prompt": "Nama komponen React harus diawali huruf…",
+          "options": [
+            "kecil",
+            "besar",
+            "angka",
+            "garis bawah"
+          ],
+          "answer": 1,
+          "explain": "Huruf kapital membedakan komponen (<Halo />) dari tag HTML biasa (<div>)."
+        },
+        {
+          "id": "react-1-q3",
+          "type": "order",
+          "prompt": "Susun komponen fungsi sederhana.",
+          "pieces": [
+            "function Halo()",
+            "{",
+            "return <h1>Halo</h1>;",
+            "}"
+          ],
+          "explain": "Komponen adalah fungsi yang mengembalikan JSX."
+        },
+        {
+          "id": "react-1-q4",
+          "type": "order",
+          "prompt": "Susun JSX yang menampilkan nilai variabel nama.",
+          "pieces": [
+            "<p>",
+            "Halo, {nama}",
+            "</p>"
+          ],
+          "decoys": [
+            "Halo, ${nama}"
+          ],
+          "explain": "Kurung kurawal menyisipkan ekspresi JavaScript ke JSX."
+        },
+        {
+          "id": "react-1-q5",
+          "type": "fill",
+          "prompt": "Atribut class di JSX ditulis…",
+          "code": "<div ___=\"kartu\">Isi</div>",
+          "answers": [
+            "className"
+          ],
+          "options": [
+            "className",
+            "class",
+            "css",
+            "style"
+          ],
+          "explain": "class adalah kata kunci JavaScript, jadi JSX memakai className."
+        },
+        {
+          "id": "react-1-q6",
+          "type": "fill",
+          "prompt": "Lengkapi pengembalian JSX.",
+          "code": "function App() {\n  ___ <h1>Hai</h1>;\n}",
+          "answers": [
+            "return"
+          ],
+          "options": [
+            "return",
+            "print",
+            "render",
+            "give"
+          ],
+          "explain": "Komponen mengembalikan JSX dengan return."
+        },
+        {
+          "id": "react-1-q7",
+          "type": "type",
+          "prompt": "Ketik komponen fungsi Halo yang mengembalikan <h1>Halo</h1> dalam satu baris.",
+          "preview": "Halo  (judul besar)",
+          "clue": "function, nama, lalu { return ...; }",
+          "answers": [
+            "function Halo() { return <h1>Halo</h1>; }"
+          ],
+          "explain": "Komponen fungsi mengembalikan JSX dengan return."
+        },
+        {
+          "id": "react-1-q8",
+          "type": "type",
+          "prompt": "Ketik elemen div ber-className kartu berisi teks Isi.",
+          "preview": "[kotak .kartu berisi: Isi]",
+          "clue": "Pakai className, bukan class.",
+          "answers": [
+            "<div className=\"kartu\">Isi</div>",
+            "<div className='kartu'>Isi</div>"
+          ],
+          "explain": "Di JSX atribut class ditulis className."
+        }
+      ]
+    },
+    {
+      "id": "react-2",
+      "title": "Props & State",
+      "questions": [
+        {
+          "id": "react-2-q1",
+          "type": "mc",
+          "prompt": "Data yang dikirim dari komponen induk ke komponen anak disebut…",
+          "options": [
+            "props",
+            "state",
+            "hook",
+            "event"
+          ],
+          "answer": 0,
+          "explain": "Props (properties) dikirim induk ke anak dan bersifat hanya-baca."
+        },
+        {
+          "id": "react-2-q2",
+          "type": "mc",
+          "prompt": "Hook untuk menyimpan data yang bisa berubah di komponen:",
+          "options": [
+            "useState",
+            "useProp",
+            "useData",
+            "useVar"
+          ],
+          "answer": 0,
+          "explain": "useState menyimpan nilai dan memicu render ulang saat nilainya diubah."
+        },
+        {
+          "id": "react-2-q3",
+          "type": "order",
+          "prompt": "Susun deklarasi state hitung.",
+          "pieces": [
+            "const [hitung, setHitung]",
+            "=",
+            "useState(0);"
+          ],
+          "decoys": [
+            "useState[0];"
+          ],
+          "explain": "useState mengembalikan pasangan [nilai, fungsi pengubah]."
+        },
+        {
+          "id": "react-2-q4",
+          "type": "order",
+          "prompt": "Susun komponen yang memakai props.",
+          "pieces": [
+            "function Sapa(props)",
+            "{",
+            "return <p>{props.nama}</p>;",
+            "}"
+          ],
+          "explain": "Props diakses lewat parameter komponen."
+        },
+        {
+          "id": "react-2-q5",
+          "type": "fill",
+          "prompt": "Lengkapi nama fungsi pengubah state.",
+          "code": "const [n, ___] = useState(0);",
+          "answers": [
+            "setN"
+          ],
+          "options": [
+            "setN",
+            "n",
+            "useN",
+            "update"
+          ],
+          "explain": "Kebiasaan penamaan: set + nama state."
+        },
+        {
+          "id": "react-2-q6",
+          "type": "fill",
+          "prompt": "Tombol yang memanggil fungsi saat diklik:",
+          "code": "<button ___={tambah}>+</button>",
+          "answers": [
+            "onClick"
+          ],
+          "options": [
+            "onClick",
+            "onPress",
+            "click",
+            "onTap"
+          ],
+          "explain": "Event di React memakai camelCase: onClick."
+        },
+        {
+          "id": "react-2-q7",
+          "type": "type",
+          "prompt": "Ketik deklarasi state hitung dengan pengubah setHitung dan nilai awal 0.",
+          "preview": "hitung → 0",
+          "clue": "Gabungkan const, destrukturisasi array, dan useState.",
+          "answers": [
+            "const [hitung, setHitung] = useState(0);",
+            "const [hitung, setHitung] = useState(0)"
+          ],
+          "explain": "useState(0) mengembalikan [nilai, fungsi pengubah]."
+        },
+        {
+          "id": "react-2-q8",
+          "type": "type",
+          "prompt": "Ketik tombol berteks + yang memanggil fungsi tambah saat diklik.",
+          "preview": "[ + ]",
+          "clue": "Pakai onClick dengan kurung kurawal.",
+          "answers": [
+            "<button onClick={tambah}>+</button>"
+          ],
+          "explain": "onClick menerima fungsi, bukan teks."
+        }
+      ]
+    },
+    {
+      "id": "react-3",
+      "title": "Efek & Daftar",
+      "questions": [
+        {
+          "id": "react-3-q1",
+          "type": "mc",
+          "prompt": "Hook untuk menjalankan efek samping (mis. mengambil data) setelah render:",
+          "options": [
+            "useEffect",
+            "useRender",
+            "useAfter",
+            "useFetch"
+          ],
+          "answer": 0,
+          "explain": "useEffect menjalankan efek setelah komponen tampil."
+        },
+        {
+          "id": "react-3-q2",
+          "type": "mc",
+          "prompt": "Prop yang dibutuhkan setiap item saat merender daftar dengan map adalah…",
+          "options": [
+            "key",
+            "id",
+            "index",
+            "list"
+          ],
+          "answer": 0,
+          "explain": "key membantu React melacak item mana yang berubah."
+        },
+        {
+          "id": "react-3-q3",
+          "type": "order",
+          "prompt": "Susun useEffect yang berjalan sekali.",
+          "pieces": [
+            "useEffect(() =>",
+            "{",
+            "console.log(\"Siap\");",
+            "}, []);"
+          ],
+          "explain": "Array dependensi kosong membuat efek jalan sekali setelah render pertama."
+        },
+        {
+          "id": "react-3-q4",
+          "type": "order",
+          "prompt": "Susun render daftar buah.",
+          "pieces": [
+            "{buah.map(b =>",
+            "<li key={b}>{b}</li>",
+            ")}"
+          ],
+          "explain": "map mengubah setiap elemen array menjadi JSX."
+        },
+        {
+          "id": "react-3-q5",
+          "type": "fill",
+          "prompt": "Array dependensi agar efek hanya jalan sekali:",
+          "code": "useEffect(() => { /* ... */ }, ___);",
+          "answers": [
+            "[]"
+          ],
+          "options": [
+            "[]",
+            "{}",
+            "null",
+            "()"
+          ],
+          "explain": "Array kosong berarti tidak ada dependensi, jadi efek jalan sekali."
+        },
+        {
+          "id": "react-3-q6",
+          "type": "fill",
+          "prompt": "Render kondisional: tampilkan teks hanya bila login benar.",
+          "code": "{login ___ <p>Halo</p>}",
+          "answers": [
+            "&&"
+          ],
+          "options": [
+            "&&",
+            "||",
+            "??",
+            "=="
+          ],
+          "explain": "Jika kiri bernilai true, sisi kanan dirender."
+        },
+        {
+          "id": "react-3-q7",
+          "type": "type",
+          "prompt": "Ketik useEffect yang mencetak Siap ke konsol dan hanya jalan sekali.",
+          "preview": "Konsol: Siap  (sekali saja)",
+          "clue": "useEffect(fungsi panah, array dependensi kosong).",
+          "answers": [
+            "useEffect(() => { console.log(\"Siap\"); }, []);",
+            "useEffect(() => { console.log(\"Siap\"); }, [])",
+            "useEffect(() => { console.log('Siap'); }, [])",
+            "useEffect(() => { console.log('Siap'); }, []);"
+          ],
+          "explain": "Array dependensi [] membuat efek jalan sekali."
+        },
+        {
+          "id": "react-3-q8",
+          "type": "type",
+          "prompt": "Ketik ekspresi yang merender array buah menjadi <li> ber-key b.",
+          "preview": "• apel  • jeruk",
+          "clue": "Pakai buah.map dan atribut key.",
+          "answers": [
+            "{buah.map(b => <li key={b}>{b}</li>)}",
+            "{buah.map((b) => <li key={b}>{b}</li>)}"
+          ],
+          "explain": "map mengubah tiap elemen menjadi JSX; key wajib untuk daftar."
+        }
+      ]
+    }
+  ]
+}

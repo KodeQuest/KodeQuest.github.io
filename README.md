@@ -1,6 +1,6 @@
 # KodeQuest
 
-Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, Python, Java, C++) dengan gamifikasi (XP, streak). Dibangun dengan Next.js (static export) dan Tailwind CSS v4, siap di-deploy ke GitHub Pages.
+Platform belajar fundamental pemrograman (HTML, CSS, JavaScript, React, Python, Java, C++) dengan gamifikasi (XP, streak). Dibangun dengan Next.js (static export) dan Tailwind CSS v4, siap di-deploy ke GitHub Pages.
 
 ## Menjalankan lokal
 
