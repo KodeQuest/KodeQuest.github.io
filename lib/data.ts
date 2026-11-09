@@ -4,6 +4,7 @@ import js from "@/data/languages/js.json";
 import python from "@/data/languages/python.json";
 import java from "@/data/languages/java.json";
 import cpp from "@/data/languages/cpp.json";
+import { normalizeTyped } from "./live";
 import react from "@/data/languages/react.json";
 
 /** Semua soal disimpan sebagai JSON di data/languages/<bahasa>.json */
@@ -42,6 +43,17 @@ export type FillQuestion = {
   explain: string;
 };
 
+/** Cara menampilkan hasil kode yang diketik pemain secara langsung (realtime). */
+export type LiveSpec =
+  /** Render HTML yang diketik di iframe ber-sandbox */
+  | { kind: "html" }
+  /** Terapkan CSS yang diketik ke markup contoh `html` (opsional `base` = CSS tambahan) */
+  | { kind: "css"; html: string; base?: string }
+  /** Jalankan JavaScript di iframe ber-sandbox; `before`/`after` dikirim sebelum/sesudah kode pemain */
+  | { kind: "js"; before?: string; after?: string }
+  /** Cocokkan teks yang sudah dinormalkan dengan regex; `output` boleh memakai $1, $2, … */
+  | { kind: "match"; rules: { pattern: string; output: string }[] };
+
 /** Soal ketik manual: pemain mengetik jawaban sendiri tanpa pilihan. */
 export type TypeQuestion = {
   id: string;
@@ -51,6 +63,8 @@ export type TypeQuestion = {
   preview: string;
   /** Petunjuk yang bisa dibuka pemain sebelum menjawab */
   clue: string;
+  /** Pratinjau langsung dari ketikan pemain */
+  live?: LiveSpec;
   /** Jawaban yang diterima. Spasi di sekitar tanda baca diabaikan; huruf besar/kecil dibedakan */
   answers: string[];
   explain: string;
@@ -116,10 +130,6 @@ export function getQuestionsByType<T extends Question["type"]>(type: T, language
   return pool.filter((q): q is Extract<Question, { type: T }> => q.type === type);
 }
 
-/** Samakan spasi: rapikan spasi ganda dan abaikan spasi di sekitar tanda baca. Huruf besar/kecil tetap dibedakan. */
-export function normalizeTyped(text: string): string {
-  return text.trim().replace(/\s+/g, " ").replace(/\s*([^\w\s])\s*/g, "$1");
-}
 
 export function isTypedAnswerCorrect(q: TypeQuestion, typed: string): boolean {
   const t = normalizeTyped(typed);

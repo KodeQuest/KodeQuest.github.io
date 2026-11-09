@@ -102,6 +102,9 @@
           "prompt": "Ketik satu baris HTML yang menampilkan paragraf berisi: Halo",
           "preview": "Halo",
           "clue": "Bungkus teks dengan tag p (buka dan tutup).",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<p>Halo</p>"
           ],
@@ -113,6 +116,9 @@
           "prompt": "Ketik deklarasi tipe dokumen HTML5.",
           "preview": "(baris pertama di setiap dokumen HTML5)",
           "clue": "Diawali <! lalu kata DOCTYPE, lalu html.",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<!DOCTYPE html>",
             "<!doctype html>"
@@ -214,6 +220,9 @@
           "prompt": "Ketik tautan ke https://github.com dengan teks: GitHub",
           "preview": "GitHub  (tautan, bisa diklik)",
           "clue": "Tag a dengan atribut href berisi alamat tujuan.",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<a href=\"https://github.com\">GitHub</a>",
             "<a href='https://github.com'>GitHub</a>"
@@ -226,6 +235,9 @@
           "prompt": "Ketik judul terbesar berisi: KodeQuest",
           "preview": "KodeQuest  (huruf besar dan tebal)",
           "clue": "Heading level tertinggi adalah h1.",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<h1>KodeQuest</h1>"
           ],
@@ -328,6 +340,9 @@
           "prompt": "Ketik daftar berbutir dengan satu item berisi: HTML (satu baris)",
           "preview": "• HTML",
           "clue": "ul membungkus li.",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<ul><li>HTML</li></ul>"
           ],
@@ -339,6 +354,9 @@
           "prompt": "Ketik gambar logo.png dengan teks pengganti: Logo",
           "preview": "[gambar logo.png]",
           "clue": "Tag img tidak punya penutup. Pakai atribut src dan alt.",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<img src=\"logo.png\" alt=\"Logo\">",
             "<img src='logo.png' alt='Logo'>"
@@ -440,6 +458,9 @@
           "prompt": "Ketik kolom input bertipe password.",
           "preview": "••••••••  (karakter tersembunyi)",
           "clue": "Tag input dengan atribut type.",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<input type=\"password\">",
             "<input type='password'>"
@@ -452,6 +473,9 @@
           "prompt": "Ketik tombol kirim form yang bertuliskan: Kirim",
           "preview": "[ Kirim ]",
           "clue": "Tag button dengan type submit.",
+          "live": {
+            "kind": "html"
+          },
           "answers": [
             "<button type=\"submit\">Kirim</button>",
             "<button type='submit'>Kirim</button>"

@@ -98,6 +98,15 @@
           "prompt": "Ketik perintah mencetak teks Halo.",
           "preview": "Halo",
           "clue": "Fungsi print dengan teks dalam tanda kutip.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^print\\((['\\\"])(.*)\\1\\)$",
+                "output": "$2"
+              }
+            ]
+          },
           "answers": [
             "print(\"Halo\")",
             "print('Halo')"
@@ -110,6 +119,15 @@
           "prompt": "Ketik deklarasi variabel nama berisi teks Budi.",
           "preview": "nama → Budi",
           "clue": "Python tidak butuh kata kunci khusus. Cukup nama = nilai.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^(\\w+)=(['\\\"])(.*)\\2$",
+                "output": "$1 → $3"
+              }
+            ]
+          },
           "answers": [
             "nama = \"Budi\"",
             "nama = 'Budi'"
@@ -209,6 +227,15 @@
           "prompt": "Ketik baris kondisi if untuk umur >= 17 (sampai titik dua).",
           "preview": "Blok di bawahnya jalan bila umur 17 atau lebih",
           "clue": "Baris if diakhiri titik dua. Tanpa kurung dan tanpa kurung kurawal.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^if umur>=17:$",
+                "output": "(blok di bawahnya jalan bila umur 17 atau lebih)"
+              }
+            ]
+          },
           "answers": [
             "if umur >= 17:"
           ],
@@ -220,6 +247,15 @@
           "prompt": "Ketik baris perulangan for dengan i dalam range(5).",
           "preview": "i = 0, 1, 2, 3, 4",
           "clue": "for i in range(...) lalu titik dua.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^for i in range\\((\\d+)\\):$",
+                "output": "i = 0, 1, … (berhenti sebelum $1)"
+              }
+            ]
+          },
           "answers": [
             "for i in range(5):"
           ],
@@ -318,6 +354,15 @@
           "prompt": "Ketik baris definisi fungsi sapa dengan parameter nama.",
           "preview": "sapa(\"Ani\") dapat dipanggil",
           "clue": "Mulai dengan def, akhiri dengan titik dua.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^def sapa\\(nama\\):$",
+                "output": "fungsi sapa(nama) terdefinisi"
+              }
+            ]
+          },
           "answers": [
             "def sapa(nama):"
           ],
@@ -329,6 +374,15 @@
           "prompt": "Ketik perintah mencetak jumlah elemen list buah.",
           "preview": "3  (jika buah berisi 3 elemen)",
           "clue": "Gabungkan print dan len.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^print\\(len\\(buah\\)\\)$",
+                "output": "3"
+              }
+            ]
+          },
           "answers": [
             "print(len(buah))"
           ],

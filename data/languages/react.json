@@ -99,6 +99,15 @@
           "prompt": "Ketik komponen fungsi Halo yang mengembalikan <h1>Halo</h1> dalam satu baris.",
           "preview": "Halo  (judul besar)",
           "clue": "function, nama, lalu { return ...; }",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^function Halo\\(\\)\\{return<h1>Halo</h1>;\\}$",
+                "output": "Halo  (judul besar)"
+              }
+            ]
+          },
           "answers": [
             "function Halo() { return <h1>Halo</h1>; }"
           ],
@@ -110,6 +119,15 @@
           "prompt": "Ketik elemen div ber-className kartu berisi teks Isi.",
           "preview": "[kotak .kartu berisi: Isi]",
           "clue": "Pakai className, bukan class.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^<div className=(['\\\"])(\\w+)\\1>(.*)</div>$",
+                "output": "[kotak .$2 berisi: $3]"
+              }
+            ]
+          },
           "answers": [
             "<div className=\"kartu\">Isi</div>",
             "<div className='kartu'>Isi</div>"
@@ -212,6 +230,15 @@
           "prompt": "Ketik deklarasi state hitung dengan pengubah setHitung dan nilai awal 0.",
           "preview": "hitung → 0",
           "clue": "Gabungkan const, destrukturisasi array, dan useState.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^const\\[(\\w+),(\\w+)\\]=useState\\((.*)\\);?$",
+                "output": "$1 → $3  (diubah lewat $2)"
+              }
+            ]
+          },
           "answers": [
             "const [hitung, setHitung] = useState(0);",
             "const [hitung, setHitung] = useState(0)"
@@ -224,6 +251,15 @@
           "prompt": "Ketik tombol berteks + yang memanggil fungsi tambah saat diklik.",
           "preview": "[ + ]",
           "clue": "Pakai onClick dengan kurung kurawal.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^<button onClick=\\{(\\w+)\\}>(.*)</button>$",
+                "output": "[ $2 ]  → memanggil $1() saat diklik"
+              }
+            ]
+          },
           "answers": [
             "<button onClick={tambah}>+</button>"
           ],
@@ -322,6 +358,15 @@
           "prompt": "Ketik useEffect yang mencetak Siap ke konsol dan hanya jalan sekali.",
           "preview": "Konsol: Siap  (sekali saja)",
           "clue": "useEffect(fungsi panah, array dependensi kosong).",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^useEffect\\(\\(\\)=>\\{console\\.log\\((['\\\"])(.*)\\1\\);\\},\\[\\]\\);?$",
+                "output": "Konsol: $2  (sekali saja)"
+              }
+            ]
+          },
           "answers": [
             "useEffect(() => { console.log(\"Siap\"); }, []);",
             "useEffect(() => { console.log(\"Siap\"); }, [])",
@@ -336,6 +381,15 @@
           "prompt": "Ketik ekspresi yang merender array buah menjadi <li> ber-key b.",
           "preview": "• apel  • jeruk",
           "clue": "Pakai buah.map dan atribut key.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^\\{buah\\.map\\(\\(?b\\)?=><li key=\\{b\\}>\\{b\\}</li>\\)\\}$",
+                "output": "• apel  • jeruk"
+              }
+            ]
+          },
           "answers": [
             "{buah.map(b => <li key={b}>{b}</li>)}",
             "{buah.map((b) => <li key={b}>{b}</li>)}"

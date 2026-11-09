@@ -100,6 +100,10 @@
           "prompt": "Ketik aturan CSS agar semua paragraf (p) berwarna merah.",
           "preview": "Teks paragraf tampil merah",
           "clue": "Selektor p, lalu kurung kurawal berisi properti color.",
+          "live": {
+            "kind": "css",
+            "html": "<p>Teks paragraf</p>"
+          },
           "answers": [
             "p { color: red; }"
           ],
@@ -111,6 +115,10 @@
           "prompt": "Ketik aturan untuk class kartu dengan warna latar putih.",
           "preview": "Elemen .kartu berlatar putih",
           "clue": "Class diawali titik. Properti: background-color.",
+          "live": {
+            "kind": "css",
+            "html": "<div style=\"background:#cbd5e1;padding:10px\"><div class=\"kartu\">Kartu</div></div>"
+          },
           "answers": [
             ".kartu { background-color: white; }",
             ".kartu { background: white; }"
@@ -213,6 +221,10 @@
           "prompt": "Ketik aturan .kotak dengan padding 16px.",
           "preview": "Isi kotak berjarak 16px dari tepinya",
           "clue": "padding adalah jarak di dalam border.",
+          "live": {
+            "kind": "css",
+            "html": "<div class=\"kotak\" style=\"background:#c7d2fe;display:inline-block\">Isi</div>"
+          },
           "answers": [
             ".kotak { padding: 16px; }"
           ],
@@ -224,6 +236,11 @@
           "prompt": "Ketik aturan .wadah yang membuat blok rata tengah dengan margin otomatis.",
           "preview": "Blok berada di tengah halaman",
           "clue": "Nilai margin: 0 lalu auto.",
+          "live": {
+            "kind": "css",
+            "html": "<div class=\"wadah\" style=\"width:120px;background:#c7d2fe;text-align:center\">Blok</div>",
+            "base": ".wadah{border:2px dashed #94a3b8}"
+          },
           "answers": [
             ".wadah { margin: 0 auto; }"
           ],
@@ -328,6 +345,11 @@
           "prompt": "Ketik aturan .baris yang mengaktifkan flexbox.",
           "preview": "Anak-anak .baris tersusun sejajar",
           "clue": "Properti display dengan nilai flex.",
+          "live": {
+            "kind": "css",
+            "html": "<div class=\"baris\"><div class=\"item\">A</div><div class=\"item\">B</div><div class=\"item\">C</div></div>",
+            "base": ".item{background:#c7d2fe;padding:6px 12px;margin:2px;border-radius:6px}.baris{border:2px dashed #94a3b8}"
+          },
           "answers": [
             ".baris { display: flex; }"
           ],
@@ -339,6 +361,11 @@
           "prompt": "Ketik aturan .baris: flex dengan isi rata tengah di sumbu utama.",
           "preview": "Anak-anak .baris berkumpul di tengah",
           "clue": "Tambahkan justify-content: center.",
+          "live": {
+            "kind": "css",
+            "html": "<div class=\"baris\"><div class=\"item\">A</div><div class=\"item\">B</div><div class=\"item\">C</div></div>",
+            "base": ".item{background:#c7d2fe;padding:6px 12px;margin:2px;border-radius:6px}.baris{border:2px dashed #94a3b8}"
+          },
           "answers": [
             ".baris { display: flex; justify-content: center; }",
             ".baris { justify-content: center; display: flex; }"

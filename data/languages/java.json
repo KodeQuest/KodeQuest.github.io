@@ -96,6 +96,15 @@
           "prompt": "Ketik perintah Java mencetak teks Halo.",
           "preview": "Halo",
           "clue": "System.out.println dengan teks di dalam kurung, akhiri titik koma.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^System\\.out\\.println\\(\"(.*)\"\\);$",
+                "output": "$1"
+              }
+            ]
+          },
           "answers": [
             "System.out.println(\"Halo\");"
           ],
@@ -107,6 +116,15 @@
           "prompt": "Ketik deklarasi kelas publik bernama Halo dengan badan kosong.",
           "preview": "(kerangka kelas tanpa isi)",
           "clue": "public class lalu nama, lalu kurung kurawal.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^public class (\\w+)\\{\\}$",
+                "output": "kelas $1 terdefinisi (kosong)"
+              }
+            ]
+          },
           "answers": [
             "public class Halo { }"
           ],
@@ -209,6 +227,15 @@
           "prompt": "Ketik deklarasi variabel String nama berisi teks Sari.",
           "preview": "nama → Sari",
           "clue": "Tipe teks ditulis dengan huruf S besar.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^String (\\w+)=\"(.*)\";$",
+                "output": "$1 → $2"
+              }
+            ]
+          },
           "answers": [
             "String nama = \"Sari\";"
           ],
@@ -220,6 +247,15 @@
           "prompt": "Ketik deklarasi variabel int umur bernilai 20.",
           "preview": "umur → 20",
           "clue": "Tipe, nama, tanda =, nilai, titik koma.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^int (\\w+)=(\\d+);$",
+                "output": "$1 → $2"
+              }
+            ]
+          },
           "answers": [
             "int umur = 20;"
           ],
@@ -322,6 +358,15 @@
           "prompt": "Ketik deklarasi array int bernama angka berisi 1, 2, 3.",
           "preview": "angka → {1, 2, 3}",
           "clue": "Tipe int[] lalu isi dalam kurung kurawal.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^int\\[\\](\\w+)=\\{(.*)\\};$",
+                "output": "$1 → {$2}"
+              }
+            ]
+          },
           "answers": [
             "int[] angka = {1, 2, 3};"
           ],
@@ -333,6 +378,15 @@
           "prompt": "Ketik deklarasi int n yang berisi panjang array arr.",
           "preview": "n → jumlah elemen arr",
           "clue": "Array memakai properti length, tanpa kurung.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^int n=arr\\.length;$",
+                "output": "n → jumlah elemen arr"
+              }
+            ]
+          },
           "answers": [
             "int n = arr.length;"
           ],

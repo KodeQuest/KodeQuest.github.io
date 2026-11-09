@@ -101,6 +101,15 @@
           "prompt": "Ketik perintah cetak Halo dengan cout, diakhiri std::endl.",
           "preview": "Halo",
           "clue": "std::cout, operator <<, teks, operator <<, std::endl.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^std::cout<<\"(.*)\"<<std::endl;$",
+                "output": "$1"
+              }
+            ]
+          },
           "answers": [
             "std::cout << \"Halo\" << std::endl;"
           ],
@@ -112,6 +121,15 @@
           "prompt": "Ketik direktif yang menyertakan header iostream.",
           "preview": "(baris paling atas file C++)",
           "clue": "Diawali #include lalu header dalam < >.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^#include<(\\w+)>$",
+                "output": "header <$1> disertakan"
+              }
+            ]
+          },
           "answers": [
             "#include <iostream>"
           ],
@@ -214,6 +232,15 @@
           "prompt": "Ketik perintah membaca input keyboard ke variabel x.",
           "preview": "Nilai yang diketik tersimpan di x",
           "clue": "std::cin dengan operator >>.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^std::cin>>(\\w+);$",
+                "output": "nilai yang diketik tersimpan di $1"
+              }
+            ]
+          },
           "answers": [
             "std::cin >> x;"
           ],
@@ -225,6 +252,15 @@
           "prompt": "Ketik deklarasi std::string nama berisi teks Ani.",
           "preview": "nama → Ani",
           "clue": "std::string, nama, =, teks, titik koma.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^std::string (\\w+)=\"(.*)\";$",
+                "output": "$1 → $2"
+              }
+            ]
+          },
           "answers": [
             "std::string nama = \"Ani\";"
           ],
@@ -327,6 +363,15 @@
           "prompt": "Ketik fungsi sapa tanpa nilai kembalian, tanpa parameter, badan kosong.",
           "preview": "(fungsi yang tidak mengembalikan apa pun)",
           "clue": "Tipe kembalian void, lalu sapa(), lalu kurung kurawal.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^void sapa\\(\\)\\{\\}$",
+                "output": "fungsi sapa() terdefinisi (tanpa nilai kembalian)"
+              }
+            ]
+          },
           "answers": [
             "void sapa() { }"
           ],
@@ -338,6 +383,15 @@
           "prompt": "Ketik perulangan while selama n > 0 yang mengurangi n.",
           "preview": "n turun sampai 0",
           "clue": "while (kondisi) lalu badan berisi n--;",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^while\\(n>0\\)\\{n--;\\}$",
+                "output": "n turun sampai 0"
+              }
+            ]
+          },
           "answers": [
             "while (n > 0) { n--; }"
           ],

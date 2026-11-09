@@ -100,6 +100,10 @@
           "prompt": "Ketik deklarasi konstanta nama berisi teks Budi.",
           "preview": "nama → Budi",
           "clue": "Kata kunci const, lalu nama, tanda =, dan teks dalam tanda kutip.",
+          "live": {
+            "kind": "js",
+            "after": "console.log(nama)"
+          },
           "answers": [
             "const nama = \"Budi\";",
             "const nama = 'Budi';",
@@ -114,6 +118,9 @@
           "prompt": "Ketik perintah mencetak Halo ke konsol.",
           "preview": "Konsol: Halo",
           "clue": "Pakai console.log dengan teks di dalam kurung.",
+          "live": {
+            "kind": "js"
+          },
           "answers": [
             "console.log(\"Halo\");",
             "console.log('Halo');",
@@ -219,6 +226,10 @@
           "prompt": "Ketik fungsi panah kali yang mengalikan a dan b.",
           "preview": "kali(3, 4) → 12",
           "clue": "Bentuknya (a, b) => ... disimpan ke const kali.",
+          "live": {
+            "kind": "js",
+            "after": "console.log(kali(3, 4))"
+          },
           "answers": [
             "const kali = (a, b) => a * b;",
             "const kali = (a, b) => a * b"
@@ -231,6 +242,10 @@
           "prompt": "Ketik fungsi tambah(a, b) yang mengembalikan a + b dalam satu baris.",
           "preview": "tambah(2, 3) → 5",
           "clue": "function, nama, parameter, lalu { return ...; }",
+          "live": {
+            "kind": "js",
+            "after": "console.log(tambah(2, 3))"
+          },
           "answers": [
             "function tambah(a, b) { return a + b; }"
           ],
@@ -333,6 +348,10 @@
           "prompt": "Ketik deklarasi array buah berisi apel dan jeruk dengan const.",
           "preview": "buah → [\"apel\", \"jeruk\"]",
           "clue": "Array ditulis dalam kurung siku, elemen dipisah koma.",
+          "live": {
+            "kind": "js",
+            "after": "console.log(buah)"
+          },
           "answers": [
             "const buah = [\"apel\", \"jeruk\"];",
             "const buah = ['apel', 'jeruk'];",
@@ -347,6 +366,11 @@
           "prompt": "Ketik perintah menambah angka 3 ke akhir array angka.",
           "preview": "angka → [..., 3]",
           "clue": "Method yang menambah di akhir array adalah push.",
+          "live": {
+            "kind": "js",
+            "before": "const angka = [1, 2];",
+            "after": "console.log(angka)"
+          },
           "answers": [
             "angka.push(3);",
             "angka.push(3)"

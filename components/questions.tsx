@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { FillQuestion, MCQuestion, OrderQuestion, TypeQuestion } from "@/lib/data";
 import { sfx } from "@/lib/sound";
+import { LiveResult, TargetPreview } from "./LivePreview";
 
 type Common<A> = { locked: boolean; onChange: (answer: A | null) => void };
 
@@ -183,9 +184,9 @@ export function TypeAnswer({ q, locked, onChange }: { q: TypeQuestion } & Common
 
   return (
     <div>
-      <div className="rounded-2xl border-2 border-slate-200 bg-white p-4">
-        <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400">Pratinjau hasil</p>
-        <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-sm font-bold text-indigo-950 sm:text-base">{q.preview}</pre>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <TargetPreview q={q} />
+        <LiveResult q={q} typed={value} />
       </div>
 
       <input
