@@ -6,6 +6,10 @@ import { clearSession } from "./session";
 import { setSoundEnabled } from "./sound";
 
 const STORAGE_KEY = "kodequest:v1";
+/** Tanda tangan progres pada saat terakhir diunduh/dipulihkan dari file JSON */
+const BACKUP_KEY = "kodequest:backup:v1";
+
+const signature = (p: Progress) => JSON.stringify({ xp: p.xp, streak: p.streak, lastActive: p.lastActive, completed: p.completed });
 
 export type LessonResult = { stars: number; accuracy: number };
 
@@ -71,6 +75,10 @@ type Ctx = {
   completeLesson: (id: string, xpGained: number, accuracy: number) => void;
   toggleSound: () => void;
   exportJson: () => string;
+  /** Unduh progres sebagai file .json dan tandai sudah dicadangkan */
+  backup: () => void;
+  /** Ada progres yang belum dicadangkan ke file JSON */
+  unsaved: boolean;
   importJson: (text: string) => { ok: boolean; message: string };
   reset: () => void;
 };
@@ -80,6 +88,7 @@ const StoreCtx = createContext<Ctx | null>(null);
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState<Progress>(initial);
+  const [backedSig, setBackedSig] = useState<string | null>(null);
 
   // Muat dari localStorage setelah mount (menghindari mismatch hidrasi).
   useEffect(() => {
@@ -89,6 +98,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         const p = sanitize(JSON.parse(saved));
         if (p) setProgress(p);
       }
+      setBackedSig(localStorage.getItem(BACKUP_KEY));
     } catch {
       /* abaikan data rusak */
     }
@@ -129,6 +139,29 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     [progress]
   );
 
+  const markBackedUp = useCallback((p: Progress) => {
+    const sig = signature(p);
+    setBackedSig(sig);
+    try {
+      localStorage.setItem(BACKUP_KEY, sig);
+    } catch {
+      /* diblokir */
+    }
+  }, []);
+
+  const backup = useCallback(() => {
+    const blob = new Blob([exportJson()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `kodequest-progres-${dayKey()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    markBackedUp(progress);
+  }, [exportJson, markBackedUp, progress]);
+
   const importJson = useCallback((text: string) => {
     try {
       const parsed = JSON.parse(text);
@@ -136,11 +169,12 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       if (!p) return { ok: false, message: "Format file tidak dikenali." };
       clearSession();
       setProgress(p);
+      markBackedUp(p);
       return { ok: true, message: "Progres berhasil dipulihkan." };
     } catch {
       return { ok: false, message: "File bukan JSON yang valid." };
     }
-  }, []);
+  }, [markBackedUp]);
 
   const reset = useCallback(() => {
     clearSession();
@@ -153,9 +187,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     return gap <= 1 ? progress.streak : 0;
   }, [progress.lastActive, progress.streak]);
 
+  const unsaved = ready && (progress.xp > 0 || Object.keys(progress.completed).length > 0) && signature(progress) !== backedSig;
+
   const value = useMemo<Ctx>(
-    () => ({ ready, progress, streakShown, completeLesson, toggleSound, exportJson, importJson, reset }),
-    [ready, progress, streakShown, completeLesson, toggleSound, exportJson, importJson, reset]
+    () => ({ ready, progress, streakShown, completeLesson, toggleSound, exportJson, backup, unsaved, importJson, reset }),
+    [ready, progress, streakShown, completeLesson, toggleSound, exportJson, backup, unsaved, importJson, reset]
   );
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;

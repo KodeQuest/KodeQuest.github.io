@@ -7,22 +7,14 @@ import { CloseIcon, DownloadIcon, UploadIcon } from "./Icons";
 import { Modal } from "./Modal";
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
-  const { progress, exportJson, importJson, toggleSound, reset } = useProgress();
+  const { progress, backup, importJson, toggleSound, reset } = useProgress();
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
   const doExport = () => {
     sfx.click();
-    const blob = new Blob([exportJson()], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `kodequest-progres-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    backup();
     setMsg({ ok: true, text: "File progres diunduh. Simpan di tempat aman." });
   };
 
