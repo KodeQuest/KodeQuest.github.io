@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 /** Lama animasi tutup (ms). Harus sama dengan durasi .anim-*-out di globals.css. */
 const CLOSE_MS = 200;
@@ -9,6 +10,8 @@ const CLOSE_MS = 200;
  * Modal dalam halaman dengan animasi buka dan tutup.
  * `onClose` dipanggil SETELAH animasi tutup selesai, jadi induk cukup melepas komponen ini.
  * Anak menerima `close()` untuk menutup dengan animasi.
+ * Dirender lewat portal ke document.body: induk ber-backdrop-filter/transform (mis. nav landing)
+ * menjadikan `fixed` relatif ke induk itu, bukan ke layar.
  */
 export function Modal({ label, onClose, children }: { label: string; onClose: () => void; children: (close: () => void) => ReactNode }) {
   const [closing, setClosing] = useState(false);
@@ -35,7 +38,7 @@ export function Modal({ label, onClose, children }: { label: string; onClose: ()
     []
   );
 
-  return (
+  return createPortal(
     <div
       className={`${closing ? "anim-backdrop-out" : "anim-backdrop-in"} fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 sm:items-center sm:p-4`}
       onClick={close}
@@ -49,7 +52,8 @@ export function Modal({ label, onClose, children }: { label: string; onClose: ()
       >
         {children(close)}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
