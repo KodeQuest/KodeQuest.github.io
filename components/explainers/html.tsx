@@ -53,11 +53,35 @@ export function Check() {
   );
 }
 
+export type TreeItem = { name: string; depth: number; folder?: boolean; on?: boolean; note?: string };
+
+/** Pohon folder/berkas sederhana. `on` menyorot berkas yang sedang dipanggil. */
+export function FileTree({ items }: { items: TreeItem[] }) {
+  return (
+    <div className="space-y-1 font-mono text-sm font-bold">
+      {items.map((it, k) => (
+        <div
+          key={k}
+          className={`flex items-center gap-2 rounded-lg py-1 pr-2 transition-colors duration-300 ${
+            it.on ? "bg-teal-100 text-teal-800" : "text-slate-600"
+          }`}
+          style={{ paddingLeft: `${0.5 + it.depth * 1.25}rem` }}
+        >
+          <span aria-hidden="true" className={`h-3 w-3 shrink-0 rounded-sm ${it.folder ? "bg-amber-300" : "bg-slate-300"}`} />
+          {it.name}
+          {it.note && <span className="ml-auto rounded-md bg-white px-1.5 py-0.5 text-xs font-black text-teal-600">{it.note}</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const RECAP: [string, string][] = [
   ["<html>", "Kerangka halaman"],
   ["<h1> <p> <a>", "Teks & tautan"],
   ["<ul> <img>", "Daftar & gambar"],
   ["<form>", "Formulir"],
+  ["<link> <script>", "Struktur file"],
 ];
 
 /** Video penjelasan HTML: mengikuti 4 pelajaran di data/languages/html.json. */
@@ -255,10 +279,40 @@ export const htmlScenes: Scene[] = [
     ),
   },
   {
+    title: "Struktur file",
+    caption:
+      "Satu proyek web biasanya berisi index.html dan folder css, js, serta img. HTML memanggil berkas lain lewat <link> untuk CSS dan <script src> untuk JavaScript, memakai jalur relatif.",
+    duration: 10000,
+    code: ["<head>", '  <link rel="stylesheet" href="css/style.css">', "</head>", "<body>", '  <script src="js/app.js"></script>', "</body>"],
+    render: (n) => (
+      <Browser tab="proyekku">
+        <FileTree
+          items={[
+            { name: "proyekku", depth: 0, folder: true },
+            { name: "index.html", depth: 1 },
+            { name: "css", depth: 1, folder: true },
+            { name: "style.css", depth: 2, on: n >= 2, note: n >= 2 ? "dimuat" : undefined },
+            { name: "js", depth: 1, folder: true },
+            { name: "app.js", depth: 2, on: n >= 5, note: n >= 5 ? "dimuat" : undefined },
+            { name: "img", depth: 1, folder: true },
+            { name: "logo.png", depth: 2 },
+          ]}
+        />
+      </Browser>
+    ),
+  },
+  {
     title: "Ringkasan",
-    caption: "Kamu sudah melihat kerangka, teks, tautan, daftar, gambar, dan formulir. Saatnya berlatih lewat pelajaran di bawah.",
-    duration: 6000,
-    code: ["<html> → kerangka halaman", "<h1> <p> <a> → teks & tautan", "<ul> <img> → daftar & gambar", "<form> → formulir"],
+    caption:
+      "Kamu sudah melihat kerangka, teks, tautan, daftar, gambar, formulir, dan struktur file. Saatnya berlatih lewat pelajaran di bawah.",
+    duration: 7000,
+    code: [
+      "<html> → kerangka halaman",
+      "<h1> <p> <a> → teks & tautan",
+      "<ul> <img> → daftar & gambar",
+      "<form> → formulir",
+      "<link> <script> → struktur file",
+    ],
     render: (n) => (
       <div className="grid gap-2 rounded-2xl border-2 border-slate-200 p-4">
         {RECAP.map(([tags, label], k) =>

@@ -483,6 +483,141 @@
           "explain": "Tombol submit mengirim isi form."
         }
       ]
+    },
+    {
+      "id": "html-5",
+      "title": "Struktur File",
+      "questions": [
+        {
+          "id": "html-5-q1",
+          "type": "mc",
+          "prompt": "Berkas yang biasanya menjadi halaman utama sebuah situs bernama…",
+          "options": [
+            "index.html",
+            "utama.html",
+            "halaman.txt",
+            "web.html"
+          ],
+          "answer": 0,
+          "explain": "Server membuka index.html secara otomatis sebagai halaman awal sebuah folder."
+        },
+        {
+          "id": "html-5-q2",
+          "type": "mc",
+          "prompt": "Tag untuk menghubungkan berkas CSS ke halaman HTML:",
+          "options": [
+            "<link>",
+            "<style>",
+            "<css>",
+            "<script>"
+          ],
+          "answer": 0,
+          "explain": "<link rel=\"stylesheet\" href=\"...\"> dipasang di dalam <head>."
+        },
+        {
+          "id": "html-5-q3",
+          "type": "order",
+          "prompt": "Susun pemanggilan berkas CSS di dalam head.",
+          "pieces": [
+            "<head>",
+            "<link rel=\"stylesheet\" href=\"css/style.css\">",
+            "</head>"
+          ],
+          "decoys": [
+            "<script src=\"css/style.css\">"
+          ],
+          "explain": "link dipasang di head, dan href berisi jalur ke berkas CSS."
+        },
+        {
+          "id": "html-5-q4",
+          "type": "order",
+          "prompt": "Susun pemanggilan berkas JavaScript di akhir body.",
+          "pieces": [
+            "<body>",
+            "<h1>Halo</h1>",
+            "<script src=\"js/app.js\"></script>",
+            "</body>"
+          ],
+          "decoys": [
+            "<link href=\"js/app.js\">"
+          ],
+          "explain": "Script diletakkan di akhir body agar isi halaman tampil lebih dulu."
+        },
+        {
+          "id": "html-5-q5",
+          "type": "fill",
+          "prompt": "Lengkapi pemanggilan gambar dari folder img.",
+          "code": "<img ___=\"img/logo.png\" alt=\"Logo\">",
+          "answers": [
+            "src"
+          ],
+          "options": [
+            "src",
+            "href",
+            "link",
+            "path"
+          ],
+          "explain": "src menunjuk lokasi berkas gambar."
+        },
+        {
+          "id": "html-5-q6",
+          "type": "fill",
+          "prompt": "Naik satu folder dari lokasi sekarang:",
+          "code": "<img src=\"___/img/logo.png\" alt=\"Logo\">",
+          "answers": [
+            ".."
+          ],
+          "options": [
+            "..",
+            ".",
+            "/",
+            "~"
+          ],
+          "explain": "\"..\" berarti folder induk (naik satu tingkat), sedangkan \".\" berarti folder saat ini."
+        },
+        {
+          "id": "html-5-q7",
+          "type": "type",
+          "prompt": "Ketik tag untuk memanggil berkas CSS bernama gaya.css yang satu folder dengan halaman.",
+          "preview": "gaya.css dimuat\nTampilan halaman mengikuti gaya.css",
+          "clue": "Tag link dengan atribut rel dan href.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^<link rel=[\"\\']stylesheet[\"\\']href=[\"\\']gaya\\.css[\"\\']/?>$",
+                "output": "gaya.css dimuat\nTampilan halaman mengikuti gaya.css"
+              }
+            ]
+          },
+          "answers": [
+            "<link rel=\"stylesheet\" href=\"gaya.css\">",
+            "<link rel='stylesheet' href='gaya.css'>"
+          ],
+          "explain": "rel=\"stylesheet\" memberi tahu browser bahwa berkas itu CSS, href menunjuk lokasinya."
+        },
+        {
+          "id": "html-5-q8",
+          "type": "type",
+          "prompt": "Ketik tag untuk memanggil berkas JavaScript js/app.js.",
+          "preview": "js/app.js dijalankan\nHalaman menjadi interaktif",
+          "clue": "Tag script dengan atribut src.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^<script src=[\"\\']js/app\\.js[\"\\']></script>$",
+                "output": "js/app.js dijalankan\nHalaman menjadi interaktif"
+              }
+            ]
+          },
+          "answers": [
+            "<script src=\"js/app.js\"></script>",
+            "<script src='js/app.js'></script>"
+          ],
+          "explain": "src pada script menunjuk berkas JavaScript, dan tag penutup tetap wajib."
+        }
+      ]
     }
   ]
 }

@@ -378,6 +378,142 @@
           "explain": "push menambah elemen di akhir array."
         }
       ]
+    },
+    {
+      "id": "js-4",
+      "title": "File & Modul",
+      "questions": [
+        {
+          "id": "js-4-q1",
+          "type": "mc",
+          "prompt": "Atribut untuk memanggil berkas JavaScript eksternal di HTML:",
+          "options": [
+            "src",
+            "href",
+            "link",
+            "file"
+          ],
+          "answer": 0,
+          "explain": "<script src=\"app.js\"></script> memuat berkas JavaScript."
+        },
+        {
+          "id": "js-4-q2",
+          "type": "mc",
+          "prompt": "Kata kunci agar sebuah fungsi bisa dipakai berkas lain:",
+          "options": [
+            "export",
+            "share",
+            "public",
+            "module"
+          ],
+          "answer": 0,
+          "explain": "export membuka fungsi atau nilai agar bisa di-import berkas lain."
+        },
+        {
+          "id": "js-4-q3",
+          "type": "order",
+          "prompt": "Susun pemanggilan fungsi dari berkas math.js.",
+          "pieces": [
+            "import { tambah }",
+            "from \"./math.js\";",
+            "console.log(tambah(2, 3));"
+          ],
+          "decoys": [
+            "export { tambah }"
+          ],
+          "explain": "Bentuknya import { nama } from \"jalur\"; lalu nama itu bisa dipakai."
+        },
+        {
+          "id": "js-4-q4",
+          "type": "order",
+          "prompt": "Susun ekspor sebuah fungsi.",
+          "pieces": [
+            "export",
+            "function tambah(a, b)",
+            "{ return a + b; }"
+          ],
+          "decoys": [
+            "import"
+          ],
+          "explain": "export ditulis di depan deklarasi fungsi."
+        },
+        {
+          "id": "js-4-q5",
+          "type": "fill",
+          "prompt": "Lengkapi import dari berkas math.js.",
+          "code": "import { tambah } ___ \"./math.js\";",
+          "answers": [
+            "from"
+          ],
+          "options": [
+            "from",
+            "in",
+            "of",
+            "with"
+          ],
+          "explain": "Bentuknya: import { nama } from \"jalur\";"
+        },
+        {
+          "id": "js-4-q6",
+          "type": "fill",
+          "prompt": "Agar import dan export berfungsi di HTML, script bertipe…",
+          "code": "<script type=\"___\" src=\"app.js\"></script>",
+          "answers": [
+            "module"
+          ],
+          "options": [
+            "module",
+            "text",
+            "import",
+            "js"
+          ],
+          "explain": "type=\"module\" mengaktifkan import dan export di browser."
+        },
+        {
+          "id": "js-4-q7",
+          "type": "type",
+          "prompt": "Ketik import fungsi sapa dari berkas ./salam.js.",
+          "preview": "sapa dimuat dari salam.js\nsapa() siap dipanggil",
+          "clue": "Kurung kurawal berisi nama, lalu from dan jalur berkas.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^import\\{sapa\\}from[\"\\']\\./salam\\.js[\"\\'];?$",
+                "output": "sapa dimuat dari salam.js\nsapa() siap dipanggil"
+              }
+            ]
+          },
+          "answers": [
+            "import { sapa } from \"./salam.js\";",
+            "import { sapa } from './salam.js';",
+            "import { sapa } from \"./salam.js\"",
+            "import { sapa } from './salam.js'"
+          ],
+          "explain": "Jalur yang diawali ./ berarti berkas di folder yang sama."
+        },
+        {
+          "id": "js-4-q8",
+          "type": "type",
+          "prompt": "Ketik ekspor konstanta PI yang bernilai 3.14.",
+          "preview": "PI → 3.14\n(bisa di-import berkas lain)",
+          "clue": "export ditulis di depan deklarasi const.",
+          "live": {
+            "kind": "match",
+            "rules": [
+              {
+                "pattern": "^export const PI=3\\.14;?$",
+                "output": "PI → 3.14\n(bisa di-import berkas lain)"
+              }
+            ]
+          },
+          "answers": [
+            "export const PI = 3.14;",
+            "export const PI = 3.14"
+          ],
+          "explain": "export di depan const membuat nilainya bisa di-import."
+        }
+      ]
     }
   ]
 }

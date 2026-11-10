@@ -59,10 +59,26 @@ function Variable({ name, kind, type, value }: { name: string; kind: string; typ
 
 const BUAH = ["apel", "jeruk", "mangga"];
 
+function FileCard({ name, tag }: { name: string; tag?: string }) {
+  return (
+    <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-3">
+      <div className="font-mono text-xs font-black text-amber-800">{name}</div>
+      <div className="mt-2 min-h-[1.75rem]">
+        {tag && (
+          <Pop>
+            <Chip className="bg-white text-amber-700">{tag}</Chip>
+          </Pop>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const RECAP: [string, string][] = [
   ["const let", "Variabel & tipe"],
   ["=> if else", "Fungsi & kondisi"],
   ["[ ] for", "Array & perulangan"],
+  ["import export", "File & modul"],
 ];
 
 /** Video penjelasan JavaScript: mengikuti 3 pelajaran di data/languages/js.json. */
@@ -172,10 +188,41 @@ export const jsScenes: Scene[] = [
     ),
   },
   {
+    title: "File & modul",
+    caption:
+      "export membuka fungsi dari satu berkas, import memanggilnya dari berkas lain. Di HTML, berkas dimuat lewat <script src>, dan type=\"module\" mengaktifkan import dan export.",
+    duration: 10000,
+    code: [
+      "// math.js",
+      "export const tambah = (a, b) => a + b;",
+      "// app.js",
+      'import { tambah } from "./math.js";',
+      "console.log(tambah(2, 3));",
+    ],
+    render: (n) => (
+      <Browser tab="Modul">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <FileCard name="math.js" tag={n >= 2 ? "export tambah" : undefined} />
+          <span aria-hidden="true" className="font-black text-amber-500">
+            {n >= 4 ? "→" : ""}
+          </span>
+          <FileCard name="app.js" tag={n >= 4 ? "import tambah" : undefined} />
+        </div>
+        <Out lines={n >= 5 ? ["5"] : []} />
+      </Browser>
+    ),
+  },
+  {
     title: "Ringkasan",
-    caption: "Kamu sudah melihat variabel, fungsi, kondisi, array, dan perulangan. Saatnya berlatih lewat pelajaran di bawah.",
-    duration: 6000,
-    code: ["const let → variabel & tipe", "=> if else → fungsi & kondisi", "[ ] for → array & perulangan"],
+    caption:
+      "Kamu sudah melihat variabel, fungsi, kondisi, array, perulangan, dan modul. Saatnya berlatih lewat pelajaran di bawah.",
+    duration: 6500,
+    code: [
+      "const let → variabel & tipe",
+      "=> if else → fungsi & kondisi",
+      "[ ] for → array & perulangan",
+      "import export → file & modul",
+    ],
     render: (n) => (
       <div className="grid gap-2 rounded-2xl border-2 border-slate-200 p-4">
         {RECAP.map(([tags, label], k) =>
