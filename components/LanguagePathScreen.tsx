@@ -9,13 +9,14 @@ import { Header } from "./Header";
 import { LearningPath } from "./LearningPath";
 import { SettingsModal } from "./SettingsModal";
 import { Sidebar } from "./Sidebar";
-import { ExplainerPlayer } from "./explainers/ExplainerPlayer";
+import { ExplainerModal } from "./explainers/ExplainerModal";
 import { getExplainer } from "./explainers";
 
 /** Jalur belajar satu bahasa (/belajar/bahasa/<id>/). */
 export function LanguagePathScreen({ langId }: { langId: string }) {
   const router = useRouter();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const language = getLanguage(langId);
   if (!language) return <div className="min-h-dvh" />;
 
@@ -34,14 +35,14 @@ export function LanguagePathScreen({ langId }: { langId: string }) {
           >
             <span aria-hidden="true">←</span> Pilih bahasa lain
           </Link>
-          {explainer && <ExplainerPlayer language={language} scenes={explainer.scenes} tint={explainer.tint} />}
-          <LearningPath language={language} onStart={start} />
+          <LearningPath language={language} onStart={start} onPlayVideo={explainer ? () => setVideoOpen(true) : undefined} />
         </div>
         <aside className="hidden lg:block" aria-label="Ringkasan belajar">
           <Sidebar language={language} onStart={start} onOpenSettings={() => setSettingsOpen(true)} />
         </aside>
       </main>
       {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+      {videoOpen && explainer && <ExplainerModal language={language} explainer={explainer} onClose={() => setVideoOpen(false)} />}
     </>
   );
 }

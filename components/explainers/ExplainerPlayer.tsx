@@ -50,21 +50,24 @@ function useReducedMotion() {
   return reduced;
 }
 
-/** Video penjelasan bergerak untuk satu bahasa (diputar di halaman /belajar/bahasa/<id>/). */
+/** Video penjelasan bergerak untuk satu bahasa. Ditampilkan di dalam modal (lihat ExplainerModal). */
 export function ExplainerPlayer({
   language,
   scenes,
   tint,
+  onClose,
 }: {
   language: Language;
   scenes: Scene[];
   tint?: (code: string) => ReactNode;
+  onClose: () => void;
 }) {
   const st = LANGUAGE_STYLES[language.color];
   const reduced = useReducedMotion();
   const [i, setI] = useState(0);
   const [t, setT] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  // Modal dibuka lewat tombol putar, jadi video langsung jalan.
+  const [playing, setPlaying] = useState(true);
   const [run, setRun] = useState(0);
 
   const last = scenes.length - 1;
@@ -124,7 +127,6 @@ export function ExplainerPlayer({
     }
   }
 
-  const started = playing || t > 0 || i > 0;
   const ended = !playing && i === last && t >= D;
 
   const goTo = (j: number) => {
@@ -149,23 +151,34 @@ export function ExplainerPlayer({
   };
 
   return (
-    <section
-      aria-label={`Video penjelasan ${language.title}`}
-      className="mb-10 overflow-hidden rounded-3xl border-2 border-slate-200 bg-white"
-    >
-      <div className={`flex items-center justify-between px-5 py-3 text-white ${st.solid}`}>
-        <div>
+    <section aria-label={`Video penjelasan ${language.title}`}>
+      <div className={`flex items-center justify-between gap-3 px-5 py-4 text-white ${st.solid}`}>
+        <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase tracking-wide text-white/85">Video penjelasan</p>
-          <h2 className="text-base font-black leading-tight">
+          <h2 className="truncate text-lg font-black leading-tight">
             {language.title} dalam {totalSecs} detik
           </h2>
         </div>
-        <span className="rounded-lg bg-white/20 px-2.5 py-1 text-xs font-black">
-          {i + 1}/{scenes.length}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-lg bg-white/20 px-2.5 py-1 text-xs font-black">
+            {i + 1}/{scenes.length}
+          </span>
+          <button
+            onClick={() => {
+              sfx.click();
+              onClose();
+            }}
+            aria-label="Tutup video"
+            className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 hover:bg-white/30"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div className="flex gap-1.5 px-4 pt-4" role="group" aria-label="Bagian video">
+      <div className="flex gap-1.5 px-5 pt-4" role="group" aria-label="Bagian video">
         {scenes.map((s, j) => {
           const pct = j < i ? 100 : j === i ? (reduced ? 100 : Math.min(100, (t / D) * 100)) : 0;
           return (
@@ -184,7 +197,7 @@ export function ExplainerPlayer({
         })}
       </div>
 
-      <div className="relative p-4">
+      <div className="grid gap-3 p-5 md:grid-cols-2">
         <pre
           className="overflow-x-auto rounded-2xl bg-indigo-950 p-4 font-mono text-xs leading-6 text-indigo-100 sm:text-sm"
           style={{ minHeight: `${maxLines * 1.5 + 2}rem` }}
@@ -198,27 +211,9 @@ export function ExplainerPlayer({
           <span className="sr-only">{text}</span>
         </pre>
 
-        <div key={`${i}-${run}`} className="mt-3 min-h-[15rem]" aria-hidden="true">
+        <div key={`${i}-${run}`} className="min-h-[15rem]" aria-hidden="true">
           {scene.render(linesDone)}
         </div>
-
-        {!started && !reduced && (
-          <div className="absolute inset-2 z-10 grid place-items-center rounded-2xl bg-white/95 p-6 text-center">
-            <div>
-              <p className={`text-xs font-extrabold uppercase tracking-wide ${st.text}`}>Video penjelasan</p>
-              <h3 className="mt-1 text-2xl font-black text-indigo-950">
-                {language.title} dalam {totalSecs} detik
-              </h3>
-              <p className="mt-1 text-sm font-semibold text-slate-500">{language.subtitle}</p>
-              <button
-                onClick={toggle}
-                className="btn-3d mt-5 rounded-2xl bg-indigo-600 px-6 py-3.5 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#3730a3]"
-              >
-                Putar
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="px-5 pb-2" aria-live="polite">
@@ -226,13 +221,14 @@ export function ExplainerPlayer({
         <p className="mt-1 min-h-[4.5rem] text-sm font-semibold leading-relaxed text-slate-600">{scene.caption}</p>
       </div>
 
-      <div className="flex items-center justify-center gap-3 px-4 pb-5 pt-2">
+      <div className="flex items-center justify-center gap-3 px-5 pb-6 pt-2">
         <button onClick={() => goTo(Math.max(0, i - 1))} disabled={i === 0} aria-label="Bagian sebelumnya" className={iconBtn}>
           <Icon d={PREV} />
         </button>
         {!reduced && (
           <button
             onClick={toggle}
+            autoFocus
             className="btn-3d flex h-11 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-black uppercase tracking-wide text-white shadow-[0_4px_0_#3730a3]"
           >
             <Icon d={ended ? REPLAY : playing ? PAUSE : PLAY} />
