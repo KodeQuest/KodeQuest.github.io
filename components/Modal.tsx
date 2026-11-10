@@ -13,8 +13,7 @@ const CLOSE_MS = 200;
  * Dirender lewat portal ke document.body: induk ber-backdrop-filter/transform (mis. nav landing)
  * menjadikan `fixed` relatif ke induk itu, bukan ke layar.
  */
-export function Modal({ label, onClose, children }: { label: string; onClose: () => void; wide?: boolean; children: (close: () => void) => ReactNode }) {
-  const [closing, setClosing] = useState(false);
+export function Modal({ label, onClose, wide = false, children }: { label: string; onClose: () => void; wide?: boolean; children: (close: () => void) => ReactNode }) {  const [closing, setClosing] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const close = useCallback(() => {
