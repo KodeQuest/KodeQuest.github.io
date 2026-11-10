@@ -9,7 +9,16 @@ const STORAGE_KEY = "kodequest:v1";
 /** Tanda tangan progres pada saat terakhir diunduh/dipulihkan dari file JSON */
 const BACKUP_KEY = "kodequest:backup:v1";
 
-const signature = (p: Progress) => JSON.stringify({ xp: p.xp, streak: p.streak, lastActive: p.lastActive, completed: p.completed });
+const signature = (p: Progress) => JSON.stringify({ name: p.name, xp: p.xp, streak: p.streak, lastActive: p.lastActive, completed: p.completed });
+
+/** Panjang maksimum nama profil. */
+export const MAX_NAME = 30;
+
+/** Rapikan nama profil: buang karakter kontrol, ratakan spasi, batasi panjang. */
+export function cleanName(v: unknown): string {
+  if (typeof v !== "string") return "";
+  return v.replace(/[\x00-\x1f\x7f]/g, " ").replace(/\s+/g, " ").trim().slice(0, MAX_NAME);
+}
 
 export type LessonResult = { stars: number; accuracy: number };
 
@@ -20,6 +29,8 @@ export type Progress = {
   lastActive: string | null;
   completed: Record<string, LessonResult>;
   sound: boolean;
+  /** Nama profil; ikut tersimpan di file JSON dan tampil di papan skor */
+  name: string;
   /** Tampilkan pop up pengingat unduh progres (.json) saat hendak menutup tab */
   saveAlert: boolean;
 };
@@ -30,6 +41,7 @@ const initial = (): Progress => ({
   lastActive: null,
   completed: {},
   sound: true,
+  name: "",
   saveAlert: true,
 });
 
@@ -46,7 +58,7 @@ function daysBetween(a: string, b: string) {
 }
 
 /** Rapikan data dari storage / impor agar aman dipakai. */
-function sanitize(raw: unknown): Progress | null {
+export function sanitizeProgress(raw: unknown): Progress | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
   const base = initial();
@@ -67,6 +79,7 @@ function sanitize(raw: unknown): Progress | null {
     lastActive: typeof r.lastActive === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.lastActive) ? r.lastActive : null,
     completed,
     sound: typeof r.sound === "boolean" ? r.sound : true,
+    name: cleanName(r.name),
     saveAlert: typeof r.saveAlert === "boolean" ? r.saveAlert : true,
   };
 }
@@ -80,6 +93,8 @@ type Ctx = {
   toggleSound: () => void;
   /** Nyalakan/matikan pop up pengingat simpan JSON */
   toggleSaveAlert: () => void;
+  /** Ganti / isi nama profil */
+  setName: (name: string) => void;
   exportJson: () => string;
   /** Unduh progres sebagai file .json dan tandai sudah dicadangkan */
   backup: () => void;
@@ -101,7 +116,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const p = sanitize(JSON.parse(saved));
+        const p = sanitizeProgress(JSON.parse(saved));
         if (p) setProgress(p);
       }
       setBackedSig(localStorage.getItem(BACKUP_KEY));
@@ -142,8 +157,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const toggleSaveAlert = useCallback(() => setProgress((p) => ({ ...p, saveAlert: !p.saveAlert })), []);
 
+  const setName = useCallback((name: string) => setProgress((p) => ({ ...p, name: cleanName(name) })), []);
+
   const exportJson = useCallback(
-    () => JSON.stringify({ app: "kodequest", version: 1, exportedAt: new Date().toISOString(), data: progress }, null, 2),
+    () =>
+      JSON.stringify(
+        { app: "kodequest", version: 1, exportedAt: new Date().toISOString(), profile: { name: progress.name }, data: progress },
+        null,
+        2
+      ),
     [progress]
   );
 
@@ -162,7 +184,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `kodequest-progres-${dayKey()}.json`;
+    const slug = progress.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    a.download = `kodequest-${slug || "progres"}-${dayKey()}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -173,7 +196,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const importJson = useCallback((text: string) => {
     try {
       const parsed = JSON.parse(text);
-      const p = sanitize(parsed?.app === "kodequest" ? parsed.data : parsed);
+      const p = sanitizeProgress(parsed?.app === "kodequest" ? parsed.data : parsed);
       if (!p) return { ok: false, message: "Format file tidak dikenali." };
       clearSession();
       setProgress(p);
@@ -198,8 +221,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const unsaved = ready && (progress.xp > 0 || Object.keys(progress.completed).length > 0) && signature(progress) !== backedSig;
 
   const value = useMemo<Ctx>(
-    () => ({ ready, progress, streakShown, completeLesson, toggleSound, toggleSaveAlert, exportJson, backup, unsaved, importJson, reset }),
-    [ready, progress, streakShown, completeLesson, toggleSound, toggleSaveAlert, exportJson, backup, unsaved, importJson, reset]
+    () => ({ ready, progress, streakShown, completeLesson, toggleSound, toggleSaveAlert, setName, exportJson, backup, unsaved, importJson, reset }),
+    [ready, progress, streakShown, completeLesson, toggleSound, toggleSaveAlert, setName, exportJson, backup, unsaved, importJson, reset]
   );
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;

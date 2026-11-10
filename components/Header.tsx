@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 import { ContactButton } from "./ContactButton";
-import { BoltIcon, FlameIcon, SettingsIcon } from "./Icons";
+import { BoltIcon, FlameIcon, SettingsIcon, TrophyIcon } from "./Icons";
 
 function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: number; label: string; color: string }) {
   return (
@@ -31,6 +31,15 @@ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
         <div className={`flex items-center gap-4 transition-opacity ${ready ? "opacity-100" : "opacity-0"}`}>
           <Stat icon={<FlameIcon size={22} />} value={streakShown} label="Streak hari" color="text-orange-500" />
           <Stat icon={<BoltIcon size={22} />} value={progress.xp} label="XP" color="text-amber-500" />
+          <Link
+            href="/belajar/score/"
+            onClick={() => sfx.click()}
+            className="grid h-9 w-9 place-items-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            aria-label="Buka papan skor"
+            title="Papan skor"
+          >
+            <TrophyIcon size={22} />
+          </Link>
           <button
             onClick={() => {
               sfx.click();

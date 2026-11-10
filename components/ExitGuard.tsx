@@ -19,8 +19,12 @@ import { Modal } from "./Modal";
 export function ExitGuard() {
   const { progress, backup } = useProgress();
   const pathname = usePathname();
+  // Papan skor (/belajar/score) hanya membaca file JSON orang lain, jadi tidak perlu pengingat simpan.
   const active =
-    pathname.startsWith("/belajar") && progress.saveAlert && (progress.xp > 0 || Object.keys(progress.completed).length > 0);
+    pathname.startsWith("/belajar") &&
+    !pathname.startsWith("/belajar/score") &&
+    progress.saveAlert &&
+    (progress.xp > 0 || Object.keys(progress.completed).length > 0);
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const activeRef = useRef(active);

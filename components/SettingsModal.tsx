@@ -1,16 +1,28 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useProgress } from "@/lib/store";
+import { useRef, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { MAX_NAME, cleanName, useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 import { CloseIcon, DownloadIcon, UploadIcon } from "./Icons";
 import { Modal } from "./Modal";
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
-  const { progress, backup, importJson, toggleSound, toggleSaveAlert, reset } = useProgress();
+  const { progress, backup, importJson, toggleSound, toggleSaveAlert, setName, reset } = useProgress();
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [draft, setDraft] = useState(progress.name);
+  const [nameMsg, setNameMsg] = useState<string | null>(null);
+
+  const saveName = (e: FormEvent) => {
+    e.preventDefault();
+    const clean = cleanName(draft);
+    setName(clean);
+    setDraft(clean);
+    sfx.click();
+    setNameMsg(clean ? "Nama disimpan. Ekspor ulang file JSON agar nama ikut tersimpan." : "Nama dikosongkan.");
+  };
 
   const doExport = () => {
     sfx.click();
@@ -43,7 +55,44 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="divide-y-2 divide-slate-100">
-          <div className="flex items-center justify-between pb-4">
+          <div className="pb-4">
+            <h3 className="font-extrabold text-indigo-950">Nama profil</h3>
+            <p className="mb-3 mt-1 text-sm text-slate-500">
+              Nama ikut tersimpan di file JSON dan tampil di{" "}
+              <Link href="/belajar/score/" className="font-bold text-indigo-600 underline">
+                papan skor
+              </Link>
+              .
+            </p>
+            <form onSubmit={saveName} className="flex gap-2">
+              <input
+                value={draft}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  setNameMsg(null);
+                }}
+                maxLength={MAX_NAME}
+                placeholder="Tulis namamu"
+                aria-label="Nama profil"
+                autoComplete="nickname"
+                className="min-w-0 flex-1 rounded-xl border-2 border-slate-200 px-3 py-2 text-sm font-bold text-indigo-950 outline-none focus:border-indigo-400"
+              />
+              <button
+                type="submit"
+                disabled={cleanName(draft) === progress.name}
+                className="btn-3d rounded-xl bg-indigo-600 px-4 py-2 text-sm font-extrabold text-white shadow-[0_3px_0_#3730a3] disabled:opacity-50"
+              >
+                Simpan
+              </button>
+            </form>
+            {nameMsg && (
+              <p role="status" className="mt-2 text-sm font-bold text-teal-600">
+                {nameMsg}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between py-4">
             <span className="font-bold text-indigo-950">Efek suara</span>
             <button
               role="switch"
