@@ -13,7 +13,7 @@ const CLOSE_MS = 200;
  * Dirender lewat portal ke document.body: induk ber-backdrop-filter/transform (mis. nav landing)
  * menjadikan `fixed` relatif ke induk itu, bukan ke layar.
  */
-export function Modal({ label, onClose, children }: { label: string; onClose: () => void; children: (close: () => void) => ReactNode }) {
+export function Modal({ label, onClose, children }: { label: string; onClose: () => void; wide?: boolean; children: (close: () => void) => ReactNode }) {
   const [closing, setClosing] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -47,7 +47,9 @@ export function Modal({ label, onClose, children }: { label: string; onClose: ()
       aria-label={label}
     >
       <div
-        className={`${closing ? "anim-sheet-out" : "anim-sheet-in"} w-full max-w-md rounded-t-3xl bg-white p-6 sm:rounded-3xl`}
+        className={`${closing ? "anim-sheet-out" : "anim-sheet-in"} w-full bg-white ${
+  wide ? "max-h-[92dvh] max-w-3xl overflow-y-auto rounded-t-3xl sm:rounded-3xl" : "max-w-md rounded-t-3xl p-6 sm:rounded-3xl"
+}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children(close)}
