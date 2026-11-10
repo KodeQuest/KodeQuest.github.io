@@ -18,7 +18,7 @@ function evaluate(q: Question, a: Answer): boolean {
     case "mc":
       return a === q.answer;
     case "order":
-      return Array.isArray(a) && a.length === q.pieces.length && a.every((t, i) => t === q.pieces[i]);
+      return Array.isArray(a) && isOrderAnswerCorrect(q, a);
     case "fill":
       return typeof a === "string" && q.answers.some((x) => x.toLowerCase() === a.trim().toLowerCase());
     case "type":
