@@ -9,7 +9,8 @@ import { Modal } from "./Modal";
 
 /**
  * Modal dalam halaman yang menawarkan unduh progres (.json) saat pemain hendak menutup tab.
- * Hanya aktif di /belajar (bukan landing page) dan hanya bila sudah ada progres (XP atau pelajaran selesai).
+ * Hanya aktif di /belajar (bukan landing page), hanya bila sudah ada progres (XP atau pelajaran selesai),
+ * dan hanya bila pengingat dinyalakan di Pengaturan (`progress.saveAlert`).
  * - Browser tidak mengizinkan modal sendiri saat tab ditutup, jadi dipicu dari dua sinyal:
  *   kursor keluar lewat tepi atas jendela (menuju tombol tutup tab) dan `beforeunload`.
  * - `beforeunload` membuat browser menampilkan dialog bawaannya (teks tidak bisa diubah).
@@ -18,7 +19,8 @@ import { Modal } from "./Modal";
 export function ExitGuard() {
   const { progress, backup } = useProgress();
   const pathname = usePathname();
-  const active = pathname.startsWith("/belajar") && (progress.xp > 0 || Object.keys(progress.completed).length > 0);
+  const active =
+    pathname.startsWith("/belajar") && progress.saveAlert && (progress.xp > 0 || Object.keys(progress.completed).length > 0);
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const activeRef = useRef(active);

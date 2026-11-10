@@ -20,6 +20,8 @@ export type Progress = {
   lastActive: string | null;
   completed: Record<string, LessonResult>;
   sound: boolean;
+  /** Tampilkan pop up pengingat unduh progres (.json) saat hendak menutup tab */
+  saveAlert: boolean;
 };
 
 const initial = (): Progress => ({
@@ -28,6 +30,7 @@ const initial = (): Progress => ({
   lastActive: null,
   completed: {},
   sound: true,
+  saveAlert: true,
 });
 
 export function dayKey(d = new Date()) {
@@ -64,6 +67,7 @@ function sanitize(raw: unknown): Progress | null {
     lastActive: typeof r.lastActive === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.lastActive) ? r.lastActive : null,
     completed,
     sound: typeof r.sound === "boolean" ? r.sound : true,
+    saveAlert: typeof r.saveAlert === "boolean" ? r.saveAlert : true,
   };
 }
 
@@ -74,6 +78,8 @@ type Ctx = {
   streakShown: number;
   completeLesson: (id: string, xpGained: number, accuracy: number) => void;
   toggleSound: () => void;
+  /** Nyalakan/matikan pop up pengingat simpan JSON */
+  toggleSaveAlert: () => void;
   exportJson: () => string;
   /** Unduh progres sebagai file .json dan tandai sudah dicadangkan */
   backup: () => void;
@@ -134,6 +140,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const toggleSound = useCallback(() => setProgress((p) => ({ ...p, sound: !p.sound })), []);
 
+  const toggleSaveAlert = useCallback(() => setProgress((p) => ({ ...p, saveAlert: !p.saveAlert })), []);
+
   const exportJson = useCallback(
     () => JSON.stringify({ app: "kodequest", version: 1, exportedAt: new Date().toISOString(), data: progress }, null, 2),
     [progress]
@@ -190,8 +198,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const unsaved = ready && (progress.xp > 0 || Object.keys(progress.completed).length > 0) && signature(progress) !== backedSig;
 
   const value = useMemo<Ctx>(
-    () => ({ ready, progress, streakShown, completeLesson, toggleSound, exportJson, backup, unsaved, importJson, reset }),
-    [ready, progress, streakShown, completeLesson, toggleSound, exportJson, backup, unsaved, importJson, reset]
+    () => ({ ready, progress, streakShown, completeLesson, toggleSound, toggleSaveAlert, exportJson, backup, unsaved, importJson, reset }),
+    [ready, progress, streakShown, completeLesson, toggleSound, toggleSaveAlert, exportJson, backup, unsaved, importJson, reset]
   );
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;

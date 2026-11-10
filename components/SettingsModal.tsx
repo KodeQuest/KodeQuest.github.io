@@ -7,7 +7,7 @@ import { CloseIcon, DownloadIcon, UploadIcon } from "./Icons";
 import { Modal } from "./Modal";
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
-  const { progress, backup, importJson, toggleSound, reset } = useProgress();
+  const { progress, backup, importJson, toggleSound, toggleSaveAlert, reset } = useProgress();
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -53,6 +53,22 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               className={`relative h-7 w-12 rounded-full transition-colors ${progress.sound ? "bg-teal-500" : "bg-slate-300"}`}
             >
               <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${progress.sound ? "left-[22px]" : "left-0.5"}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 py-4">
+            <div>
+              <span className="font-bold text-indigo-950">Pengingat simpan JSON</span>
+              <p className="mt-0.5 text-sm text-slate-500">Tampilkan pop up untuk mengunduh progres (.json) saat hendak menutup tab.</p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={progress.saveAlert}
+              aria-label="Pengingat simpan JSON"
+              onClick={toggleSaveAlert}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${progress.saveAlert ? "bg-teal-500" : "bg-slate-300"}`}
+            >
+              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${progress.saveAlert ? "left-[22px]" : "left-0.5"}`} />
             </button>
           </div>
 
