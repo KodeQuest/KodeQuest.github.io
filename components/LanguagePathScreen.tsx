@@ -9,6 +9,8 @@ import { Header } from "./Header";
 import { LearningPath } from "./LearningPath";
 import { SettingsModal } from "./SettingsModal";
 import { Sidebar } from "./Sidebar";
+import { ExplainerPlayer } from "./explainers/ExplainerPlayer";
+import { getExplainer } from "./explainers";
 
 /** Jalur belajar satu bahasa (/belajar/bahasa/<id>/). */
 export function LanguagePathScreen({ langId }: { langId: string }) {
@@ -17,6 +19,7 @@ export function LanguagePathScreen({ langId }: { langId: string }) {
   const language = getLanguage(langId);
   if (!language) return <div className="min-h-dvh" />;
 
+  const explainer = getExplainer(language.id);
   const start = (id: string) => router.push(`/belajar/${id}/`);
 
   return (
@@ -31,6 +34,7 @@ export function LanguagePathScreen({ langId }: { langId: string }) {
           >
             <span aria-hidden="true">←</span> Pilih bahasa lain
           </Link>
+          {explainer && <ExplainerPlayer language={language} scenes={explainer.scenes} tint={explainer.tint} />}
           <LearningPath language={language} onStart={start} />
         </div>
         <aside className="hidden lg:block" aria-label="Ringkasan belajar">
