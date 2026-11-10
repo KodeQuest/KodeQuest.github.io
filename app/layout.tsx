@@ -5,6 +5,7 @@ import { ProgressProvider } from "@/lib/store";
 import { NoContextMenu } from "@/components/NoContextMenu";
 import { NoSelect } from "@/components/NoSelect";
 import { ExitGuard } from "@/components/ExitGuard";
+import { DevToolsGate } from "@/components/DevToolsGate";
 
 export const metadata: Metadata = {
   title: "KodeQuest · Belajar koding seperti bermain",
@@ -21,12 +22,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="id">
       <body className="font-sans antialiased">
-        <NoContextMenu />
-        <NoSelect />
-        <ProgressProvider>
-          {children}
-          <ExitGuard />
-        </ProgressProvider>
+        <DevToolsGate>
+          <NoContextMenu />
+          <NoSelect />
+          <ProgressProvider>
+            {children}
+            <ExitGuard />
+          </ProgressProvider>
+        </DevToolsGate>
       </body>
     </html>
   );
