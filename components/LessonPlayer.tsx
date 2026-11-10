@@ -9,6 +9,7 @@ import { CheckIcon, CloseIcon } from "./Icons";
 import { CodeOrder, FillBlank, MultipleChoice, TypeAnswer } from "./questions";
 import { LessonComplete } from "./LessonComplete";
 import { ConfirmModal } from "./Modal";
+import { isOrderAnswerCorrect } from "@/lib/order";
 
 type Answer = number | string[] | string;
 
