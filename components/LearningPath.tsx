@@ -20,7 +20,9 @@ function Stars({ count, size = 14 }: { count: number; size?: number }) {
   );
 }
 
-export function LearningPath({ language, onStart }: { language: Language; onStart: (id: string) => void }) {
+export function LearningPath({ language, onStart, onPlayVideo }: {
+  language: Language; onStart: (id: string) => void; onPlayVideo?: () => void;
+}) {
   const { progress, ready } = useProgress();
   const [sheetId, setSheetId] = useState<string | null>(null);
 
@@ -53,9 +55,21 @@ export function LearningPath({ language, onStart }: { language: Language; onStar
                 <h2 className="text-lg font-black leading-tight">{unit.title}</h2>
                 <p className="text-sm font-semibold text-white/85">{unit.subtitle}</p>
               </div>
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/20">
-                <UnitIcon unit={unit.color} size={24} />
-              </div>
+<div className="flex items-center gap-2">
+  {onPlayVideo && (
+    <button
+      onClick={() => { sfx.click(); onPlayVideo(); }}
+      aria-label={`Tonton video penjelasan ${unit.title}`}
+      className={`btn-3d flex h-11 items-center gap-1.5 rounded-xl bg-white pl-3 pr-4 text-sm font-black shadow-[0_3px_0_rgba(0,0,0,0.2)] ${st.text}`}
+    >
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+      Video
+    </button>
+  )}
+  <div className="grid h-11 w-11 place-items-center rounded-xl bg-white/20">
+    <UnitIcon unit={unit.color} size={24} />
+  </div>
+</div>
             </div>
 
             <ol className="mt-10 flex flex-col items-center gap-6">
