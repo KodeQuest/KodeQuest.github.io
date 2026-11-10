@@ -151,7 +151,7 @@ export function ExplainerPlayer({
   };
 
   return (
-    <section aria-label={`Video penjelasan ${language.title}`}>
+    <section aria-label={`Video penjelasan ${language.title}`} className="flex min-h-dvh flex-col">
       <div className={`flex items-center justify-between gap-3 px-5 py-4 text-white ${st.solid}`}>
         <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase tracking-wide text-white/85">Video penjelasan</p>
@@ -178,6 +178,7 @@ export function ExplainerPlayer({
         </div>
       </div>
 
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
       <div className="flex gap-1.5 px-5 pt-4" role="group" aria-label="Bagian video">
         {scenes.map((s, j) => {
           const pct = j < i ? 100 : j === i ? (reduced ? 100 : Math.min(100, (t / D) * 100)) : 0;
@@ -197,9 +198,9 @@ export function ExplainerPlayer({
         })}
       </div>
 
-      <div className="grid gap-3 p-5 md:grid-cols-2">
+      <div className="grid flex-1 content-center gap-3 p-5 md:grid-cols-2">
         <pre
-          className="overflow-x-auto rounded-2xl bg-indigo-950 p-4 font-mono text-xs leading-6 text-indigo-100 sm:text-sm"
+          className="overflow-x-auto rounded-2xl bg-indigo-950 p-4 font-mono text-xs leading-6 text-indigo-100 sm:text-sm lg:text-base"
           style={{ minHeight: `${maxLines * 1.5 + 2}rem` }}
         >
           <code aria-hidden="true">
@@ -238,6 +239,7 @@ export function ExplainerPlayer({
         <button onClick={() => goTo(Math.min(last, i + 1))} disabled={i === last} aria-label="Bagian berikutnya" className={iconBtn}>
           <Icon d={NEXT} />
         </button>
+      </div>
       </div>
     </section>
   );

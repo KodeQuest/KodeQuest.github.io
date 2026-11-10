@@ -13,7 +13,7 @@ const CLOSE_MS = 200;
  * Dirender lewat portal ke document.body: induk ber-backdrop-filter/transform (mis. nav landing)
  * menjadikan `fixed` relatif ke induk itu, bukan ke layar.
  */
-export function Modal({ label, onClose, wide = false, children }: { label: string; onClose: () => void; wide?: boolean; children: (close: () => void) => ReactNode }) {  const [closing, setClosing] = useState(false);
+export function Modal({ label, onClose, wide = false, full = false, children }: { label: string; onClose: () => void; wide?: boolean; full?: boolean; children: (close: () => void) => ReactNode }) {  const [closing, setClosing] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const close = useCallback(() => {
@@ -39,7 +39,9 @@ export function Modal({ label, onClose, wide = false, children }: { label: strin
 
   return createPortal(
     <div
-      className={`${closing ? "anim-backdrop-out" : "anim-backdrop-in"} fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 sm:items-center sm:p-4`}
+      className={`${closing ? "anim-backdrop-out" : "anim-backdrop-in"} fixed inset-0 z-50 flex justify-center bg-slate-900/40 ${
+        full ? "items-stretch" : "items-end sm:items-center sm:p-4"
+      }`}
       onClick={close}
       role="dialog"
       aria-modal="true"
@@ -47,7 +49,11 @@ export function Modal({ label, onClose, wide = false, children }: { label: strin
     >
       <div
         className={`${closing ? "anim-sheet-out" : "anim-sheet-in"} w-full bg-white ${
-  wide ? "max-h-[92dvh] max-w-3xl overflow-y-auto rounded-t-3xl sm:rounded-3xl" : "max-w-md rounded-t-3xl p-6 sm:rounded-3xl"
+  full
+    ? "h-dvh max-w-none overflow-y-auto rounded-none"
+    : wide
+      ? "max-h-[92dvh] max-w-3xl overflow-y-auto rounded-t-3xl sm:rounded-3xl"
+      : "max-w-md rounded-t-3xl p-6 sm:rounded-3xl"
 }`}
         onClick={(e) => e.stopPropagation()}
       >

@@ -21,12 +21,12 @@ export function tintHtml(code: string): ReactNode {
   });
 }
 
-function Pop({ children, className = "" }: { children: ReactNode; className?: string }) {
+export function Pop({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`anim-pop ${className}`}>{children}</div>;
 }
 
 /** Bingkai jendela browser mini untuk menampilkan hasil kode. */
-function Browser({ tab, status, children }: { tab: string; status?: string; children: ReactNode }) {
+export function Browser({ tab, status, children }: { tab: string; status?: string; children: ReactNode }) {
   return (
     <div className="overflow-hidden rounded-2xl border-2 border-slate-200 bg-white">
       <div className="flex items-center gap-2 border-b-2 border-slate-100 bg-slate-50 px-3 py-2">
@@ -45,7 +45,7 @@ function Browser({ tab, status, children }: { tab: string; status?: string; chil
   );
 }
 
-function Check() {
+export function Check() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M5 12.5 10 17.5 19 7" />
