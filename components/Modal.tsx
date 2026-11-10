@@ -53,7 +53,7 @@ export function Modal({ label, onClose, wide = false, full = false, children }: 
     ? "h-dvh max-w-none overflow-y-auto rounded-none"
     : wide
       ? "max-h-[92dvh] max-w-3xl overflow-y-auto rounded-t-3xl sm:rounded-3xl"
-      : "max-w-md rounded-t-3xl p-6 sm:rounded-3xl"
+      : "max-h-[92dvh] max-w-md overflow-y-auto overscroll-contain rounded-t-3xl p-6 sm:rounded-3xl"
 }`}
         onClick={(e) => e.stopPropagation()}
       >
