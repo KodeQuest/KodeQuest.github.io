@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sfx } from "@/lib/sound";
 import { buildWebDoc, clearSaved, loadSaved, saveCode, STARTERS, type ConsoleLine, type WebFile } from "@/lib/sandbox";
+import { CloseIcon, ExpandIcon } from "../Icons";
 import { ConfirmModal } from "../Modal";
 import { CodeEditor } from "./CodeEditor";
 
@@ -35,6 +36,7 @@ export function WebPlayground() {
   const [doc, setDoc] = useState<{ id: number; html: string } | null>(null);
   const [lines, setLines] = useState<ConsoleLine[]>([]);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [full, setFull] = useState(false);
   const idRef = useRef(0);
   const frameRef = useRef<HTMLIFrameElement>(null);
 
@@ -83,6 +85,21 @@ export function WebPlayground() {
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
   }, []);
+
+  // Layar penuh: Esc menutup, dan halaman di belakang tidak ikut tergulir.
+  useEffect(() => {
+    if (!full) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFull(false);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [full]);
 
   const run = () => {
     sfx.click();
@@ -139,25 +156,61 @@ export function WebPlayground() {
         </p>
       </div>
 
-      {/* Kanan: pratinjau di atas, console di bawah, satu bingkai setinggi editor. */}
+      {/* Kanan: pratinjau dan console sebagai dua kotak terpisah, total setinggi editor. */}
       <section className="order-3 flex min-w-0 flex-col gap-3 lg:order-2">
         <div className="flex h-11 items-center">
           <p className="text-xs font-extrabold uppercase tracking-wide text-slate-400">Pratinjau</p>
         </div>
-        <div className={`flex flex-col overflow-hidden rounded-2xl border-2 border-indigo-950 ${PANE_H_RIGHT}`}>
-          <iframe ref={frameRef} title="Pratinjau hasil" sandbox="allow-scripts" srcDoc={doc?.html ?? ""} className="min-h-0 w-full flex-[3] bg-white" />
-          <div className="border-t-2 border-indigo-900 bg-indigo-900 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-indigo-300">Console</div>
-          <div className="min-h-0 flex-[2] overflow-auto bg-indigo-950 p-3 font-mono text-sm font-bold" aria-live="polite">
-            {lines.length === 0 ? (
-              <span className="text-indigo-400">Keluaran console.log akan tampil di sini</span>
-            ) : (
-              lines.map((l, i) => (
-                <div key={i} className={`whitespace-pre-wrap break-words ${levelClass[l.level]}`}>
-                  {l.level === "error" ? "✖ " : l.level === "warn" ? "⚠ " : ""}
-                  {l.text}
+        <div className={`flex flex-col gap-3 ${PANE_H_RIGHT}`}>
+          {/* Slot tetap di grid. Saat layar penuh, bingkai di dalamnya menjadi fixed; iframe tidak dipindah supaya tidak dimuat ulang. */}
+          <div className="min-h-0 flex-[3]">
+            <div className={full ? "fixed inset-0 z-[100] flex flex-col bg-white" : "relative flex h-full flex-col overflow-hidden rounded-2xl border-2 border-indigo-950"}>
+              {full && (
+                <div className="flex h-12 shrink-0 items-center justify-between border-b-2 border-indigo-900 bg-indigo-950 px-4">
+                  <p className="text-xs font-extrabold uppercase tracking-wide text-indigo-200">Pratinjau · layar penuh</p>
+                  <button
+                    onClick={() => {
+                      sfx.click();
+                      setFull(false);
+                    }}
+                    className="btn-3d flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-xs font-black uppercase tracking-wide text-indigo-700 shadow-[0_3px_0_#a5b4fc]"
+                    aria-label="Tutup layar penuh (Esc)"
+                  >
+                    <CloseIcon size={16} /> Tutup
+                  </button>
                 </div>
-              ))
-            )}
+              )}
+              <iframe ref={frameRef} title="Pratinjau hasil" sandbox="allow-scripts" srcDoc={doc?.html ?? ""} className="min-h-0 w-full flex-1 bg-white" />
+              {!full && (
+                <button
+                  onClick={() => {
+                    sfx.click();
+                    setFull(true);
+                  }}
+                  className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-xl border-2 border-indigo-200 bg-white/90 text-indigo-700 shadow-[0_2px_0_#c7d2fe] backdrop-blur hover:bg-white"
+                  aria-label="Pratinjau layar penuh"
+                  title="Layar penuh"
+                >
+                  <ExpandIcon size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex min-h-0 flex-[2] flex-col overflow-hidden rounded-2xl border-2 border-indigo-950 bg-indigo-950">
+            <div className="border-b-2 border-indigo-900 bg-indigo-900 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-indigo-300">Console</div>
+            <div className="min-h-0 flex-1 overflow-auto p-3 font-mono text-sm font-bold" aria-live="polite">
+              {lines.length === 0 ? (
+                <span className="text-indigo-400">Keluaran console.log akan tampil di sini</span>
+              ) : (
+                lines.map((l, i) => (
+                  <div key={i} className={`whitespace-pre-wrap break-words ${levelClass[l.level]}`}>
+                    {l.level === "error" ? "✖ " : l.level === "warn" ? "⚠ " : ""}
+                    {l.text}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </section>

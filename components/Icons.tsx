@@ -145,3 +145,10 @@ export const SandboxIcon = (p: IconProps) => (
     <path d="M7.5 10l3 2.5-3 2.5M13 15h3.5" />
   </Svg>
 );
+
+/** Perbesar ke layar penuh (empat sudut mengarah keluar). */
+export const ExpandIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+  </Svg>
+);

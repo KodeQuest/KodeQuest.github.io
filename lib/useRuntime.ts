@@ -4,8 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CPP_WORKER_URL, PYODIDE_INDEX_URL, PY_WORKER_URL } from "./sandbox";
 
 export type RuntimeKind = "python" | "cpp";
-export type RuntimeStatus = "idle" | "loading" | "ready" | "running" | "error";
-export type OutLine = { stream: "out" | "err" | "sys"; text: string };
+/** `input`: program berhenti di input() / cin dan menunggu pemain mengetik satu baris di console. */
+export type RuntimeStatus = "idle" | "loading" | "ready" | "running" | "input" | "error";
+/** `in` = baris yang diketik pemain (di-echo seperti terminal). */
+export type OutLine = { stream: "out" | "err" | "in" | "sys"; text: string };
 
 /** Batas waktu satu eksekusi sebelum worker dihentikan paksa (loop tanpa henti). */
 const RUN_LIMIT_MS = 10000;
@@ -13,6 +15,10 @@ const RUN_LIMIT_MS = 10000;
 const MAX_OUT_CHARS = 100_000;
 
 /**
+ * Input interaktif: program dijalankan ulang dari awal setiap pemain mengirim satu baris (worker tidak bisa
+ * menunggu input secara sinkron di GitHub Pages karena tanpa SharedArrayBuffer). Keluaran yang sudah tampil
+ * dilewati saat putar ulang, jadi yang terlihat hanya teks baru dan layar tidak berkedip.
+ *
  * Mengelola satu worker (Python/Pyodide atau C++/JSCPP): memuat environment, menjalankan kode,
  * mengumpulkan keluaran, dan menghentikan eksekusi yang macet.
  * Environment baru dimuat saat `start()` dipanggil (malas), bukan saat halaman dibuka.
@@ -29,6 +35,12 @@ export function useRuntime(kind: RuntimeKind) {
   const runId = useRef(0);
   const startedAt = useRef(0);
   const outChars = useRef(0);
+  /** Baris yang sudah dikirim pemain, dan kode yang sedang berjalan (untuk putar ulang). */
+  const inputsRef = useRef<string[]>([]);
+  const codeRef = useRef("");
+  /** Jumlah karakter yang sudah tampil, dan berapa yang masih harus dilewati saat putar ulang. */
+  const shownRef = useRef(0);
+  const skipRef = useRef(0);
   const watchdog = useRef<ReturnType<typeof setTimeout> | null>(null);
   const disposed = useRef(false);
 
@@ -71,7 +83,7 @@ export function useRuntime(kind: RuntimeKind) {
 
     w.onmessage = (ev: MessageEvent) => {
       if (workerRef.current !== w) return;
-      const m = ev.data as { type: string; id?: number; text?: string; stream?: "out" | "err"; message?: string; stage?: string; exit?: number };
+      const m = ev.data as { type: string; id?: number; text?: string; stream?: "out" | "err" | "in"; message?: string; stage?: string; exit?: number };
       switch (m.type) {
         case "stage":
           setStep(m.stage === "init" ? 1 : 0);
@@ -86,14 +98,29 @@ export function useRuntime(kind: RuntimeKind) {
           w.terminate();
           workerRef.current = null;
           break;
-        case "out":
+        case "out": {
           if (m.id !== runId.current) break;
-          outChars.current += m.text?.length ?? 0;
+          let text = m.text ?? "";
+          // Putar ulang: lewati bagian yang sudah tampil.
+          if (skipRef.current > 0) {
+            const cut = Math.min(skipRef.current, text.length);
+            skipRef.current -= cut;
+            text = text.slice(cut);
+          }
+          if (!text) break;
+          shownRef.current += text.length;
+          outChars.current += text.length;
           if (outChars.current > MAX_OUT_CHARS) {
-            if (outChars.current - (m.text?.length ?? 0) <= MAX_OUT_CHARS) append({ stream: "sys", text: "(keluaran dipotong: terlalu panjang)" });
+            if (outChars.current - text.length <= MAX_OUT_CHARS) append({ stream: "sys", text: "(keluaran dipotong: terlalu panjang)" });
             break;
           }
-          append({ stream: m.stream ?? "out", text: m.text ?? "" });
+          append({ stream: m.stream ?? "out", text });
+          break;
+        }
+        case "need-input":
+          if (m.id !== runId.current) break;
+          clearWatchdog();
+          setStatus("input");
           break;
         case "done":
           if (m.id !== runId.current) break;
@@ -131,6 +158,8 @@ export function useRuntime(kind: RuntimeKind) {
     (message: string) => {
       clearWatchdog();
       runId.current++; // abaikan pesan susulan dari worker lama
+      inputsRef.current = [];
+      skipRef.current = 0;
       append({ stream: "sys", text: message });
       setLastRun(null);
       boot(); // worker lama dibunuh dan environment dimuat ulang
@@ -138,24 +167,45 @@ export function useRuntime(kind: RuntimeKind) {
     [append, boot]
   );
 
+  /** Kirim (ulang) program ke worker dengan semua baris input yang sudah ada. */
+  const execute = useCallback(() => {
+    const w = workerRef.current;
+    if (!w) return;
+    runId.current++;
+    outChars.current = 0;
+    skipRef.current = shownRef.current;
+    setStatus("running");
+    w.postMessage({ type: "run", id: runId.current, code: codeRef.current, inputs: inputsRef.current });
+    clearWatchdog();
+    watchdog.current = setTimeout(() => halt(`Waktu habis (${RUN_LIMIT_MS / 1000} detik). Mungkin ada perulangan tanpa henti.`), RUN_LIMIT_MS);
+  }, [halt]);
+
   const run = useCallback(
-    (code: string, stdin: string) => {
-      const w = workerRef.current;
-      if (!w || status !== "ready") return;
-      runId.current++;
-      outChars.current = 0;
+    (code: string) => {
+      if (!workerRef.current || status !== "ready") return;
+      codeRef.current = code;
+      inputsRef.current = [];
+      shownRef.current = 0;
       startedAt.current = performance.now();
       setOutput([]);
       setLastRun(null);
-      setStatus("running");
-      w.postMessage({ type: "run", id: runId.current, code, stdin });
-      watchdog.current = setTimeout(() => halt(`Waktu habis (${RUN_LIMIT_MS / 1000} detik). Mungkin ada perulangan tanpa henti.`), RUN_LIMIT_MS);
+      execute();
     },
-    [status, halt]
+    [status, execute]
+  );
+
+  /** Pemain menekan Enter di console: simpan barisnya lalu lanjutkan program. */
+  const sendInput = useCallback(
+    (line: string) => {
+      if (status !== "input") return;
+      inputsRef.current = [...inputsRef.current, line];
+      execute();
+    },
+    [status, execute]
   );
 
   const stop = useCallback(() => {
-    if (status === "running") halt("Eksekusi dihentikan.");
+    if (status === "running" || status === "input") halt("Eksekusi dihentikan.");
   }, [status, halt]);
 
   const retry = useCallback(() => {
@@ -173,5 +223,5 @@ export function useRuntime(kind: RuntimeKind) {
     };
   }, []);
 
-  return { status, step, error, output, lastRun, start, run, stop, retry };
+  return { status, step, error, output, lastRun, start, run, sendInput, stop, retry };
 }

@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { ALL_LESSONS, LANGUAGES } from "@/lib/data";
 import { LANGUAGE_STYLES } from "@/lib/theme";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 import { ContactButton } from "./ContactButton";
-import { BoltIcon, CheckIcon, CodeIcon, DownloadIcon, FlameIcon, LayoutIcon, LockIcon, StarIcon, UnitIcon } from "./Icons";
+import { BoltIcon, CheckIcon, CodeIcon, DownloadIcon, FlameIcon, LayoutIcon, LockIcon, SandboxIcon, StarIcon, UnitIcon } from "./Icons";
 
 function PrimaryButton({ children, onClick, className = "" }: { children: ReactNode; onClick: () => void; className?: string }) {
   return (
@@ -85,6 +86,13 @@ export function Landing({ onStart }: { onStart: () => void }) {
           <div className="flex items-center gap-2 sm:gap-6">
             <a href="#fitur" className="hidden text-sm font-extrabold uppercase tracking-wide text-slate-500 hover:text-indigo-600 md:block">Fitur</a>
             <a href="#materi" className="hidden text-sm font-extrabold uppercase tracking-wide text-slate-500 hover:text-indigo-600 md:block">Materi</a>
+            <Link
+              href="/sandbox/"
+              onClick={() => sfx.click()}
+              className="hidden items-center gap-1.5 text-sm font-extrabold uppercase tracking-wide text-slate-500 hover:text-indigo-600 sm:flex"
+            >
+              <SandboxIcon size={18} /> Sandbox
+            </Link>
             <button
               onClick={go}
               className="btn-3d rounded-xl border-2 border-slate-200 bg-white px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-indigo-600 shadow-[0_3px_0_#e2e8f0] hover:bg-slate-50"
@@ -116,6 +124,13 @@ export function Landing({ onStart }: { onStart: () => void }) {
             >
               Lihat materi
             </a>
+            <Link
+              href="/sandbox/"
+              onClick={() => sfx.click()}
+              className="btn-3d flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-8 py-4 text-center text-base font-black uppercase tracking-wide text-indigo-600 shadow-[0_5px_0_#e2e8f0] hover:bg-slate-50 sm:w-auto"
+            >
+              <SandboxIcon size={20} /> Sandbox
+            </Link>
           </div>
 
           <dl className="mt-12 grid grid-cols-3 gap-4 border-t-2 border-slate-100 pt-8 text-center lg:text-left">

@@ -1,7 +1,12 @@
 /* Worker Python untuk /sandbox (Pyodide = CPython di WebAssembly). Harus dibuat sebagai module worker: new Worker(url, {type:"module"}).
- * Pesan masuk : {type:"init", indexURL} | {type:"run", id, code, stdin}
+ * Pesan masuk : {type:"init", indexURL} | {type:"run", id, code, inputs:string[]}
  * Pesan keluar: {type:"stage", stage:"download"|"init"} | {type:"ready"} | {type:"fatal", message}
- *               {type:"out", id, text, stream:"out"|"err"} | {type:"done", id} | {type:"error", id, message}
+ *               {type:"out", id, text, stream:"out"|"err"|"in"} | {type:"need-input", id}
+ *               {type:"done", id} | {type:"error", id, message}
+ *
+ * Input interaktif: program dijalankan ulang dari awal tiap pemain mengirim satu baris. `inputs` berisi semua baris
+ * yang sudah dikirim. Saat input() meminta baris yang belum ada, worker mengirim `need-input`.
+ * Baris yang dikonsumsi dikirim sebagai stream "in" agar tampil seperti terminal.
  */
 let pyodide = null;
 
@@ -35,9 +40,19 @@ self.onmessage = async (e) => {
   }
 
   if (m.type === "run" && pyodide) {
-    const lines = String(m.stdin || "").split("\n");
-    if (lines.length && lines[lines.length - 1] === "") lines.pop();
-    pyodide.setStdin({ stdin: () => (lines.length ? lines.shift() : undefined) });
+    const queue = Array.isArray(m.inputs) ? m.inputs.slice() : [];
+    let needInput = false;
+    pyodide.setStdin({
+      stdin: () => {
+        if (queue.length === 0) {
+          needInput = true;
+          return undefined; // EOF: input() gagal, lalu run ini dianggap menunggu masukan
+        }
+        const line = queue.shift();
+        post({ type: "out", id: m.id, text: line + "\n", stream: "in" });
+        return line;
+      },
+    });
     // Handler `write` menerima potongan apa adanya, jadi print(..., end="") dan prompt input() langsung tampil.
     const sink = (stream) => {
       const dec = new TextDecoder();
@@ -50,10 +65,11 @@ self.onmessage = async (e) => {
       globals = pyodide.globals.get("dict")(); // namespace baru tiap run, jadi variabel run sebelumnya tidak bocor
       await pyodide.runPythonAsync(m.code, { globals });
       await pyodide.runPythonAsync("import sys\nsys.stdout.flush()\nsys.stderr.flush()");
-      post({ type: "done", id: m.id });
+      post(needInput ? { type: "need-input", id: m.id } : { type: "done", id: m.id });
     } catch (err) {
       try { await pyodide.runPythonAsync("import sys\nsys.stdout.flush()"); } catch (_) {}
-      post({ type: "error", id: m.id, message: cleanTraceback((err && err.message) || err) });
+      if (needInput) post({ type: "need-input", id: m.id });
+      else post({ type: "error", id: m.id, message: cleanTraceback((err && err.message) || err) });
     } finally {
       if (globals) globals.destroy();
     }

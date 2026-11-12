@@ -62,11 +62,6 @@ int main() {
 `,
 };
 
-export const DEFAULT_STDIN: Record<"python" | "cpp", string> = {
-  python: "Budi",
-  cpp: "Budi",
-};
-
 /** Gaya dasar dokumen pratinjau (selaras dengan lib/live.ts). */
 const PREVIEW_BASE = "body{margin:8px;font:15px/1.4 system-ui,sans-serif;color:#1e1b4b;background:#fff}";
 

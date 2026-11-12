@@ -4,6 +4,7 @@ import js from "@/data/languages/js.json";
 import python from "@/data/languages/python.json";
 import java from "@/data/languages/java.json";
 import cpp from "@/data/languages/cpp.json";
+import { canonColors } from "./colors";
 import { normalizeTyped } from "./live";
 import react from "@/data/languages/react.json";
 import php from "@/data/languages/php.json";
@@ -136,7 +137,11 @@ export function getQuestionsByType<T extends Question["type"]>(type: T, language
 
 
 export function isTypedAnswerCorrect(q: TypeQuestion, typed: string): boolean {
-  const fold = (x: string) => (q.ignoreCase ? normalizeTyped(x).toLowerCase() : normalizeTyped(x));
+  // Nama warna dan hex dianggap sama (red = #f00 = #ff0000), karena di CSS keduanya menghasilkan warna yang sama.
+  const fold = (x: string) => {
+    const t = canonColors(normalizeTyped(x));
+    return q.ignoreCase ? t.toLowerCase() : t;
+  };
   const t = fold(typed);
   return t !== "" && q.answers.some((a) => fold(a) === t);
 }
