@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useProgress } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 import { ContactButton } from "./ContactButton";
-import { BoltIcon, FlameIcon, SettingsIcon, TrophyIcon } from "./Icons";
+import { BoltIcon, FlameIcon, SandboxIcon, SettingsIcon, TrophyIcon } from "./Icons";
 
 function Stat({ icon, value, label, color }: { icon: React.ReactNode; value: number; label: string; color: string }) {
   return (
@@ -39,6 +39,15 @@ export function Header({ onOpenSettings }: { onOpenSettings: () => void }) {
             title="Papan skor"
           >
             <TrophyIcon size={22} />
+          </Link>
+          <Link
+            href="/sandbox/"
+            onClick={() => sfx.click()}
+            className="grid h-9 w-9 place-items-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            aria-label="Buka sandbox kode"
+            title="Sandbox"
+          >
+            <SandboxIcon size={22} />
           </Link>
           <button
             onClick={() => {

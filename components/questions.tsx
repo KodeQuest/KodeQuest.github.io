@@ -184,7 +184,7 @@ export function TypeAnswer({ q, locked, onChange }: { q: TypeQuestion } & Common
 
   return (
     <div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid items-start gap-x-4 gap-y-3 sm:grid-cols-2">
         <TargetPreview q={q} />
         <LiveResult q={q} typed={value} />
       </div>

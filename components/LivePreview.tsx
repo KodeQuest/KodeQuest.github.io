@@ -4,15 +4,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { TypeQuestion } from "@/lib/data";
 import { cssDoc, htmlDoc, jsCode, jsDoc, matchLive } from "@/lib/live";
 
-const frame = "h-32 w-full rounded-xl border-2 border-slate-200 bg-white";
-const consoleBox = "min-h-[4.5rem] overflow-x-auto whitespace-pre-wrap break-words rounded-xl bg-indigo-950 p-3 font-mono text-sm font-bold";
+/** Semua kotak pratinjau (target dan hasil) memakai ukuran yang sama supaya kedua kolom sejajar. */
+const box = "h-32 w-full overflow-auto rounded-xl";
+const frame = `${box} border-2 border-slate-200 bg-white`;
+const consoleBox = `${box} whitespace-pre-wrap break-words bg-indigo-950 p-3 font-mono text-sm font-bold`;
+const emptyBox = `${box} grid place-items-center border-2 border-dashed border-slate-200 px-3 text-center text-sm font-bold text-slate-400`;
 const label = "mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400";
 
 /** Hasil yang diharapkan: HTML/CSS dirender dari jawaban pertama, sisanya memakai teks `preview`. */
 export function TargetPreview({ q }: { q: TypeQuestion }) {
   const live = q.live;
   return (
-    <div>
+    <div className="min-w-0">
       <p className={label}>Target</p>
       {live?.kind === "html" ? (
         <iframe title="Target" sandbox="" srcDoc={htmlDoc(q.answers[0])} className={frame} />
@@ -37,7 +40,7 @@ export function LiveResult({ q, typed }: { q: TypeQuestion; typed: string }) {
   }, [typed]);
 
   const hasCode = debounced.trim() !== "";
-  const waiting = <span className="text-indigo-400">{hasCode ? "…" : "Ketik kode untuk melihat hasilnya"}</span>;
+  const waiting = <span>{hasCode ? "…" : "Ketik kode untuk melihat hasilnya"}</span>;
 
   // JavaScript: dijalankan di iframe ber-sandbox, keluaran console.log dikirim balik lewat postMessage.
   const [run, setRun] = useState<{ id: number; doc: string } | null>(null);
@@ -68,22 +71,22 @@ export function LiveResult({ q, typed }: { q: TypeQuestion; typed: string }) {
 
   let body: React.ReactNode;
   if (live?.kind === "html") {
-    body = hasCode ? <iframe title="Hasil kodemu" sandbox="" srcDoc={htmlDoc(debounced)} className={frame} /> : <div className={`${consoleBox} text-sm`}>{waiting}</div>;
+    body = hasCode ? <iframe title="Hasil kodemu" sandbox="" srcDoc={htmlDoc(debounced)} className={frame} /> : <div className={emptyBox}>{waiting}</div>;
   } else if (live?.kind === "css") {
-    body = hasCode ? <iframe title="Hasil kodemu" sandbox="" srcDoc={cssDoc(debounced, live.html, live.base)} className={frame} /> : <div className={`${consoleBox} text-sm`}>{waiting}</div>;
+    body = hasCode ? <iframe title="Hasil kodemu" sandbox="" srcDoc={cssDoc(debounced, live.html, live.base)} className={frame} /> : <div className={emptyBox}>{waiting}</div>;
   } else if (live?.kind === "js") {
     body = (
       <>
-        <div className={`${consoleBox} text-teal-200`}>{jsOut && jsOut.ok && hasCode ? jsOut.out.join("\n") || <span className="text-indigo-400">(tidak ada keluaran)</span> : waiting}</div>
+        <div className={`${consoleBox} text-teal-200`}>{jsOut && jsOut.ok && hasCode ? jsOut.out.join("\n") || <span className="text-indigo-400">(tidak ada keluaran)</span> : <span className="text-indigo-400">{waiting}</span>}</div>
         {run && <iframe key={run.id} ref={frameRef} title="Penjalan kode" sandbox="allow-scripts" srcDoc={run.doc} className="hidden" />}
       </>
     );
   } else {
-    body = <div className={`${consoleBox} text-teal-200`}>{matched ?? waiting}</div>;
+    body = <div className={`${consoleBox} text-teal-200`}>{matched ?? <span className="text-indigo-400">{waiting}</span>}</div>;
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <p className={label}>Hasil kodemu (langsung)</p>
       {body}
     </div>

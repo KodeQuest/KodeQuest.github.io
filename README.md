@@ -25,3 +25,7 @@ npm run build    # hasil statis ada di folder out/
 - `lib/store.tsx` — progres (XP, streak), localStorage, ekspor/impor JSON
 - `lib/sound.ts` — efek suara Web Audio API
 - `components/` — peta belajar, pemutar pelajaran, tipe soal, pengaturan
+- `app/sandbox/` + `components/SandboxScreen.tsx` + `components/sandbox/` — halaman `/sandbox`: HTML/CSS/JS dengan pratinjau langsung, serta Python dan C++ yang berjalan di browser. Environment Python dan C++ baru dimuat saat tab-nya dibuka (ada layar "Menyiapkan environment")
+- `lib/sandbox.ts`, `lib/useRuntime.ts` — kode awal, penyusun dokumen pratinjau, dan hook yang mengelola worker (muat, jalankan, hentikan)
+- `public/vendor/py-worker.js` — worker Python (Pyodide diunduh dari CDN jsDelivr saat dibutuhkan, versi di `lib/sandbox.ts`)
+- `public/vendor/cpp-worker.js` — worker C++ (JSCPP) hasil bundel; bangun ulang dengan `bash scripts/build-cpp-worker.sh`

@@ -82,3 +82,13 @@ html[data-noselect] textarea {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* Bilah kemajuan tak tentu (layar "menyiapkan environment" di /sandbox) */
+@keyframes indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+.anim-indeterminate { animation: indeterminate 1.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-indeterminate { animation: none; transform: translateX(100%); }
+}

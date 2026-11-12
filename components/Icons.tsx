@@ -137,3 +137,11 @@ export const WhatsappIcon = (p: IconProps) => (
     <path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2L9 8.5z" fill="currentColor" strokeWidth="1" />
   </Svg>
 );
+
+/** Terminal (prompt `>_`) untuk tautan Sandbox. */
+export const SandboxIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="4.5" width="18" height="15" rx="3" />
+    <path d="M7.5 10l3 2.5-3 2.5M13 15h3.5" />
+  </Svg>
+);
