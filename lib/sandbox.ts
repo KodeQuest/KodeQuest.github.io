@@ -1,3 +1,5 @@
+import { fixHashColors } from "./colors";
+
 /** Pengaturan dan pembantu untuk halaman /sandbox. */
 
 export type SandboxTab = "web" | "python" | "cpp";
@@ -75,7 +77,7 @@ const CAPTURE = `(function(){var id=__ID__,off=__OFF__,n=0;function fmt(v){if(ty
 /** Susun dokumen pratinjau dari tiga file. `id` dipakai untuk menyaring pesan milik pratinjau yang sedang tampil. */
 export function buildWebDoc(html: string, css: string, js: string, id: number): string {
   const safeJs = js.replace(/<\/script/gi, "<\\/script");
-  const pre = `<!doctype html><html><head><meta charset="utf-8"><script>${CAPTURE.replace("__ID__", String(id))}</script><style>${PREVIEW_BASE}</style><style>${css}</style></head><body>\n${html}\n`;
+  const pre = `<!doctype html><html><head><meta charset="utf-8"><script>${CAPTURE.replace("__ID__", String(id))}</script><style>${PREVIEW_BASE}</style><style>${fixHashColors(css)}</style></head><body>\n${html}\n`;
   const marker = "<script>\n";
   const off = (pre + marker).split("\n").length - 1;
   const head = pre.replace("off=__OFF__", `off=${off}`);

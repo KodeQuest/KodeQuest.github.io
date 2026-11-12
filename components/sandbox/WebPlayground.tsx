@@ -187,7 +187,7 @@ export function WebPlayground() {
                     sfx.click();
                     setFull(true);
                   }}
-                  className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-xl border-2 border-indigo-200 bg-white/90 text-indigo-700 shadow-[0_2px_0_#c7d2fe] backdrop-blur hover:bg-white"
+                  className="btn-3d absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-xl border-2 border-indigo-200 bg-white/90 text-indigo-700 shadow-[0_3px_0_#c7d2fe] backdrop-blur hover:bg-indigo-50"
                   aria-label="Pratinjau layar penuh"
                   title="Layar penuh"
                 >
