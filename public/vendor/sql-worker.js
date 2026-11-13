@@ -1,0 +1,766 @@
+/*
+ * Worker MySQL untuk /sandbox.
+ *
+ * Mesin: sql.js (SQLite yang dikompilasi ke WebAssembly), BUKAN server MySQL asli. Sintaks MySQL yang umum dipelajari
+ * diterjemahkan ke SQLite, dan keluarannya diformat seperti klien `mysql` (tabel ASCII, "Query OK", pesan ERROR).
+ * Setiap kali Jalankan ditekan, skrip dijalankan dari awal pada database kosong (database dan tabel tidak dibawa ke
+ * eksekusi berikutnya). Eksekusi berhenti di error pertama, seperti klien mysql yang menjalankan skrip.
+ *
+ * Pesan masuk : {type:"init", indexURL} | {type:"run", id, code}
+ * Pesan keluar: {type:"stage", stage:"download"|"init"} | {type:"ready"} | {type:"fatal", message}
+ *               {type:"out", id, text, stream:"out"|"in"} | {type:"done", id} | {type:"error", id, message}
+ *
+ * `indexURL` adalah folder tempat sql-wasm.js dan sql-wasm.wasm berada (CDN npm jsDelivr, versi dikunci).
+ */
+"use strict";
+
+var SQL = null;
+var MAX_ROWS = 200;
+var DEFAULT_DBS = ["information_schema", "mysql", "performance_schema", "sys"];
+
+function post(m) {
+  self.postMessage(m);
+}
+
+/* ---------- Pemisah pernyataan ---------- */
+
+/** Memecah skrip menjadi pernyataan pada `;`, mengabaikan `;` di dalam string dan membuang komentar. */
+function splitStatements(src) {
+  var out = [];
+  var cur = "";
+  var i = 0;
+  var n = src.length;
+  while (i < n) {
+    var c = src[i];
+    var d = src[i + 1];
+    if (c === "'" || c === '"' || c === "`") {
+      var q = c;
+      cur += c;
+      i++;
+      while (i < n) {
+        var ch = src[i];
+        cur += ch;
+        i++;
+        if (ch === "\\" && q !== "`" && i < n) {
+          cur += src[i];
+          i++;
+        } else if (ch === q) {
+          if (src[i] === q) {
+            cur += src[i];
+            i++;
+          } else break;
+        }
+      }
+    } else if ((c === "-" && d === "-" && (i + 2 >= n || /\s/.test(src[i + 2]))) || c === "#") {
+      while (i < n && src[i] !== "\n") i++;
+    } else if (c === "/" && d === "*") {
+      var end = src.indexOf("*/", i + 2);
+      i = end === -1 ? n : end + 2;
+      cur += " ";
+    } else if (c === ";") {
+      if (cur.trim()) out.push(cur.trim());
+      cur = "";
+      i++;
+    } else {
+      cur += c;
+      i++;
+    }
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+
+/** Memecah teks pada `sep` yang berada di luar tanda kurung dan string. */
+function splitTopLevel(text, sep) {
+  var parts = [];
+  var depth = 0;
+  var cur = "";
+  var q = null;
+  for (var i = 0; i < text.length; i++) {
+    var c = text[i];
+    if (q) {
+      cur += c;
+      if (c === "\\" && q !== "`") {
+        cur += text[++i] || "";
+      } else if (c === q) q = null;
+      continue;
+    }
+    if (c === "'" || c === '"' || c === "`") {
+      q = c;
+      cur += c;
+    } else if (c === "(") {
+      depth++;
+      cur += c;
+    } else if (c === ")") {
+      depth--;
+      cur += c;
+    } else if (c === sep && depth === 0) {
+      parts.push(cur);
+      cur = "";
+    } else cur += c;
+  }
+  if (cur.trim()) parts.push(cur);
+  return parts;
+}
+
+/* ---------- Format keluaran gaya klien mysql ---------- */
+
+function cell(v) {
+  if (v === null || v === undefined) return "NULL";
+  if (v instanceof Uint8Array) return "[BLOB " + v.length + " byte]";
+  return String(v).replace(/\r?\n/g, "\\n");
+}
+
+function strLen(s) {
+  return Array.from(s).length;
+}
+
+function pad(s, w, right) {
+  var gap = w - strLen(s);
+  if (gap <= 0) return s;
+  return right ? " ".repeat(gap) + s : s + " ".repeat(gap);
+}
+
+function renderTable(cols, rows) {
+  var shown = rows.slice(0, MAX_ROWS);
+  var strs = shown.map(function (r) {
+    return r.map(cell);
+  });
+  var widths = cols.map(function (c, i) {
+    var w = strLen(c);
+    strs.forEach(function (r) {
+      w = Math.max(w, strLen(r[i]));
+    });
+    return w;
+  });
+  var numeric = cols.map(function (c, i) {
+    var any = false;
+    for (var k = 0; k < shown.length; k++) {
+      var v = shown[k][i];
+      if (v === null) continue;
+      if (typeof v !== "number") return false;
+      any = true;
+    }
+    return any;
+  });
+  var line =
+    "+" +
+    widths
+      .map(function (w) {
+        return "-".repeat(w + 2);
+      })
+      .join("+") +
+    "+\n";
+  var text = line;
+  text +=
+    "| " +
+    cols
+      .map(function (c, i) {
+        return pad(c, widths[i], false);
+      })
+      .join(" | ") +
+    " |\n";
+  text += line;
+  strs.forEach(function (r) {
+    text +=
+      "| " +
+      r
+        .map(function (v, i) {
+          return pad(v, widths[i], numeric[i]);
+        })
+        .join(" | ") +
+      " |\n";
+  });
+  text += line;
+  if (rows.length > shown.length) text += "(" + (rows.length - shown.length) + " baris lainnya tidak ditampilkan)\n";
+  return text;
+}
+
+function secs(ms) {
+  return (ms / 1000).toFixed(2) + " sec";
+}
+
+function rowsLine(n, ms) {
+  return n + (n === 1 ? " row" : " rows") + " in set (" + secs(ms) + ")\n";
+}
+
+function okLine(n, ms) {
+  return "Query OK, " + n + (n === 1 ? " row" : " rows") + " affected (" + secs(ms) + ")\n";
+}
+
+/* ---------- Penerjemah sintaks MySQL -> SQLite ---------- */
+
+var TEXT_TYPES = /^(char|varchar|tinytext|text|mediumtext|longtext|enum|set)$/i;
+
+/** Menerjemahkan satu definisi kolom MySQL. Mengembalikan {sql, name, type, auto}. */
+function translateColumn(def) {
+  var m = /^\s*`?(\w+)`?\s+([a-zA-Z]+)\s*(\([^)]*\))?\s*([\s\S]*)$/.exec(def);
+  if (!m) return { sql: def.trim(), name: null, type: "", auto: false };
+  var name = m[1];
+  var base = m[2];
+  var params = m[3] || "";
+  var flags = m[4] || "";
+  var unsigned = /\bunsigned\b/i.test(flags);
+  flags = flags
+    .replace(/\bunsigned\b/gi, "")
+    .replace(/\bzerofill\b/gi, "")
+    .replace(/\bcomment\s+'(?:[^'\\]|\\.)*'/gi, "")
+    .replace(/\bon\s+update\s+current_timestamp(\(\d*\))?/gi, "")
+    .replace(/\b(?:character\s+set|charset)\s+\w+/gi, "")
+    .replace(/\bdefault\s+now\(\)/gi, "DEFAULT CURRENT_TIMESTAMP")
+    .replace(/\s+/g, " ")
+    .trim();
+  var origType = base.toLowerCase() + params.replace(/\s+/g, "") + (unsigned ? " unsigned" : "");
+  var auto = /\bauto_increment\b/i.test(flags);
+  if (auto) {
+    return { sql: "`" + name + "` INTEGER PRIMARY KEY AUTOINCREMENT", name: name, type: origType, auto: true };
+  }
+  var sqlType;
+  var extra = "";
+  if (/^enum$/i.test(base)) {
+    sqlType = "TEXT";
+    extra = " CHECK (`" + name + "` IN " + params + ")";
+  } else if (/^set$/i.test(base)) {
+    sqlType = "TEXT";
+  } else {
+    sqlType = base + params;
+  }
+  var collate = TEXT_TYPES.test(base) && !/\bcollate\b/i.test(flags) ? " COLLATE NOCASE" : "";
+  var sql = "`" + name + "` " + sqlType + collate + (flags ? " " + flags : "") + extra;
+  return { sql: sql, name: name, type: origType, auto: false };
+}
+
+function translateCreate(sql) {
+  var open = sql.indexOf("(");
+  var close = sql.lastIndexOf(")");
+  var head = open === -1 ? sql : sql.slice(0, open);
+  if (open === -1 || close < open || /\b(like|as\s+select)\b/i.test(head)) return { sql: sql, cols: null };
+  var body = sql.slice(open + 1, close);
+  var defs = splitTopLevel(body, ",");
+  var out = [];
+  var cols = [];
+  var autoCols = [];
+  var tableLevelPk = -1;
+  defs.forEach(function (raw) {
+    var d = raw.trim();
+    if (!d) return;
+    if (/^(key|index|fulltext(\s+(key|index))?|spatial(\s+(key|index))?)\b/i.test(d)) return;
+    if (/^unique\s+(key|index)\b/i.test(d)) {
+      out.push(d.replace(/^unique\s+(?:key|index)\s*`?\w*`?\s*/i, "UNIQUE "));
+      return;
+    }
+    if (/^(primary\s+key|unique|foreign\s+key|constraint|check)\b/i.test(d)) {
+      if (/^primary\s+key/i.test(d)) tableLevelPk = out.length;
+      out.push(d.replace(/\s+using\s+(btree|hash)/gi, ""));
+      return;
+    }
+    var col = translateColumn(d);
+    cols.push(col);
+    if (col.auto) autoCols.push(col.name);
+    out.push(col.sql);
+  });
+  // PRIMARY KEY (kolom_auto) tingkat tabel sudah tercakup oleh "INTEGER PRIMARY KEY AUTOINCREMENT".
+  if (autoCols.length && tableLevelPk !== -1) {
+    var pkCols = /\(([^)]*)\)/.exec(out[tableLevelPk]);
+    var list = pkCols ? pkCols[1].replace(/[`\s]/g, "").split(",") : [];
+    if (list.length === 1 && list[0] === autoCols[0]) out.splice(tableLevelPk, 1);
+  }
+  return { sql: head.trim() + " (" + out.join(", ") + ")", cols: cols };
+}
+
+function translateInsert(sql) {
+  var s = sql.replace(/^insert\s+ignore\s+/i, "INSERT OR IGNORE ");
+  var dup = /\bon\s+duplicate\s+key\s+update\b/i.exec(s);
+  if (dup) {
+    var before = s.slice(0, dup.index);
+    var after = s.slice(dup.index + dup[0].length).replace(/\bvalues\s*\(\s*`?(\w+)`?\s*\)/gi, "excluded.`$1`");
+    s = before + " ON CONFLICT DO UPDATE SET" + after;
+  }
+  return s;
+}
+
+/** Terjemahan umum untuk pernyataan lain (SELECT, UPDATE, DELETE). */
+function translateGeneric(sql) {
+  return sql.replace(/\bgroup_concat\s*\(([^()]*?)\s+separator\s+('(?:[^'\\]|\\.)*')\s*\)/gi, "GROUP_CONCAT($1, $2)");
+}
+
+/* ---------- Pemetaan error SQLite -> pesan MySQL ---------- */
+
+function mysqlError(err, ctx) {
+  var msg = String((err && err.message) || err).replace(/^Error:\s*/, "");
+  var m;
+  if ((m = /no such table: (?:main\.)?(\S+)/.exec(msg))) {
+    if (!ctx.currentDb) return "ERROR 1046 (3D000): No database selected";
+    return "ERROR 1146 (42S02): Table '" + ctx.currentDb + "." + m[1] + "' doesn't exist";
+  }
+  if ((m = /no such column: (\S+)/.exec(msg))) return "ERROR 1054 (42S22): Unknown column '" + m[1] + "' in 'field list'";
+  if ((m = /table (\S+) already exists/.exec(msg))) return "ERROR 1050 (42S01): Table '" + m[1] + "' already exists";
+  if ((m = /UNIQUE constraint failed: (\S+)/.exec(msg))) return "ERROR 1062 (23000): Duplicate entry for key '" + m[1] + "'";
+  if ((m = /NOT NULL constraint failed: \S+\.(\S+)/.exec(msg))) return "ERROR 1048 (23000): Column '" + m[1] + "' cannot be null";
+  if (/FOREIGN KEY constraint failed/.test(msg)) return "ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails";
+  if (/CHECK constraint failed/.test(msg)) return "ERROR 1265 (01000): Data truncated (nilai tidak sesuai ENUM atau batasan CHECK)";
+  if ((m = /near "([^"]*)": syntax error/.exec(msg))) {
+    return "ERROR 1064 (42000): You have an error in your SQL syntax; periksa penulisan query di dekat '" + m[1] + "'";
+  }
+  if (/incomplete input/.test(msg)) return "ERROR 1064 (42000): You have an error in your SQL syntax; query belum lengkap";
+  return "ERROR: " + msg;
+}
+
+/* ---------- Database dan fungsi bawaan MySQL ---------- */
+
+function pad2(n) {
+  return n < 10 ? "0" + n : "" + n;
+}
+function nowDate(d) {
+  return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+}
+function nowTime(d) {
+  return pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+}
+function parseDate(v) {
+  if (v === null || v === undefined) return null;
+  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v));
+  return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : null;
+}
+
+/** Mendaftarkan fungsi dengan jumlah argumen tertentu (sql.js memakai func.length sebagai jumlah argumen). */
+function reg(db, name, arity, impl) {
+  var f = function () {
+    return impl(Array.prototype.slice.call(arguments));
+  };
+  Object.defineProperty(f, "length", { value: arity });
+  db.create_function(name, f);
+}
+
+function makeDb(ctx) {
+  var db = new SQL.Database();
+  db.exec("PRAGMA foreign_keys = ON");
+  var i;
+  for (i = 1; i <= 12; i++) {
+    reg(db, "CONCAT", i, function (a) {
+      for (var k = 0; k < a.length; k++) if (a[k] === null) return null;
+      return a.join("");
+    });
+  }
+  for (i = 2; i <= 12; i++) {
+    reg(db, "CONCAT_WS", i, function (a) {
+      if (a[0] === null) return null;
+      return a
+        .slice(1)
+        .filter(function (v) {
+          return v !== null;
+        })
+        .join(a[0]);
+    });
+  }
+  reg(db, "NOW", 0, function () {
+    var d = new Date();
+    return nowDate(d) + " " + nowTime(d);
+  });
+  reg(db, "CURDATE", 0, function () {
+    return nowDate(new Date());
+  });
+  reg(db, "CURTIME", 0, function () {
+    return nowTime(new Date());
+  });
+  reg(db, "IF", 3, function (a) {
+    return a[0] !== null && a[0] !== 0 && a[0] !== "0" && a[0] !== "" ? a[1] : a[2];
+  });
+  reg(db, "CHAR_LENGTH", 1, function (a) {
+    return a[0] === null ? null : Array.from(String(a[0])).length;
+  });
+  reg(db, "LEFT", 2, function (a) {
+    return a[0] === null ? null : String(a[0]).slice(0, Math.max(0, a[1]));
+  });
+  reg(db, "RIGHT", 2, function (a) {
+    return a[0] === null ? null : a[1] <= 0 ? "" : String(a[0]).slice(-a[1]);
+  });
+  reg(db, "REVERSE", 1, function (a) {
+    return a[0] === null ? null : Array.from(String(a[0])).reverse().join("");
+  });
+  reg(db, "LPAD", 3, function (a) {
+    if (a[0] === null) return null;
+    var s = String(a[0]);
+    var len = a[1];
+    if (s.length >= len) return s.slice(0, len);
+    var fill = String(a[2]);
+    var out = "";
+    while (out.length < len - s.length) out += fill;
+    return out.slice(0, len - s.length) + s;
+  });
+  reg(db, "RPAD", 3, function (a) {
+    if (a[0] === null) return null;
+    var s = String(a[0]);
+    var len = a[1];
+    if (s.length >= len) return s.slice(0, len);
+    var fill = String(a[2]);
+    var out = "";
+    while (out.length < len - s.length) out += fill;
+    return s + out.slice(0, len - s.length);
+  });
+  reg(db, "YEAR", 1, function (a) {
+    var d = parseDate(a[0]);
+    return d ? d.getUTCFullYear() : null;
+  });
+  reg(db, "MONTH", 1, function (a) {
+    var d = parseDate(a[0]);
+    return d ? d.getUTCMonth() + 1 : null;
+  });
+  reg(db, "DAY", 1, function (a) {
+    var d = parseDate(a[0]);
+    return d ? d.getUTCDate() : null;
+  });
+  reg(db, "DATEDIFF", 2, function (a) {
+    var x = parseDate(a[0]);
+    var y = parseDate(a[1]);
+    return x && y ? Math.round((x - y) / 86400000) : null;
+  });
+  reg(db, "DATE_FORMAT", 2, function (a) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2}))?/.exec(String(a[0]));
+    if (!m) return null;
+    var map = { Y: m[1], y: m[1].slice(2), m: m[2], d: m[3], H: m[4] || "00", i: m[5] || "00", s: m[6] || "00", S: m[6] || "00" };
+    return String(a[1]).replace(/%([YymdHisS%])/g, function (all, k) {
+      return k === "%" ? "%" : map[k];
+    });
+  });
+  reg(db, "DATABASE", 0, function () {
+    return ctx.currentDb;
+  });
+  reg(db, "VERSION", 0, function () {
+    return "8.0 (sandbox KodeQuest, berbasis SQLite)";
+  });
+  reg(db, "RAND", 0, function () {
+    return Math.random();
+  });
+  // Fungsi matematika: pakai bawaan SQLite bila ada, kalau tidak daftarkan sendiri.
+  [
+    ["FLOOR", 1, Math.floor],
+    ["CEIL", 1, Math.ceil],
+    ["CEILING", 1, Math.ceil],
+    ["SQRT", 1, Math.sqrt],
+    ["POWER", 2, Math.pow],
+    ["POW", 2, Math.pow],
+  ].forEach(function (f) {
+    var ok = true;
+    try {
+      db.exec("SELECT " + f[0] + "(" + (f[1] === 1 ? "2.5" : "2, 3") + ")");
+    } catch (e) {
+      ok = false;
+    }
+    if (!ok) {
+      reg(db, f[0], f[1], function (a) {
+        return a[0] === null ? null : f[2].apply(null, a);
+      });
+    }
+  });
+  return db;
+}
+
+/* ---------- Eksekusi satu pernyataan ---------- */
+
+function ident(s) {
+  return s.replace(/`/g, "");
+}
+
+function describeTable(sess, name) {
+  var db = sess.cur();
+  var info;
+  try {
+    info = db.exec("PRAGMA table_info(`" + name + "`)");
+  } catch (e) {
+    info = [];
+  }
+  if (!info.length) throw new Error("no such table: " + name);
+  var uniq = {};
+  try {
+    var idx = db.exec("PRAGMA index_list(`" + name + "`)");
+    if (idx.length) {
+      idx[0].values.forEach(function (r) {
+        if (r[2] === 1) {
+          var ii = db.exec("PRAGMA index_info(`" + r[1] + "`)");
+          if (ii.length && ii[0].values.length === 1) uniq[ii[0].values[0][2]] = true;
+        }
+      });
+    }
+  } catch (e) {}
+  var known = (sess.types[sess.currentDb] || {})[name] || {};
+  var rows = info[0].values.map(function (r) {
+    var cname = r[1];
+    var t = known[cname] || String(r[2] || "").toLowerCase();
+    var dflt = r[4];
+    if (typeof dflt === "string" && /^'.*'$/.test(dflt)) dflt = dflt.slice(1, -1);
+    return [cname, t, r[3] || r[5] ? "NO" : "YES", r[5] ? "PRI" : uniq[cname] ? "UNI" : "", dflt === null ? null : dflt, sess.auto[sess.currentDb + "." + name + "." + cname] ? "auto_increment" : ""];
+  });
+  return renderTable(["Field", "Type", "Null", "Key", "Default", "Extra"], rows);
+}
+
+function execQuery(sess, db, sql) {
+  var t0 = performance.now();
+  var stmt = db.prepare(sql);
+  var cols = stmt.getColumnNames();
+  if (cols.length) {
+    var rows = [];
+    while (stmt.step()) rows.push(stmt.get());
+    stmt.free();
+    var ms = performance.now() - t0;
+    if (!rows.length) return "Empty set (" + secs(ms) + ")\n";
+    return renderTable(cols, rows) + rowsLine(rows.length, ms);
+  }
+  stmt.run();
+  stmt.free();
+  var kind = /^\s*(insert|replace|update|delete)\b/i.exec(sql);
+  var n = kind ? db.getRowsModified() : 0;
+  return okLine(n, performance.now() - t0);
+}
+
+/** Menjalankan satu pernyataan. Mengembalikan teks keluaran, atau melempar Error berisi pesan MySQL. */
+function runOne(sess, stmtText) {
+  var t0 = performance.now();
+  var s = stmtText.replace(/\s+/g, " ").trim();
+  var m;
+
+  if ((m = /^create (?:database|schema)(?: if not exists)? `?(\w+)`?$/i.exec(s))) {
+    var dbName = m[1];
+    if (sess.dbs[dbName]) {
+      if (/if not exists/i.test(s)) return okLine(0, performance.now() - t0);
+      throw new Error("ERROR 1007 (HY000): Can't create database '" + dbName + "'; database exists");
+    }
+    sess.dbs[dbName] = makeDb(sess);
+    sess.types[dbName] = {};
+    return okLine(1, performance.now() - t0);
+  }
+  if ((m = /^drop (?:database|schema)(?: if exists)? `?(\w+)`?$/i.exec(s))) {
+    var dn = m[1];
+    if (!sess.dbs[dn]) {
+      if (/if exists/i.test(s)) return okLine(0, performance.now() - t0);
+      throw new Error("ERROR 1008 (HY000): Can't drop database '" + dn + "'; database doesn't exist");
+    }
+    sess.dbs[dn].close();
+    delete sess.dbs[dn];
+    delete sess.types[dn];
+    if (sess.currentDb === dn) sess.currentDb = null;
+    return okLine(0, performance.now() - t0);
+  }
+  if ((m = /^use `?(\w+)`?$/i.exec(s))) {
+    if (!sess.dbs[m[1]]) throw new Error("ERROR 1049 (42000): Unknown database '" + m[1] + "'");
+    sess.currentDb = m[1];
+    return "Database changed\n";
+  }
+  if (/^show (?:databases|schemas)$/i.test(s)) {
+    var names = DEFAULT_DBS.concat(Object.keys(sess.dbs)).sort();
+    return renderTable(["Database"], names.map(function (x) { return [x]; })) + rowsLine(names.length, performance.now() - t0);
+  }
+  if (/^show (?:full )?tables(?: (?:from|in) `?\w+`?)?$/i.test(s)) {
+    var from = /(?:from|in) `?(\w+)`?$/i.exec(s);
+    var target = from ? from[1] : sess.currentDb;
+    if (!target) throw new Error("ERROR 1046 (3D000): No database selected");
+    if (!sess.dbs[target]) throw new Error("ERROR 1049 (42000): Unknown database '" + target + "'");
+    var r = sess.dbs[target].exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
+    var tbls = r.length ? r[0].values : [];
+    if (!tbls.length) return "Empty set (" + secs(performance.now() - t0) + ")\n";
+    return renderTable(["Tables_in_" + target], tbls) + rowsLine(tbls.length, performance.now() - t0);
+  }
+  if ((m = /^(?:describe|desc|show (?:full )?(?:columns|fields) (?:from|in)) `?(\w+)`?$/i.exec(s))) {
+    if (!sess.currentDb) throw new Error("ERROR 1046 (3D000): No database selected");
+    try {
+      var out = describeTable(sess, m[1]);
+      var cnt = out.split("\n").length - 5;
+      return out + rowsLine(cnt, performance.now() - t0);
+    } catch (e) {
+      throw new Error(mysqlError(e, sess));
+    }
+  }
+  if (/^set\s/i.test(s)) return okLine(0, performance.now() - t0);
+  if (/^start transaction$/i.test(s) || /^begin$/i.test(s)) {
+    sess.cur().exec("BEGIN");
+    return okLine(0, performance.now() - t0);
+  }
+  if (/^(commit|rollback)$/i.test(s)) {
+    try {
+      sess.cur().exec(s);
+    } catch (e) {
+      // MySQL tidak mengeluh bila tidak ada transaksi aktif.
+    }
+    return okLine(0, performance.now() - t0);
+  }
+  if ((m = /^truncate(?: table)? `?(\w+)`?$/i.exec(s))) {
+    var tn = m[1];
+    var d = sess.cur();
+    d.exec("DELETE FROM `" + tn + "`");
+    try {
+      d.exec("DELETE FROM sqlite_sequence WHERE name = '" + tn + "'");
+    } catch (e) {}
+    return okLine(0, performance.now() - t0);
+  }
+  if ((m = /^rename table `?(\w+)`? to `?(\w+)`?$/i.exec(s))) {
+    sess.cur().exec("ALTER TABLE `" + m[1] + "` RENAME TO `" + m[2] + "`");
+    var ty = sess.types[sess.currentDb];
+    if (ty && ty[m[1]]) {
+      ty[m[2]] = ty[m[1]];
+      delete ty[m[1]];
+    }
+    return okLine(0, performance.now() - t0);
+  }
+
+  var db = sess.cur();
+
+  if (/^create (?:temporary )?table\b/i.test(s)) {
+    var tr = translateCreate(stmtText);
+    var tm = /^create\s+(?:temporary\s+)?table\s+(?:if\s+not\s+exists\s+)?`?(\w+)`?/i.exec(stmtText.trim());
+    var res = execQuery(sess, db, tr.sql);
+    if (tm && tr.cols && sess.currentDb) {
+      var types = {};
+      tr.cols.forEach(function (c) {
+        if (!c.name) return;
+        types[c.name] = c.type;
+        if (c.auto) sess.auto[sess.currentDb + "." + tm[1] + "." + c.name] = true;
+      });
+      sess.types[sess.currentDb][tm[1]] = types;
+    }
+    return res;
+  }
+
+  if (/^alter table\b/i.test(s)) {
+    var am = /^alter\s+table\s+`?(\w+)`?\s+([\s\S]*)$/i.exec(stmtText.trim());
+    if (!am) throw new Error("ERROR 1064 (42000): You have an error in your SQL syntax");
+    var tname = am[1];
+    var action = am[2].trim();
+    if (/^(modify|change)\b/i.test(action)) {
+      throw new Error("ERROR 1235 (42000): ALTER TABLE ... MODIFY/CHANGE belum didukung di sandbox ini. Gunakan ADD, DROP, atau RENAME.");
+    }
+    if (/^add\s+(?:unique\s+|fulltext\s+)?(?:index|key)\b/i.test(action) || /^auto_increment\s*=/i.test(action) || /^(engine|(?:default\s+)?charset|comment)\b/i.test(action)) {
+      return okLine(0, performance.now() - t0);
+    }
+    if (/^add\s+(?:primary\s+key|constraint|foreign\s+key|unique)\b/i.test(action)) {
+      throw new Error("ERROR 1235 (42000): ADD PRIMARY KEY/FOREIGN KEY/UNIQUE pada tabel yang sudah ada belum didukung. Tulis di CREATE TABLE.");
+    }
+    var addM = /^add\s+(?:column\s+)?([\s\S]*)$/i.exec(action);
+    if (addM) {
+      var defText = addM[1].replace(/\s+(?:after\s+`?\w+`?|first)\s*$/i, "");
+      var col = translateColumn(defText);
+      if (col.auto) throw new Error("ERROR 1235 (42000): Menambah kolom AUTO_INCREMENT pada tabel yang sudah ada belum didukung.");
+      db.exec("ALTER TABLE `" + tname + "` ADD COLUMN " + col.sql);
+      var tt = sess.types[sess.currentDb] && sess.types[sess.currentDb][tname];
+      if (tt && col.name) tt[col.name] = col.type;
+      return okLine(0, performance.now() - t0);
+    }
+    var dropM = /^drop\s+(?:column\s+)?`?(\w+)`?$/i.exec(action);
+    if (dropM && !/^(primary|index|key|foreign|constraint|check)$/i.test(dropM[1])) {
+      db.exec("ALTER TABLE `" + tname + "` DROP COLUMN `" + dropM[1] + "`");
+      return okLine(0, performance.now() - t0);
+    }
+    var renM = /^rename\s+(?:(?:to|as)\s+`?(\w+)`?|(?:column\s+)?`?(\w+)`?\s+to\s+`?(\w+)`?)$/i.exec(action);
+    if (renM) {
+      if (renM[1]) {
+        db.exec("ALTER TABLE `" + tname + "` RENAME TO `" + renM[1] + "`");
+        var tys = sess.types[sess.currentDb];
+        if (tys && tys[tname]) {
+          tys[renM[1]] = tys[tname];
+          delete tys[tname];
+        }
+      } else {
+        db.exec("ALTER TABLE `" + tname + "` RENAME COLUMN `" + renM[2] + "` TO `" + renM[3] + "`");
+        var t2 = sess.types[sess.currentDb] && sess.types[sess.currentDb][tname];
+        if (t2 && t2[renM[2]]) {
+          t2[renM[3]] = t2[renM[2]];
+          delete t2[renM[2]];
+        }
+      }
+      return okLine(0, performance.now() - t0);
+    }
+    throw new Error("ERROR 1235 (42000): Bentuk ALTER TABLE ini belum didukung di sandbox.");
+  }
+
+  if (/^(insert|replace)\b/i.test(s)) return execQuery(sess, db, translateInsert(stmtText));
+
+  return execQuery(sess, db, translateGeneric(stmtText));
+}
+
+function runScript(code, id) {
+  var sess = {
+    dbs: {},
+    types: {},
+    auto: {},
+    currentDb: null,
+    scratch: null,
+    cur: function () {
+      if (sess.currentDb) return sess.dbs[sess.currentDb];
+      if (!sess.scratch) sess.scratch = makeDb(sess);
+      return sess.scratch;
+    },
+  };
+  var statements = splitStatements(code);
+  var buf = "";
+  var flush = function (stream) {
+    if (buf) post({ type: "out", id: id, text: buf, stream: stream || "out" });
+    buf = "";
+  };
+  var failure = null;
+  try {
+    if (!statements.length) {
+      post({ type: "out", id: id, text: "Tidak ada query. Tulis query SQL, akhiri dengan titik koma (;), lalu tekan Jalankan.\n", stream: "out" });
+    }
+    for (var i = 0; i < statements.length; i++) {
+      var st = statements[i];
+      var shown = st.replace(/\s+/g, " ");
+      flush();
+      post({ type: "out", id: id, text: "mysql> " + shown + ";\n", stream: "in" });
+      try {
+        buf += runOne(sess, st) + "\n";
+        flush();
+      } catch (err) {
+        var text = /^ERROR\b/.test(String(err && err.message)) ? err.message : mysqlError(err, sess);
+        failure = text;
+        break;
+      }
+    }
+  } finally {
+    Object.keys(sess.dbs).forEach(function (k) {
+      try {
+        sess.dbs[k].close();
+      } catch (e) {}
+    });
+    if (sess.scratch) {
+      try {
+        sess.scratch.close();
+      } catch (e) {}
+    }
+  }
+  flush();
+  if (failure) post({ type: "error", id: id, message: failure + "\n" });
+  else post({ type: "done", id: id });
+}
+
+self.onmessage = function (e) {
+  var m = e.data;
+  if (m.type === "init") {
+    post({ type: "stage", stage: "download" });
+    try {
+      self.importScripts(m.indexURL + "sql-wasm.js");
+      post({ type: "stage", stage: "init" });
+      self
+        .initSqlJs({
+          locateFile: function (f) {
+            return m.indexURL + f;
+          },
+        })
+        .then(function (lib) {
+          SQL = lib;
+          post({ type: "ready" });
+        })
+        .catch(function (err) {
+          post({ type: "fatal", message: String((err && err.message) || err) });
+        });
+    } catch (err) {
+      post({ type: "fatal", message: String((err && err.message) || err) });
+    }
+    return;
+  }
+  if (m.type === "run") {
+    try {
+      runScript(String(m.code || ""), m.id);
+    } catch (err) {
+      post({ type: "error", id: m.id, message: String((err && err.message) || err) });
+    }
+  }
+};

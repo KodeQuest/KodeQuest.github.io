@@ -13,9 +13,10 @@ const TABS: { id: SandboxTab; label: string; sub: string }[] = [
   { id: "web", label: "Web", sub: "HTML · CSS · JS" },
   { id: "python", label: "Python", sub: "Pyodide" },
   { id: "cpp", label: "C++", sub: "JSCPP" },
+  { id: "mysql", label: "MySQL", sub: "sql.js" },
 ];
 
-/** Halaman /sandbox. Tab Python dan C++ baru memuat environment saat pertama kali dibuka, lalu tetap hidup di latar belakang. */
+/** Halaman /sandbox. Tab Python, C++, dan MySQL baru memuat environment saat pertama kali dibuka, lalu tetap hidup di latar belakang. */
 export function SandboxScreen() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tab, setTab] = useState<SandboxTab>("web");
@@ -69,6 +70,11 @@ export function SandboxScreen() {
         {visited.has("cpp") && (
           <div id="panel-cpp" role="tabpanel" aria-labelledby="tab-cpp" className={panel("cpp")}>
             <RuntimePlayground kind="cpp" />
+          </div>
+        )}
+        {visited.has("mysql") && (
+          <div id="panel-mysql" role="tabpanel" aria-labelledby="tab-mysql" className={panel("mysql")}>
+            <RuntimePlayground kind="mysql" />
           </div>
         )}
       </main>

@@ -26,6 +26,13 @@ const META: Record<
     loadingHint: "Ukurannya kecil (sekitar 0,4 MB) dan hanya diunduh sekali.",
     note: "Interpreter C++ ringan (JSCPP): iostream, cmath, cstdio, cstdlib, cstring, cctype, ctime, iomanip. Belum mendukung std::string dan STL (vector, map, dll.), jadi pakai char[] untuk teks. Saat program membaca cin, ketik masukanmu langsung di console lalu tekan Enter.",
   },
+  mysql: {
+    title: "Menyiapkan environment MySQL",
+    file: "query.sql",
+    steps: ["Mengunduh mesin SQL", "Menyiapkan WebAssembly", "Siap digunakan"],
+    loadingHint: "Ukurannya sekitar 1 MB dan hanya diunduh sekali.",
+    note: "Bukan server MySQL asli: query dijalankan oleh sql.js (SQLite di browser) dengan penerjemah untuk sintaks MySQL yang umum (CREATE DATABASE, USE, AUTO_INCREMENT, ENUM, SHOW, DESCRIBE, ON DUPLICATE KEY UPDATE, CONCAT, NOW, dll.). Tiap kali Jalankan, skrip dimulai dari database kosong dan berhenti di error pertama. Belum didukung: ALTER ... MODIFY/CHANGE, stored procedure, trigger, dan query lintas database. Pembagian bilangan bulat mengikuti SQLite (5/2 menjadi 2).",
+  },
 };
 
 /** Editor dan keluaran memakai tinggi yang sama agar sejajar. */
@@ -34,7 +41,7 @@ const OUT_H = "h-80 lg:h-[24rem]";
 
 const labelCls = "mb-2 text-xs font-extrabold uppercase tracking-wide text-slate-400";
 
-/** Editor + keluaran untuk bahasa yang butuh environment (Python, C++). Environment dimuat saat komponen pertama kali tampil. */
+/** Editor + keluaran untuk bahasa yang butuh environment (Python, C++, MySQL). Environment dimuat saat komponen pertama kali tampil. */
 export function RuntimePlayground({ kind }: { kind: RuntimeKind }) {
   const meta = META[kind];
   const rt = useRuntime(kind);
@@ -126,7 +133,7 @@ export function RuntimePlayground({ kind }: { kind: RuntimeKind }) {
               aria-live="polite"
             >
               {rt.output.length === 0 && !awaiting ? (
-                <span className="text-indigo-400">{running ? "Berjalan…" : "Tekan Jalankan, lalu ketik masukan langsung di sini"}</span>
+                <span className="text-indigo-400">{running ? "Berjalan…" : kind === "mysql" ? "Tekan Jalankan untuk melihat hasil query di sini" : "Tekan Jalankan, lalu ketik masukan langsung di sini"}</span>
               ) : (
                 <div className="whitespace-pre-wrap break-words font-mono">
                   {rt.output.map((l, i) => (

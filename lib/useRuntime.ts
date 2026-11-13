@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CPP_WORKER_URL, PYODIDE_INDEX_URL, PY_WORKER_URL } from "./sandbox";
+import { CPP_WORKER_URL, PYODIDE_INDEX_URL, PY_WORKER_URL, SQLJS_INDEX_URL, SQL_WORKER_URL } from "./sandbox";
 
-export type RuntimeKind = "python" | "cpp";
+export type RuntimeKind = "python" | "cpp" | "mysql";
 /** `input`: program berhenti di input() / cin dan menunggu pemain mengetik satu baris di console. */
 export type RuntimeStatus = "idle" | "loading" | "ready" | "running" | "input" | "error";
 /** `in` = baris yang diketik pemain (di-echo seperti terminal). */
@@ -19,7 +19,7 @@ const MAX_OUT_CHARS = 100_000;
  * menunggu input secara sinkron di GitHub Pages karena tanpa SharedArrayBuffer). Keluaran yang sudah tampil
  * dilewati saat putar ulang, jadi yang terlihat hanya teks baru dan layar tidak berkedip.
  *
- * Mengelola satu worker (Python/Pyodide atau C++/JSCPP): memuat environment, menjalankan kode,
+ * Mengelola satu worker (Python/Pyodide, C++/JSCPP, atau MySQL/sql.js): memuat environment, menjalankan kode,
  * mengumpulkan keluaran, dan menghentikan eksekusi yang macet.
  * Environment baru dimuat saat `start()` dipanggil (malas), bukan saat halaman dibuka.
  */
@@ -73,7 +73,9 @@ export function useRuntime(kind: RuntimeKind) {
       w =
         kind === "python"
           ? new Worker(PY_WORKER_URL, { type: "module" })
-          : new Worker(CPP_WORKER_URL);
+          : kind === "mysql"
+            ? new Worker(SQL_WORKER_URL)
+            : new Worker(CPP_WORKER_URL);
     } catch (e) {
       setStatus("error");
       setError(e instanceof Error ? e.message : "Browser tidak mendukung Web Worker.");
@@ -145,7 +147,7 @@ export function useRuntime(kind: RuntimeKind) {
       workerRef.current = null;
     };
 
-    w.postMessage(kind === "python" ? { type: "init", indexURL: PYODIDE_INDEX_URL } : { type: "init" });
+    w.postMessage(kind === "python" ? { type: "init", indexURL: PYODIDE_INDEX_URL } : kind === "mysql" ? { type: "init", indexURL: SQLJS_INDEX_URL } : { type: "init" });
   }, [kind, append]);
 
   /** Mulai memuat environment bila belum. */

@@ -2,7 +2,7 @@ import { fixHashColors } from "./colors";
 
 /** Pengaturan dan pembantu untuk halaman /sandbox. */
 
-export type SandboxTab = "web" | "python" | "cpp";
+export type SandboxTab = "web" | "python" | "cpp" | "mysql";
 export type WebFile = "html" | "css" | "js";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -10,11 +10,15 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 /** Lokasi worker (file statis di public/vendor), memperhitungkan base path GitHub Pages. */
 export const PY_WORKER_URL = `${BASE_PATH}/vendor/py-worker.js`;
 export const CPP_WORKER_URL = `${BASE_PATH}/vendor/cpp-worker.js`;
+export const SQL_WORKER_URL = `${BASE_PATH}/vendor/sql-worker.js`;
 
 /** Runtime Python (Pyodide) diunduh dari CDN npm jsDelivr, versi dikunci agar perilaku stabil. */
 export const PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/npm/pyodide@314.0.7/";
 
-export const STARTERS: Record<WebFile | "python" | "cpp", string> = {
+/** Mesin SQL untuk tab MySQL: sql.js (SQLite WebAssembly) dari CDN npm jsDelivr, versi dikunci. */
+export const SQLJS_INDEX_URL = "https://cdn.jsdelivr.net/npm/sql.js@1.13.0/dist/";
+
+export const STARTERS: Record<WebFile | "python" | "cpp" | "mysql", string> = {
   html: `<h1>Halo, KodeQuest!</h1>
 <p id="pesan">Klik tombol di bawah.</p>
 <button id="tombol">Sapa aku</button>
@@ -61,6 +65,22 @@ int main() {
     }
     return 0;
 }
+`,
+  mysql: `CREATE DATABASE sekolah;
+USE sekolah;
+
+CREATE TABLE siswa (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama VARCHAR(50) NOT NULL,
+  umur INT
+);
+
+INSERT INTO siswa (nama, umur) VALUES
+  ('Budi', 16),
+  ('Sari', 17),
+  ('Andi', 16);
+
+SELECT * FROM siswa WHERE umur = 16;
 `,
 };
 
