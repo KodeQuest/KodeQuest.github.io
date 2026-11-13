@@ -1,0 +1,254 @@
+diff --git a/components/sandbox/RuntimePlayground.tsx b/components/sandbox/RuntimePlayground.tsx
+index 9f7d456..ceeb391 100644
+--- a/components/sandbox/RuntimePlayground.tsx
++++ b/components/sandbox/RuntimePlayground.tsx
+@@ -31,7 +31,7 @@ const META: Record<
+     file: "query.sql",
+     steps: ["Mengunduh mesin SQL", "Menyiapkan WebAssembly", "Siap digunakan"],
+     loadingHint: "Ukurannya sekitar 1 MB dan hanya diunduh sekali.",
+-    note: "Bukan server MySQL asli: query dijalankan oleh sql.js (SQLite di browser) dengan penerjemah untuk sintaks MySQL yang umum (CREATE DATABASE, USE, AUTO_INCREMENT, ENUM, SHOW, DESCRIBE, ON DUPLICATE KEY UPDATE, CONCAT, NOW, dll.). Tiap kali Jalankan, skrip dimulai dari database kosong dan berhenti di error pertama. Belum didukung: ALTER ... MODIFY/CHANGE, stored procedure, trigger, dan query lintas database. Pembagian bilangan bulat mengikuti SQLite (5/2 menjadi 2).",
++    note: "Bukan server MySQL asli: query dijalankan oleh sql.js (SQLite di browser) dengan penerjemah untuk sintaks MySQL yang umum (CREATE DATABASE, USE, AUTO_INCREMENT, ENUM, SHOW, DESCRIBE, ON DUPLICATE KEY UPDATE, CONCAT, NOW, dll.). Database dan datanya tersimpan selama tab terbuka: buat tabel sekali, lalu jalankan query lain tanpa membuatnya lagi. Klik Reset database untuk mulai dari awal. Eksekusi berhenti di error pertama. Belum didukung: ALTER ... MODIFY/CHANGE, stored procedure, trigger, dan query lintas database. Pembagian bilangan bulat mengikuti SQLite (5/2 menjadi 2).",
+   },
+ };
+ 
+@@ -175,6 +175,7 @@ export function RuntimePlayground({ kind }: { kind: RuntimeKind }) {
+                       ? `Selesai dalam ${rt.lastRun.ms} ms${rt.lastRun.exit !== undefined ? ` · kode keluar ${rt.lastRun.exit}` : ""}`
+                       : `Berakhir dengan error setelah ${rt.lastRun.ms} ms`
+                     : "Environment siap"}
++              {kind === "mysql" && <span className="float-right">{rt.activeDb ? `Database aktif: ${rt.activeDb}` : "Belum ada database aktif"}</span>}
+             </p>
+           </div>
+         )}
+@@ -200,8 +201,23 @@ export function RuntimePlayground({ kind }: { kind: RuntimeKind }) {
+           onClick={() => setConfirmReset(true)}
+           className="btn-3d rounded-xl border-2 border-slate-200 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-600 shadow-[0_3px_0_#e2e8f0] hover:bg-slate-50"
+         >
+-          Atur ulang
++          {kind === "mysql" ? "Atur ulang kode" : "Atur ulang"}
+         </button>
++        {kind === "mysql" && (
++          <button
++            onClick={() => {
++              sfx.click();
++              rt.resetDb();
++            }}
++            disabled={rt.status !== "ready"}
++            title="Hapus semua database dan tabel, lalu mulai dari awal"
++            className={`btn-3d rounded-xl border-2 px-4 py-2.5 text-sm font-extrabold ${
++              rt.status === "ready" ? "border-rose-200 bg-white text-rose-600 shadow-[0_3px_0_#fecdd3] hover:bg-rose-50" : "border-slate-200 bg-slate-100 text-slate-400 shadow-[0_3px_0_#e2e8f0]"
++            }`}
++          >
++            Reset database
++          </button>
++        )}
+         <span className="text-xs font-semibold text-slate-400">Ctrl/⌘ + Enter</span>
+       </div>
+ 
+diff --git a/lib/sandbox.ts b/lib/sandbox.ts
+index 828575e..58962e2 100644
+--- a/lib/sandbox.ts
++++ b/lib/sandbox.ts
+@@ -66,10 +66,13 @@ int main() {
+     return 0;
+ }
+ `,
+-  mysql: `CREATE DATABASE sekolah;
++  mysql: `-- Database dan tabel tersimpan setelah dijalankan.
++-- Setelah itu, ganti isi editor dengan query lain (SELECT, UPDATE, dll.)
++-- tanpa membuat tabel lagi. Klik "Reset database" untuk mulai dari awal.
++CREATE DATABASE IF NOT EXISTS sekolah;
+ USE sekolah;
+ 
+-CREATE TABLE siswa (
++CREATE TABLE IF NOT EXISTS siswa (
+   id INT AUTO_INCREMENT PRIMARY KEY,
+   nama VARCHAR(50) NOT NULL,
+   umur INT
+diff --git a/lib/useRuntime.ts b/lib/useRuntime.ts
+index 822d784..2c0954d 100644
+--- a/lib/useRuntime.ts
++++ b/lib/useRuntime.ts
+@@ -30,6 +30,8 @@ export function useRuntime(kind: RuntimeKind) {
+   const [error, setError] = useState<string | null>(null);
+   const [output, setOutput] = useState<OutLine[]>([]);
+   const [lastRun, setLastRun] = useState<{ ms: number; exit?: number; ok: boolean } | null>(null);
++  /** Khusus MySQL: database yang sedang aktif (hasil USE) di sesi worker. */
++  const [activeDb, setActiveDb] = useState<string | null>(null);
+ 
+   const workerRef = useRef<Worker | null>(null);
+   const runId = useRef(0);
+@@ -67,6 +69,7 @@ export function useRuntime(kind: RuntimeKind) {
+     setStatus("loading");
+     setStep(0);
+     setError(null);
++    setActiveDb(null);
+ 
+     let w: Worker;
+     try {
+@@ -85,7 +88,7 @@ export function useRuntime(kind: RuntimeKind) {
+ 
+     w.onmessage = (ev: MessageEvent) => {
+       if (workerRef.current !== w) return;
+-      const m = ev.data as { type: string; id?: number; text?: string; stream?: "out" | "err" | "in"; message?: string; stage?: string; exit?: number };
++      const m = ev.data as { type: string; id?: number; text?: string; stream?: "out" | "err" | "in"; message?: string; stage?: string; exit?: number; db?: string | null };
+       switch (m.type) {
+         case "stage":
+           setStep(m.stage === "init" ? 1 : 0);
+@@ -127,6 +130,7 @@ export function useRuntime(kind: RuntimeKind) {
+         case "done":
+           if (m.id !== runId.current) break;
+           clearWatchdog();
++          if (m.db !== undefined) setActiveDb(m.db);
+           setLastRun({ ms: Math.round(performance.now() - startedAt.current), exit: m.exit, ok: true });
+           setStatus("ready");
+           break;
+@@ -134,6 +138,7 @@ export function useRuntime(kind: RuntimeKind) {
+           if (m.id !== runId.current) break;
+           clearWatchdog();
+           append({ stream: "err", text: m.message ?? "Terjadi kesalahan." });
++          if (m.db !== undefined) setActiveDb(m.db);
+           setLastRun({ ms: Math.round(performance.now() - startedAt.current), ok: false });
+           setStatus("ready");
+           break;
+@@ -162,13 +167,28 @@ export function useRuntime(kind: RuntimeKind) {
+       runId.current++; // abaikan pesan susulan dari worker lama
+       inputsRef.current = [];
+       skipRef.current = 0;
+-      append({ stream: "sys", text: message });
++      append({ stream: "sys", text: kind === "mysql" ? `${message} Database ikut direset.` : message });
+       setLastRun(null);
+       boot(); // worker lama dibunuh dan environment dimuat ulang
+     },
+-    [append, boot]
++    [append, boot, kind]
+   );
+ 
++  /** Khusus MySQL: hapus semua database dan tabel di sesi worker, lalu mulai dari awal. */
++  const resetDb = useCallback(() => {
++    const w = workerRef.current;
++    if (!w || kind !== "mysql" || status !== "ready") return;
++    runId.current++;
++    outChars.current = 0;
++    shownRef.current = 0;
++    skipRef.current = 0;
++    startedAt.current = performance.now();
++    setOutput([]);
++    setLastRun(null);
++    setStatus("running");
++    w.postMessage({ type: "reset", id: runId.current });
++  }, [kind, status]);
++
+   /** Kirim (ulang) program ke worker dengan semua baris input yang sudah ada. */
+   const execute = useCallback(() => {
+     const w = workerRef.current;
+@@ -225,5 +245,5 @@ export function useRuntime(kind: RuntimeKind) {
+     };
+   }, []);
+ 
+-  return { status, step, error, output, lastRun, start, run, sendInput, stop, retry };
++  return { status, step, error, output, lastRun, activeDb, start, run, sendInput, resetDb, stop, retry };
+ }
+diff --git a/public/vendor/sql-worker.js b/public/vendor/sql-worker.js
+index d036f3b..cd7f3ab 100644
+--- a/public/vendor/sql-worker.js
++++ b/public/vendor/sql-worker.js
+@@ -3,12 +3,15 @@
+  *
+  * Mesin: sql.js (SQLite yang dikompilasi ke WebAssembly), BUKAN server MySQL asli. Sintaks MySQL yang umum dipelajari
+  * diterjemahkan ke SQLite, dan keluarannya diformat seperti klien `mysql` (tabel ASCII, "Query OK", pesan ERROR).
+- * Setiap kali Jalankan ditekan, skrip dijalankan dari awal pada database kosong (database dan tabel tidak dibawa ke
+- * eksekusi berikutnya). Eksekusi berhenti di error pertama, seperti klien mysql yang menjalankan skrip.
++ * Sesi bersifat tetap: database, tabel, data, dan database aktif (USE) bertahan di antara eksekusi sampai pemain
++ * mengirim "reset" (atau worker dimuat ulang). Jadi tabel cukup dibuat sekali, lalu query berikutnya bisa langsung
++ * dijalankan. Eksekusi berhenti di error pertama, seperti klien mysql yang menjalankan skrip; pernyataan sebelum
++ * error tetap berlaku.
+  *
+- * Pesan masuk : {type:"init", indexURL} | {type:"run", id, code}
++ * Pesan masuk : {type:"init", indexURL} | {type:"run", id, code} | {type:"reset", id}
+  * Pesan keluar: {type:"stage", stage:"download"|"init"} | {type:"ready"} | {type:"fatal", message}
+- *               {type:"out", id, text, stream:"out"|"in"} | {type:"done", id} | {type:"error", id, message}
++ *               {type:"out", id, text, stream:"out"|"in"} | {type:"done", id, db} | {type:"error", id, message, db}
++ *               `db` = nama database aktif saat ini (atau null).
+  *
+  * `indexURL` adalah folder tempat sql-wasm.js dan sql-wasm.wasm berada (CDN npm jsDelivr, versi dikunci).
+  */
+@@ -676,7 +679,7 @@ function runOne(sess, stmtText) {
+   return execQuery(sess, db, translateGeneric(stmtText));
+ }
+ 
+-function runScript(code, id) {
++function newSession() {
+   var sess = {
+     dbs: {},
+     types: {},
+@@ -689,6 +692,35 @@ function runScript(code, id) {
+       return sess.scratch;
+     },
+   };
++  return sess;
++}
++
++function closeSession(sess) {
++  Object.keys(sess.dbs).forEach(function (k) {
++    try {
++      sess.dbs[k].close();
++    } catch (e) {}
++  });
++  if (sess.scratch) {
++    try {
++      sess.scratch.close();
++    } catch (e) {}
++  }
++}
++
++/** Sesi yang hidup sepanjang worker, supaya data bertahan di antara eksekusi. */
++var session = null;
++
++function resetSession(id) {
++  if (session) closeSession(session);
++  session = newSession();
++  post({ type: "out", id: id, text: "Database direset: semua database dan tabel dihapus.\n", stream: "out" });
++  post({ type: "done", id: id, db: null });
++}
++
++function runScript(code, id) {
++  if (!session) session = newSession();
++  var sess = session;
+   var statements = splitStatements(code);
+   var buf = "";
+   var flush = function (stream) {
+@@ -715,20 +747,10 @@ function runScript(code, id) {
+       }
+     }
+   } finally {
+-    Object.keys(sess.dbs).forEach(function (k) {
+-      try {
+-        sess.dbs[k].close();
+-      } catch (e) {}
+-    });
+-    if (sess.scratch) {
+-      try {
+-        sess.scratch.close();
+-      } catch (e) {}
+-    }
++    flush();
+   }
+-  flush();
+-  if (failure) post({ type: "error", id: id, message: failure + "\n" });
+-  else post({ type: "done", id: id });
++  if (failure) post({ type: "error", id: id, message: failure + "\n", db: sess.currentDb });
++  else post({ type: "done", id: id, db: sess.currentDb });
+ }
+ 
+ self.onmessage = function (e) {
+@@ -756,6 +778,10 @@ self.onmessage = function (e) {
+     }
+     return;
+   }
++  if (m.type === "reset") {
++    resetSession(m.id);
++    return;
++  }
+   if (m.type === "run") {
+     try {
+       runScript(String(m.code || ""), m.id);

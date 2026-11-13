@@ -30,6 +30,8 @@ export function useRuntime(kind: RuntimeKind) {
   const [error, setError] = useState<string | null>(null);
   const [output, setOutput] = useState<OutLine[]>([]);
   const [lastRun, setLastRun] = useState<{ ms: number; exit?: number; ok: boolean } | null>(null);
+  /** Khusus MySQL: database yang sedang aktif (hasil USE) di sesi worker. */
+  const [activeDb, setActiveDb] = useState<string | null>(null);
 
   const workerRef = useRef<Worker | null>(null);
   const runId = useRef(0);
@@ -67,6 +69,7 @@ export function useRuntime(kind: RuntimeKind) {
     setStatus("loading");
     setStep(0);
     setError(null);
+    setActiveDb(null);
 
     let w: Worker;
     try {
@@ -85,7 +88,7 @@ export function useRuntime(kind: RuntimeKind) {
 
     w.onmessage = (ev: MessageEvent) => {
       if (workerRef.current !== w) return;
-      const m = ev.data as { type: string; id?: number; text?: string; stream?: "out" | "err" | "in"; message?: string; stage?: string; exit?: number };
+      const m = ev.data as { type: string; id?: number; text?: string; stream?: "out" | "err" | "in"; message?: string; stage?: string; exit?: number; db?: string | null };
       switch (m.type) {
         case "stage":
           setStep(m.stage === "init" ? 1 : 0);
@@ -127,6 +130,7 @@ export function useRuntime(kind: RuntimeKind) {
         case "done":
           if (m.id !== runId.current) break;
           clearWatchdog();
+          if (m.db !== undefined) setActiveDb(m.db);
           setLastRun({ ms: Math.round(performance.now() - startedAt.current), exit: m.exit, ok: true });
           setStatus("ready");
           break;
@@ -134,6 +138,7 @@ export function useRuntime(kind: RuntimeKind) {
           if (m.id !== runId.current) break;
           clearWatchdog();
           append({ stream: "err", text: m.message ?? "Terjadi kesalahan." });
+          if (m.db !== undefined) setActiveDb(m.db);
           setLastRun({ ms: Math.round(performance.now() - startedAt.current), ok: false });
           setStatus("ready");
           break;
@@ -162,12 +167,27 @@ export function useRuntime(kind: RuntimeKind) {
       runId.current++; // abaikan pesan susulan dari worker lama
       inputsRef.current = [];
       skipRef.current = 0;
-      append({ stream: "sys", text: message });
+      append({ stream: "sys", text: kind === "mysql" ? `${message} Database ikut direset.` : message });
       setLastRun(null);
       boot(); // worker lama dibunuh dan environment dimuat ulang
     },
-    [append, boot]
+    [append, boot, kind]
   );
+
+  /** Khusus MySQL: hapus semua database dan tabel di sesi worker, lalu mulai dari awal. */
+  const resetDb = useCallback(() => {
+    const w = workerRef.current;
+    if (!w || kind !== "mysql" || status !== "ready") return;
+    runId.current++;
+    outChars.current = 0;
+    shownRef.current = 0;
+    skipRef.current = 0;
+    startedAt.current = performance.now();
+    setOutput([]);
+    setLastRun(null);
+    setStatus("running");
+    w.postMessage({ type: "reset", id: runId.current });
+  }, [kind, status]);
 
   /** Kirim (ulang) program ke worker dengan semua baris input yang sudah ada. */
   const execute = useCallback(() => {
@@ -225,5 +245,5 @@ export function useRuntime(kind: RuntimeKind) {
     };
   }, []);
 
-  return { status, step, error, output, lastRun, start, run, sendInput, stop, retry };
+  return { status, step, error, output, lastRun, activeDb, start, run, sendInput, resetDb, stop, retry };
 }

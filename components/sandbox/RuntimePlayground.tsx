@@ -31,7 +31,7 @@ const META: Record<
     file: "query.sql",
     steps: ["Mengunduh mesin SQL", "Menyiapkan WebAssembly", "Siap digunakan"],
     loadingHint: "Ukurannya sekitar 1 MB dan hanya diunduh sekali.",
-    note: "Bukan server MySQL asli: query dijalankan oleh sql.js (SQLite di browser) dengan penerjemah untuk sintaks MySQL yang umum (CREATE DATABASE, USE, AUTO_INCREMENT, ENUM, SHOW, DESCRIBE, ON DUPLICATE KEY UPDATE, CONCAT, NOW, dll.). Tiap kali Jalankan, skrip dimulai dari database kosong dan berhenti di error pertama. Belum didukung: ALTER ... MODIFY/CHANGE, stored procedure, trigger, dan query lintas database. Pembagian bilangan bulat mengikuti SQLite (5/2 menjadi 2).",
+    note: "Bukan server MySQL asli: query dijalankan oleh sql.js (SQLite di browser) dengan penerjemah untuk sintaks MySQL yang umum (CREATE DATABASE, USE, AUTO_INCREMENT, ENUM, SHOW, DESCRIBE, ON DUPLICATE KEY UPDATE, CONCAT, NOW, dll.). Database dan datanya tersimpan selama tab terbuka: buat tabel sekali, lalu jalankan query lain tanpa membuatnya lagi. Klik Reset database untuk mulai dari awal. Eksekusi berhenti di error pertama. Belum didukung: ALTER ... MODIFY/CHANGE, stored procedure, trigger, dan query lintas database. Pembagian bilangan bulat mengikuti SQLite (5/2 menjadi 2).",
   },
 };
 
@@ -175,6 +175,7 @@ export function RuntimePlayground({ kind }: { kind: RuntimeKind }) {
                       ? `Selesai dalam ${rt.lastRun.ms} ms${rt.lastRun.exit !== undefined ? ` · kode keluar ${rt.lastRun.exit}` : ""}`
                       : `Berakhir dengan error setelah ${rt.lastRun.ms} ms`
                     : "Environment siap"}
+              {kind === "mysql" && <span className="float-right">{rt.activeDb ? `Database aktif: ${rt.activeDb}` : "Belum ada database aktif"}</span>}
             </p>
           </div>
         )}
@@ -200,8 +201,23 @@ export function RuntimePlayground({ kind }: { kind: RuntimeKind }) {
           onClick={() => setConfirmReset(true)}
           className="btn-3d rounded-xl border-2 border-slate-200 bg-white px-4 py-2.5 text-sm font-extrabold text-slate-600 shadow-[0_3px_0_#e2e8f0] hover:bg-slate-50"
         >
-          Atur ulang
+          {kind === "mysql" ? "Atur ulang kode" : "Atur ulang"}
         </button>
+        {kind === "mysql" && (
+          <button
+            onClick={() => {
+              sfx.click();
+              rt.resetDb();
+            }}
+            disabled={rt.status !== "ready"}
+            title="Hapus semua database dan tabel, lalu mulai dari awal"
+            className={`btn-3d rounded-xl border-2 px-4 py-2.5 text-sm font-extrabold ${
+              rt.status === "ready" ? "border-rose-200 bg-white text-rose-600 shadow-[0_3px_0_#fecdd3] hover:bg-rose-50" : "border-slate-200 bg-slate-100 text-slate-400 shadow-[0_3px_0_#e2e8f0]"
+            }`}
+          >
+            Reset database
+          </button>
+        )}
         <span className="text-xs font-semibold text-slate-400">Ctrl/⌘ + Enter</span>
       </div>
 

@@ -66,10 +66,13 @@ int main() {
     return 0;
 }
 `,
-  mysql: `CREATE DATABASE sekolah;
+  mysql: `-- Database dan tabel tersimpan setelah dijalankan.
+-- Setelah itu, ganti isi editor dengan query lain (SELECT, UPDATE, dll.)
+-- tanpa membuat tabel lagi. Klik "Reset database" untuk mulai dari awal.
+CREATE DATABASE IF NOT EXISTS sekolah;
 USE sekolah;
 
-CREATE TABLE siswa (
+CREATE TABLE IF NOT EXISTS siswa (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nama VARCHAR(50) NOT NULL,
   umur INT

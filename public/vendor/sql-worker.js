@@ -3,12 +3,15 @@
  *
  * Mesin: sql.js (SQLite yang dikompilasi ke WebAssembly), BUKAN server MySQL asli. Sintaks MySQL yang umum dipelajari
  * diterjemahkan ke SQLite, dan keluarannya diformat seperti klien `mysql` (tabel ASCII, "Query OK", pesan ERROR).
- * Setiap kali Jalankan ditekan, skrip dijalankan dari awal pada database kosong (database dan tabel tidak dibawa ke
- * eksekusi berikutnya). Eksekusi berhenti di error pertama, seperti klien mysql yang menjalankan skrip.
+ * Sesi bersifat tetap: database, tabel, data, dan database aktif (USE) bertahan di antara eksekusi sampai pemain
+ * mengirim "reset" (atau worker dimuat ulang). Jadi tabel cukup dibuat sekali, lalu query berikutnya bisa langsung
+ * dijalankan. Eksekusi berhenti di error pertama, seperti klien mysql yang menjalankan skrip; pernyataan sebelum
+ * error tetap berlaku.
  *
- * Pesan masuk : {type:"init", indexURL} | {type:"run", id, code}
+ * Pesan masuk : {type:"init", indexURL} | {type:"run", id, code} | {type:"reset", id}
  * Pesan keluar: {type:"stage", stage:"download"|"init"} | {type:"ready"} | {type:"fatal", message}
- *               {type:"out", id, text, stream:"out"|"in"} | {type:"done", id} | {type:"error", id, message}
+ *               {type:"out", id, text, stream:"out"|"in"} | {type:"done", id, db} | {type:"error", id, message, db}
+ *               `db` = nama database aktif saat ini (atau null).
  *
  * `indexURL` adalah folder tempat sql-wasm.js dan sql-wasm.wasm berada (CDN npm jsDelivr, versi dikunci).
  */
@@ -676,7 +679,7 @@ function runOne(sess, stmtText) {
   return execQuery(sess, db, translateGeneric(stmtText));
 }
 
-function runScript(code, id) {
+function newSession() {
   var sess = {
     dbs: {},
     types: {},
@@ -689,6 +692,35 @@ function runScript(code, id) {
       return sess.scratch;
     },
   };
+  return sess;
+}
+
+function closeSession(sess) {
+  Object.keys(sess.dbs).forEach(function (k) {
+    try {
+      sess.dbs[k].close();
+    } catch (e) {}
+  });
+  if (sess.scratch) {
+    try {
+      sess.scratch.close();
+    } catch (e) {}
+  }
+}
+
+/** Sesi yang hidup sepanjang worker, supaya data bertahan di antara eksekusi. */
+var session = null;
+
+function resetSession(id) {
+  if (session) closeSession(session);
+  session = newSession();
+  post({ type: "out", id: id, text: "Database direset: semua database dan tabel dihapus.\n", stream: "out" });
+  post({ type: "done", id: id, db: null });
+}
+
+function runScript(code, id) {
+  if (!session) session = newSession();
+  var sess = session;
   var statements = splitStatements(code);
   var buf = "";
   var flush = function (stream) {
@@ -715,20 +747,10 @@ function runScript(code, id) {
       }
     }
   } finally {
-    Object.keys(sess.dbs).forEach(function (k) {
-      try {
-        sess.dbs[k].close();
-      } catch (e) {}
-    });
-    if (sess.scratch) {
-      try {
-        sess.scratch.close();
-      } catch (e) {}
-    }
+    flush();
   }
-  flush();
-  if (failure) post({ type: "error", id: id, message: failure + "\n" });
-  else post({ type: "done", id: id });
+  if (failure) post({ type: "error", id: id, message: failure + "\n", db: sess.currentDb });
+  else post({ type: "done", id: id, db: sess.currentDb });
 }
 
 self.onmessage = function (e) {
@@ -754,6 +776,10 @@ self.onmessage = function (e) {
     } catch (err) {
       post({ type: "fatal", message: String((err && err.message) || err) });
     }
+    return;
+  }
+  if (m.type === "reset") {
+    resetSession(m.id);
     return;
   }
   if (m.type === "run") {
